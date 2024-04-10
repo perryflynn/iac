@@ -1,6 +1,6 @@
 ---
 - name: Setup my old retired laptop
-  hosts: all
+  hosts: archiso
 
   tasks:
 
@@ -68,7 +68,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K /mnt base linux linux-firmware
+          pacstrap -K /mnt base linux linux-firmware ansible
 
     - name: Run genfstab
       shell:
