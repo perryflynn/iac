@@ -94,6 +94,7 @@
 
     - name: Mount proc
       mount:
+        src: none
         path: /mnt/proc
         fstype: proc
         state: ephemeral
