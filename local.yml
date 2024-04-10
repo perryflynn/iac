@@ -26,7 +26,7 @@
         number: 1
         name: biosboot-svrlsiac
         flags: [ bios_grub ]
-        part_end: 100MiB
+        part_end: 10MiB
         state: present
 
     - name: Create root partition
@@ -35,7 +35,7 @@
         label: gpt
         number: 2
         name: root-svrlsiac
-        part_start: 100MiB
+        part_start: 10MiB
         part_end: 100%
         state: present
 
