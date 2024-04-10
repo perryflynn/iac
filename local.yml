@@ -47,6 +47,7 @@
     - name: Ensure root partition is unmounted
       mount:
         src: /dev/disk/by-partlabel/root-svrlsiac
+        path: /mnt
         state: unmounted
 
     - name: Format root partition
