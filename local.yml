@@ -2,9 +2,6 @@
 - name: Setup my old retired laptop
   hosts: all
 
-  vars:
-    disk: /dev/sda
-
   tasks:
 
     - name: add hosts to inventory groups
