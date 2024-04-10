@@ -31,5 +31,6 @@
         number: 2
         name: swap
         fs_type: linux-swap
+        part_start: -8GiB
         part_end: 100%
         state: present
