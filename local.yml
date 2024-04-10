@@ -4,37 +4,43 @@
 
   tasks:
 
-    - name: add hosts to inventory groups
-      add_host:
-        name: "{{ inventory_hostname }}"
-      changed_when: False
+    - name: Set timezone
+      timezone:
+        name: Europe/Berlin
+
+    - name: Set locale
+      locale_gen:
+        name: en_US.UTF-8
 
     - name: Install required packages
       package:
-        name: parted
+        name: "{{item}}"
+      loop:
+        - parted
+        - bash
 
-    - name: Create swap partition
-      parted:
-        device: "{{disk}}"
-        label: gpt
-        number: 1
-        name: swap-svrlsiac
-        part_end: 8GiB
-        state: present
+    # - name: Create swap partition
+    #   parted:
+    #     device: "{{disk}}"
+    #     label: gpt
+    #     number: 1
+    #     name: swap-svrlsiac
+    #     part_end: 8GiB
+    #     state: present
 
-    - name: Format swap partition
-      filesystem:
-        dev: /dev/disk/by-partlabel/swap-svrlsiac
-        fstype: swap
-        force: true
+    # - name: Format swap partition
+    #   filesystem:
+    #     dev: /dev/disk/by-partlabel/swap-svrlsiac
+    #     fstype: swap
+    #     force: true
 
     - name: Create root partition
       parted:
         device: "{{disk}}"
         label: gpt
-        number: 2
+        number: 1
         name: root-svrlsiac
-        part_start: 8GiB
+        #part_start: 8GiB
         part_end: 100%
         state: present
 
@@ -50,3 +56,22 @@
         path: /mnt
         fstype: ext4
         state: ephemeral
+
+    - name: Run pacstrap
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          pacstrap -K /mnt base linux linux-firmware
+
+    - name: Run genfstab
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          genfstab -U /mnt >> /mnt/etc/fstab
+
+- name: Continue setup in chroot
+  hosts: /mnt
+
+  tasks: []
