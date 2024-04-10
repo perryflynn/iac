@@ -83,7 +83,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K /mnt base linux linux-firmware ansible bash
+          pacstrap -K /mnt base linux linux-firmware ansible bash grub
 
     - name: Run genfstab
       shell:
@@ -175,10 +175,6 @@
       user:
         name: root
         password: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
-
-    - name: Install grub
-      package:
-        name: grub
 
     - name: Install bootloader to MBR
       shell:
