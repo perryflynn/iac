@@ -39,8 +39,6 @@
         part_end: 100%
         state: present
 
-    - fail:
-
     - name: Ensure proc unmounted
       mount:
         path: /mnt/proc
