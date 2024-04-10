@@ -13,24 +13,26 @@
       package:
         name: parted
 
-    - name: Create root partition
-      parted:
-        device: "{{disk}}"
-        label: gpt
-        number: 1
-        name: root
-        flags: [ boot ]
-        fs_type: ext4
-        part_end: -8GiB
-        state: present
-
     - name: Create swap partition
       parted:
         device: "{{disk}}"
         label: gpt
-        number: 2
+        part_type: primary
+        number: 1
         name: swap
         fs_type: linux-swap
-        part_start: -8GiB
+        part_end: 8GiB
+        state: present
+
+    - name: Create root partition
+      parted:
+        device: "{{disk}}"
+        label: gpt
+        part_type: primary
+        number: 2
+        name: root
+        flags: [ boot ]
+        fs_type: ext4
+        part_start: 8GiB
         part_end: 100%
         state: present
