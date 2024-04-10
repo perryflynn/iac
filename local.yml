@@ -48,4 +48,5 @@
       mount:
         src: /dev/disk/by-partlabel/root-svrlsiac
         path: /mnt
+        fstype: ext4
         state: ephemeral
