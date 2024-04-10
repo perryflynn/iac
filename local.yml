@@ -23,6 +23,7 @@
         fs_type: linux-swap
         part_end: 8GiB
         state: present
+      register: swappart
 
     - name: Create root partition
       parted:
@@ -36,3 +37,10 @@
         part_start: 8GiB
         part_end: 100%
         state: present
+      register: rootpart
+
+    - debug:
+        var: swappart
+
+    - debug:
+        var: rootpart
