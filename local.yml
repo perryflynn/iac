@@ -1,0 +1,182 @@
+---
+- name: Setup my old retired laptop
+  hosts: archiso
+
+  tasks:
+
+    - name: Set timezone
+      timezone:
+        name: Europe/Berlin
+
+    - name: Set locale
+      locale_gen:
+        name: en_US.UTF-8
+
+    - name: Install required packages
+      package:
+        name: "{{item}}"
+      loop:
+        - parted
+        - bash
+
+    - name: Create BIOS boot partition
+      parted:
+        device: "{{disk}}"
+        label: gpt
+        number: 1
+        name: biosboot-svrlsiac
+        flags: [ bios_grub ]
+        part_end: 10MiB
+        state: present
+
+    - name: Create root partition
+      parted:
+        device: "{{disk}}"
+        label: gpt
+        number: 2
+        name: root-svrlsiac
+        part_start: 10MiB
+        part_end: 100%
+        state: present
+
+    - name: Ensure proc unmounted
+      mount:
+        path: /mnt/proc
+        state: unmounted
+
+    - name: Ensure sys unmounted
+      mount:
+        path: /mnt/sys
+        state: unmounted
+
+    - name: Ensure dev unmounted
+      mount:
+        path: /mnt/dev
+        state: unmounted
+
+    - name: Ensure root partition is unmounted
+      mount:
+        src: /dev/disk/by-partlabel/root-svrlsiac
+        path: /mnt
+        state: unmounted
+
+    - name: Format root partition
+      filesystem:
+        dev: /dev/disk/by-partlabel/root-svrlsiac
+        fstype: ext4
+        force: true
+
+    - name: Mount root partition
+      mount:
+        src: /dev/disk/by-partlabel/root-svrlsiac
+        path: /mnt
+        fstype: ext4
+        state: ephemeral
+
+    - name: Run pacstrap
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          pacstrap -K /mnt base linux linux-firmware ansible bash grub
+
+    - name: Run genfstab
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          genfstab -U /mnt >> /mnt/etc/fstab
+
+    - name: Mount proc
+      mount:
+        src: none
+        path: /mnt/proc
+        fstype: proc
+        state: ephemeral
+
+    - name: Mount sys
+      mount:
+        path: /mnt/sys
+        src: /sys
+        opts: bind
+        state: ephemeral
+        fstype: none
+
+    - name: Mount dev
+      mount:
+        path: /mnt/dev
+        src: /dev
+        opts: bind
+        state: ephemeral
+        fstype: none
+
+- name: Continue setup in chroot
+  hosts: /mnt
+
+  tasks:
+
+    - name: Set timezone
+      file:
+        src: /usr/share/zoneinfo/Europe/Berlin
+        dest: /etc/localtime
+        owner: root
+        group: root
+        state: link
+
+    - name: Run hwclock
+      shell:
+        executable: /bin/bash
+        cmd: 'hwclock --systohc'
+
+    - name: Enable locales
+      ansible.builtin.lineinfile:
+        path: /etc/locale.gen
+        regexp: '^#?en_US.UTF-8 UTF-8'
+        line: en_US.UTF-8 UTF-8
+
+    - name: Run locale-gen
+      shell:
+        executable: /bin/bash
+        cmd: 'locale-gen'
+
+    - name: Create locale.conf
+      copy:
+        dest: /etc/locale.conf
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          LANG=en_US.UTF-8
+
+    - name: Create vconsole.conf
+      copy:
+        dest: /etc/vconsole.conf
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          KEYMAP=de-latin1
+
+    - name: Create hostname file
+      copy:
+        dest: /etc/hostname
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          mydemoarch
+
+    - name: Set root password
+      user:
+        name: root
+        password: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
+
+    - name: Install bootloader to MBR
+      shell:
+        executable: /bin/bash
+        cmd: 'grub-install --target=i386-pc /dev/sda'
+
+    - name: Generate GRUB config
+      shell:
+        executable: /bin/bash
+        cmd: 'grub-mkconfig -o /boot/grub/grub.cfg'

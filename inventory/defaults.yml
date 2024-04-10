@@ -1,0 +1,7 @@
+all:
+  hosts:
+    archiso:
+      disk: /dev/sda
+
+    /mnt:
+      ansible_connection: chroot
