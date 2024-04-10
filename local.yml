@@ -175,3 +175,8 @@
       shell:
         executable: /bin/bash
         cmd: 'grub-install --target=i386-pc /dev/sda'
+
+    - name: Generate GRUB config
+      shell:
+        executable: /bin/bash
+        cmd: 'grub-mkconfig -o /boot/grub/grub.cfg'
