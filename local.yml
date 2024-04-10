@@ -44,6 +44,11 @@
         part_end: 100%
         state: present
 
+    - name: Ensure root partition is unmounted
+      mount:
+        src: /dev/disk/by-partlabel/root-svrlsiac
+        state: unmounted
+
     - name: Format root partition
       filesystem:
         dev: /dev/disk/by-partlabel/root-svrlsiac
