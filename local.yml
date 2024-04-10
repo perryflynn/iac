@@ -43,3 +43,9 @@
         dev: /dev/disk/by-partlabel/root-svrlsiac
         fstype: ext4
         force: true
+
+    - name: Mount root partition
+      mount:
+        src: /dev/disk/by-partlabel/root-svrlsiac
+        path: /mnt
+        state: ephemeral
