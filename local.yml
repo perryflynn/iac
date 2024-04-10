@@ -30,6 +30,6 @@
         label: gpt
         number: 2
         name: swap
-        fs_type: swap
+        fs_type: linux-swap
         part_end: 100%
         state: present
