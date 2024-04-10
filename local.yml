@@ -13,15 +13,10 @@
       package:
         name: parted
 
-    - name: Initialize partition table
-      parted:
-        device: "{{disk}}"
-        label: gpt
-        state: present
-
     - name: Create root partition
       parted:
         device: "{{disk}}"
+        label: gpt
         number: 1
         name: root
         flags: [ boot ]
@@ -32,6 +27,7 @@
     - name: Create swap partition
       parted:
         device: "{{disk}}"
+        label: gpt
         number: 2
         name: swap
         fs_type: swap
