@@ -25,7 +25,7 @@
         label: gpt
         number: 1
         name: biosboot-svrlsiac
-        fs_type: ef02
+        flags: [ bios_grub ]
         part_end: 100MiB
         state: present
 
