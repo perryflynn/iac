@@ -19,28 +19,23 @@
         - parted
         - bash
 
-    # - name: Create swap partition
-    #   parted:
-    #     device: "{{disk}}"
-    #     label: gpt
-    #     number: 1
-    #     name: swap-svrlsiac
-    #     part_end: 8GiB
-    #     state: present
-
-    # - name: Format swap partition
-    #   filesystem:
-    #     dev: /dev/disk/by-partlabel/swap-svrlsiac
-    #     fstype: swap
-    #     force: true
+    - name: Create BIOS boot partition
+      parted:
+        device: "{{disk}}"
+        label: gpt
+        number: 1
+        name: biosboot-svrlsiac
+        fs_type: ef02
+        part_end: 100MiB
+        state: present
 
     - name: Create root partition
       parted:
         device: "{{disk}}"
         label: gpt
-        number: 1
+        number: 2
         name: root-svrlsiac
-        #part_start: 8GiB
+        part_start: 100MiB
         part_end: 100%
         state: present
 
