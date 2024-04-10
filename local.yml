@@ -1,0 +1,37 @@
+---
+- name: Setup my old retired laptop
+  hosts: all
+
+  vars:
+    disk: /dev/sda
+
+  tasks:
+
+    - name: Install required packages
+      package:
+        name: parted
+
+    - name: Initialize partition table
+      parted:
+        device: "{{disk}}"
+        label: gpt
+        state: present
+
+    - name: Create root partition
+      parted:
+        device: "{{disk}}"
+        number: 1
+        name: root
+        flags: [ boot ]
+        fs_type: ext4
+        part_end: -8GiB
+        state: present
+
+    - name: Create swap partition
+      parted:
+        device: "{{disk}}"
+        number: 2
+        name: swap
+        fs_type: swap
+        part_end: 100%
+        state: present
