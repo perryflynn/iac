@@ -17,30 +17,29 @@
       parted:
         device: "{{disk}}"
         label: gpt
-        part_type: primary
         number: 1
-        name: swap
-        fs_type: linux-swap
+        name: swap-svrlsiac
         part_end: 8GiB
         state: present
-      register: swappart
+
+    - name: Format swap partition
+      filesystem:
+        dev: /dev/disk/by-partlabel/swap-svrlsiac
+        fstype: swap
+        force: true
 
     - name: Create root partition
       parted:
         device: "{{disk}}"
         label: gpt
-        part_type: primary
         number: 2
-        name: root
-        flags: [ boot ]
-        fs_type: ext4
+        name: root-svrlsiac
         part_start: 8GiB
         part_end: 100%
         state: present
-      register: rootpart
 
-    - debug:
-        var: swappart
-
-    - debug:
-        var: rootpart
+    - name: Format root partition
+      filesystem:
+        dev: /dev/disk/by-partlabel/root-svrlsiac
+        fstype: ext4
+        force: true
