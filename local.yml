@@ -44,17 +44,17 @@
         name: chrootsetup
         tasks_from: uninstall
       vars:
-        chrootdevice: /dev/disk/by-partlabel/root-svrlsiac
+        chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
 
     - name: Format root partition
       filesystem:
-        dev: /dev/disk/by-partlabel/root-svrlsiac
+        dev: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
         fstype: ext4
         force: true
 
     - name: Mount root partition
       mount:
-        src: /dev/disk/by-partlabel/root-svrlsiac
+        src: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
         path: "{{chrootmountpoint}}"
         fstype: ext4
         state: ephemeral
@@ -78,7 +78,7 @@
         name: chrootsetup
         tasks_from: install
       vars:
-        chrootdevice: /dev/disk/by-partlabel/root-svrlsiac
+        chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
 
 - name: Continue setup in chroot
   hosts: /mnt
