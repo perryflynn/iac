@@ -6,11 +6,11 @@
 
     - name: Set timezone
       timezone:
-        name: Europe/Berlin
+        name: "{{timezone}}"
 
     - name: Set locale
       locale_gen:
-        name: en_US.UTF-8
+        name: "{{locale}}"
 
     - name: Install required packages
       package:
@@ -21,7 +21,7 @@
 
     - name: Create BIOS boot partition
       parted:
-        device: "{{disk}}"
+        device: "{{diskdev}}"
         label: gpt
         number: 1
         name: biosboot-svrlsiac
@@ -31,7 +31,7 @@
 
     - name: Create root partition
       parted:
-        device: "{{disk}}"
+        device: "{{diskdev}}"
         label: gpt
         number: 2
         name: root-svrlsiac
@@ -39,26 +39,12 @@
         part_end: 100%
         state: present
 
-    - name: Ensure proc unmounted
-      mount:
-        path: /mnt/proc
-        state: unmounted
-
-    - name: Ensure sys unmounted
-      mount:
-        path: /mnt/sys
-        state: unmounted
-
-    - name: Ensure dev unmounted
-      mount:
-        path: /mnt/dev
-        state: unmounted
-
-    - name: Ensure root partition is unmounted
-      mount:
-        src: /dev/disk/by-partlabel/root-svrlsiac
-        path: /mnt
-        state: unmounted
+    - name: Ensure chroot is unmounted
+      include_role:
+        name: chrootsetup
+        tasks_from: uninstall
+      vars:
+        chrootdevice: /dev/disk/by-partlabel/root-svrlsiac
 
     - name: Format root partition
       filesystem:
@@ -69,7 +55,7 @@
     - name: Mount root partition
       mount:
         src: /dev/disk/by-partlabel/root-svrlsiac
-        path: /mnt
+        path: "{{chrootmountpoint}}"
         fstype: ext4
         state: ephemeral
 
@@ -78,37 +64,21 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K /mnt base linux linux-firmware ansible bash grub networkmanager openssh
+          pacstrap -K {{chrootmountpoint}} base linux linux-firmware ansible bash grub networkmanager openssh
 
     - name: Run genfstab
       shell:
         chdir: /
         executable: /bin/bash
         cmd: |
-          genfstab -U /mnt >> /mnt/etc/fstab
+          genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
-    - name: Mount proc
-      mount:
-        src: none
-        path: /mnt/proc
-        fstype: proc
-        state: ephemeral
-
-    - name: Mount sys
-      mount:
-        path: /mnt/sys
-        src: /sys
-        opts: bind
-        state: ephemeral
-        fstype: none
-
-    - name: Mount dev
-      mount:
-        path: /mnt/dev
-        src: /dev
-        opts: bind
-        state: ephemeral
-        fstype: none
+    - name: Ensure chroot is mounted
+      include_role:
+        name: chrootsetup
+        tasks_from: install
+      vars:
+        chrootdevice: /dev/disk/by-partlabel/root-svrlsiac
 
 - name: Continue setup in chroot
   hosts: /mnt
@@ -117,7 +87,7 @@
 
     - name: Set timezone
       file:
-        src: /usr/share/zoneinfo/Europe/Berlin
+        src: /usr/share/zoneinfo/{{timeregion}}/{{timecity}}
         dest: /etc/localtime
         owner: root
         group: root
@@ -131,8 +101,8 @@
     - name: Enable locales
       ansible.builtin.lineinfile:
         path: /etc/locale.gen
-        regexp: '^#?en_US.UTF-8 UTF-8'
-        line: en_US.UTF-8 UTF-8
+        regexp: '^#?{{localelong}}'
+        line: '{{localelong}}'
 
     - name: Run locale-gen
       shell:
@@ -146,7 +116,7 @@
         group: root
         mode: u=rw,go=r
         content: |
-          LANG=en_US.UTF-8
+          LANG={{locale}}
 
     - name: Create vconsole.conf
       copy:
@@ -155,7 +125,7 @@
         group: root
         mode: u=rw,go=r
         content: |
-          KEYMAP=de-latin1
+          KEYMAP={{vconsolekeymap}}
 
     - name: Create hostname file
       copy:
@@ -164,12 +134,12 @@
         group: root
         mode: u=rw,go=r
         content: |
-          mydemoarch
+          {{hostname}}
 
     - name: Set root password
       user:
         name: root
-        password: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
+        password: '{{rootpassword}}'
 
     - name: Install bootloader to MBR
       shell:

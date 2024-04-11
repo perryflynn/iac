@@ -1,0 +1,4 @@
+---
+# roles/chrootsetup/defaults/main.yml
+
+chrootmountpoint: ''
