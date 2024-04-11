@@ -78,7 +78,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K /mnt base linux linux-firmware ansible bash grub
+          pacstrap -K /mnt base linux linux-firmware ansible bash grub networkmanager openssh
 
     - name: Run genfstab
       shell:
@@ -180,3 +180,13 @@
       shell:
         executable: /bin/bash
         cmd: 'grub-mkconfig -o /boot/grub/grub.cfg'
+
+    - name: Enable networkmanager
+      systemd_service:
+        enabled: true
+        name: NetworkManager
+
+    - name: Enable networkmanager
+      systemd_service:
+        enabled: true
+        name: sshd
