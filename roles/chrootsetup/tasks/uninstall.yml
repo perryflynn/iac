@@ -5,7 +5,7 @@
   assert:
     that:
       - chrootmountpoint is directory
-      - chrootdevice is file
+      - chrootdevice is link or chrootdevice is file
 
 - name: Ensure proc unmounted
   mount:
