@@ -106,13 +106,6 @@
           chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages.debian|join(' ')}}"
       when: flavor == 'debian'
 
-    - name: Run genfstab
-      shell:
-        chdir: /
-        executable: /bin/bash
-        cmd: |
-          genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
-
     - name: Ensure chroot is mounted
       include_role:
         name: chrootsetup
@@ -121,6 +114,13 @@
         chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
+
+    - name: Run genfstab
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
 - name: Continue setup in chroot
   hosts: /mnt
