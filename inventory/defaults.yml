@@ -27,17 +27,20 @@ all:
             hostname: mydemoarch
             rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
             additionalpackages:
-              # - ansible
-              # - networkmanager
-              # - openssh
-              # - git
-              # - inetutils
-              - ansible
-              - network-manager
-              - openssh-server
-              - git
-              - net-tools
-              - dnsutils
+              archlinux:
+                - ansible
+                - networkmanager
+                - openssh
+                - git
+                - inetutils
+              debian:
+                - ansible
+                - network-manager
+                - openssh-server
+                - git
+                - net-tools
+                - dnsutils
+                - default-dbus-system-bus
           hosts:
             archiso:
             /mnt:

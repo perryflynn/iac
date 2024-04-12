@@ -101,7 +101,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr {{additionalpackages|join(' ')}}
+          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr {{additionalpackages.archlinux|join(' ')}}
       when: flavor == 'archlinux'
 
     - name: Run debootstrap for Debian
@@ -109,7 +109,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --components=main,non-free,non-free-firmware --arch amd64 --include={{additionalpackages|join(',')}} bookworm {{chrootmountpoint}} http://deb.debian.org/debian/
+          debootstrap --variant=minbase --resolve-deps --arch amd64 bookworm --include={{additionalpackages.debian|join(',')}} {{chrootmountpoint}} http://deb.debian.org/debian/
       when: flavor == 'debian'
 
     - name: Run genfstab
