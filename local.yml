@@ -99,7 +99,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K {{chrootmountpoint}} base linux linux-firmware {{additionalpackages|join(' ')}}
+          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr {{additionalpackages|join(' ')}}
 
     - name: Run genfstab
       shell:
