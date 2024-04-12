@@ -22,6 +22,8 @@
         name: "{{item}}"
       loop:
         - parted
+        - dosfstools
+        - e2fsprogs
         - bash
 
     - name: Create BIOS boot partition
