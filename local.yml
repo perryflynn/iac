@@ -109,7 +109,8 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --resolve-deps --arch amd64 --include={{additionalpackages.debian|join(',')}} bookworm {{chrootmountpoint}} http://deb.debian.org/debian/
+          debootstrap --variant=minbase --arch amd64 bookworm {{chrootmountpoint}} http://deb.debian.org/debian/
+          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages.debian|join(' ')}}"
       when: flavor == 'debian'
 
     - name: Run genfstab
