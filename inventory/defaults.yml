@@ -32,7 +32,7 @@ all:
               # - openssh
               # - git
               # - inetutils
-              - ansible-core
+              - ansible
               - network-manager
               - openssh-server
               - git
