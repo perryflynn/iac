@@ -26,7 +26,7 @@
   mount:
     src: "{{efibootdevice}}"
     path: "{{chrootmountpoint}}/efi"
-    fstype: fat32
+    fstype: vfat
     state: ephemeral
   when: efibootdevice != ''
 
