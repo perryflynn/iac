@@ -3,3 +3,4 @@
 
 chrootmountpoint: ''
 chrootdevice: ''
+efibootdevice: ''

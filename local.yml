@@ -4,6 +4,11 @@
 
   tasks:
 
+    - name: Check parameters
+      assert:
+        that:
+          bootmode == 'uefi' or bootmode == 'bios'
+
     - name: Set timezone
       timezone:
         name: "{{timezone}}"
@@ -28,6 +33,18 @@
         flags: [ bios_grub ]
         part_end: 10MiB
         state: present
+      when: bootmode == 'bios'
+
+    - name: Create UEFI boot partition
+      parted:
+        device: "{{diskdev}}"
+        label: gpt
+        number: 1
+        name: uefiboot-svrlsiac
+        flags: [ esp ]
+        part_end: 512MiB
+        state: present
+      when: bootmode == 'uefi'
 
     - name: Create root partition
       parted:
@@ -45,12 +62,20 @@
         tasks_from: uninstall
       vars:
         chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
+        efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
 
     - name: Format root partition
       filesystem:
         dev: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
         fstype: ext4
         force: true
+
+    - name: Format UEFI boot partition
+      filesystem:
+        dev: "{{'/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath }}"
+        fstype: fat32
+        force: true
+      when: bootmode == 'uefi'
 
     - name: Mount root partition
       mount:
@@ -79,6 +104,7 @@
         tasks_from: install
       vars:
         chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
+        efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
 
 - name: Continue setup in chroot
   hosts: /mnt
@@ -141,10 +167,17 @@
         name: root
         password: '{{rootpassword}}'
 
-    - name: Install bootloader to MBR
+    - name: Install bootloader in BIOS mode
       shell:
         executable: /bin/bash
-        cmd: 'grub-install --target=i386-pc /dev/sda'
+        cmd: 'grub-install --target=i386-pc {{diskdev}}'
+      when: bootmode == 'bios'
+
+    - name: Install bootloader in UEFI mode
+      shell:
+        executable: /bin/bash
+        cmd: 'grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB'
+      when: bootmode == 'uefi'
 
     - name: Generate GRUB config
       shell:

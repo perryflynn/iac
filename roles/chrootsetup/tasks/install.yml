@@ -13,6 +13,23 @@
     fstype: ext4
     state: ephemeral
 
+- name: Ensure efi mount point
+  file:
+    path: "{{chrootmountpoint}}/efi"
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+    state: directory
+  when: efibootdevice != ''
+
+- name: Mount UEFI boot partition
+  mount:
+    src: "{{efibootdevice}}"
+    path: "{{chrootmountpoint}}/efi"
+    fstype: fat32
+    state: ephemeral
+  when: efibootdevice != ''
+
 - name: Mount proc
   mount:
     src: none

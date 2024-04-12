@@ -21,6 +21,7 @@ all:
         archlinux:
           vars:
             diskdev: /dev/sda
+            bootmode: uefi
             chrootmountpoint: /mnt
             hostname: mydemoarch
             rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
