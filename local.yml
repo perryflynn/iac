@@ -31,7 +31,7 @@
         number: 1
         name: biosboot-svrlsiac
         flags: [ bios_grub ]
-        part_end: 10MiB
+        part_end: 8MiB
         state: present
       when: bootmode == 'bios'
 
@@ -52,7 +52,7 @@
         label: gpt
         number: 2
         name: root-svrlsiac
-        part_start: 10MiB
+        part_start: "{{ '512MiB' if bootmode == 'uefi' else '8MiB' }}"
         part_end: 100%
         state: present
 
