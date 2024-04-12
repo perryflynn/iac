@@ -87,3 +87,19 @@
               set background=dark
               syntax on
               set mouse=
+
+    - name: Desktop Tools
+      block:
+
+        - name: Install Desktop Tools
+          package:
+            name:
+              - firefox
+              - code
+              - element-desktop
+              - keepass
+              - bitwarden
+              - gimp
+              - vlc
+              - virt-viewer
+              - nextcloud-client
