@@ -15,7 +15,7 @@
 
 - name: Ensure efi mount point
   file:
-    path: "{{chrootmountpoint}}/efi"
+    path: "{{chrootmountpoint}}{{efipath}}"
     owner: root
     group: root
     mode: u=rwx,go=rx
@@ -25,7 +25,7 @@
 - name: Mount UEFI boot partition
   mount:
     src: "{{efibootdevice}}"
-    path: "{{chrootmountpoint}}/efi"
+    path: "{{chrootmountpoint}}{{efipath}}"
     fstype: vfat
     state: ephemeral
   when: efibootdevice != ''

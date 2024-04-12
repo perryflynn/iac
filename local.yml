@@ -67,20 +67,13 @@
       vars:
         chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
+        efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
     - name: Format root partition
       filesystem:
         dev: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
         fstype: ext4
         force: true
-
-    # - name: Format UEFI boot partition
-    #   shell:
-    #     executable: /bin/bash
-    #     cmd: |
-    #       # TODO: ansible filesystem task is not supporting fat/fat32
-    #       mkfs.fat -F 32 {{'/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath }}
-    #   when: bootmode == 'uefi'
 
     - name: Format UEFI boot partition
       filesystem:
@@ -127,6 +120,7 @@
       vars:
         chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
+        efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
 - name: Continue setup in chroot
   hosts: /mnt
@@ -222,7 +216,9 @@
     - name: Install bootloader in BIOS mode
       shell:
         executable: /bin/bash
-        cmd: 'grub-install --target=i386-pc {{diskdev}}'
+        cmd: |
+          grub-install --target=i386-pc {{diskdev}}
+          grub-mkconfig -o /boot/grub/grub.cfg
       when: bootmode == 'bios'
 
     - name: Install bootloader in UEFI mode for Arch Linux
@@ -230,13 +226,15 @@
         executable: /bin/bash
         cmd: |
           grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --no-nvram --removable
+          grub-mkconfig -o /boot/grub/grub.cfg
       when: flavor == 'archlinux' and bootmode == 'uefi'
 
     - name: Install bootloader in UEFI mode for Debian
       shell:
         executable: /bin/bash
         cmd: |
-          grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=debian --recheck --no-nvram --removable
+          grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --no-nvram --removable
+          update-grub
       environment:
         PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       when: flavor == 'debian' and bootmode == 'uefi'

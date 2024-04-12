@@ -23,7 +23,7 @@
 
 - name: Ensure UEFI boot partition unmounted
   mount:
-    path: "{{chrootmountpoint}}/efi"
+    path: "{{chrootmountpoint}}{{efipath}}"
     state: unmounted
   when: efibootdevice != ''
 
