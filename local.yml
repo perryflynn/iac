@@ -186,7 +186,7 @@
     - name: Install bootloader in UEFI mode
       shell:
         executable: /bin/bash
-        cmd: 'grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB'
+        cmd: 'grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --no-nvram --removable'
       when: bootmode == 'uefi'
 
     - name: Generate GRUB config
