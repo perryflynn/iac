@@ -27,11 +27,17 @@ all:
             hostname: mydemoarch
             rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
             additionalpackages:
-              - ansible
-              - networkmanager
-              - openssh
+              # - ansible
+              # - networkmanager
+              # - openssh
+              # - git
+              # - inetutils
+              - ansible-core
+              - network-manager
+              - openssh-server
               - git
-              - inetutils
+              - net-tools
+              - dnsutils
           hosts:
             archiso:
             /mnt:
