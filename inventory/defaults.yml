@@ -31,6 +31,7 @@ all:
               - networkmanager
               - openssh
               - git
+              - inetutils
           hosts:
             archiso:
             /mnt:

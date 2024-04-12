@@ -19,7 +19,7 @@
 
         - name: Let LightDM wait until graphical drivers are ready
           lineinfile:
-            path: /etc/selinux/config
+            path: /etc/lightdm/lightdm.conf
             regexp: '^#?logind-check-graphical='
             line: logind-check-graphical=true
 
