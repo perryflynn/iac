@@ -96,36 +96,28 @@
         fstype: ext4
         state: ephemeral
 
-    - name: Bootstrap Arch Linux
-      block:
-
-        - name: Run pacstrap
-          shell:
-            chdir: /
-            executable: /bin/bash
-            cmd: |
-              pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr {{additionalpackages|join(' ')}}
-
-        - name: Run genfstab
-          shell:
-            chdir: /
-            executable: /bin/bash
-            cmd: |
-              genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
-
+    - name: Run pacstrap for Arch Linux
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr {{additionalpackages|join(' ')}}
       when: flavor == 'archlinux'
 
-    - name: Bootstrap Debian
-      block:
-
-        - name: Run debootstrap
-          shell:
-            chdir: /
-            executable: /bin/bash
-            cmd: |
-              debootstrap --variant=base --arch amd64 --include={{additionalpackages|join(',')}} testing {{chrootmountpoint}} http://deb.debian.org/debian/
-
+    - name: Run debootstrap for Debian
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          debootstrap --variant=minbase --arch amd64 --include={{additionalpackages|join(',')}} testing {{chrootmountpoint}} http://deb.debian.org/debian/
       when: flavor == 'debian'
+
+    - name: Run genfstab
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
     - name: Ensure chroot is mounted
       include_role:
