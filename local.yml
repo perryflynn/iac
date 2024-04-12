@@ -75,7 +75,7 @@
     - name: Format UEFI boot partition
       filesystem:
         dev: "{{'/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath }}"
-        fstype: fat32
+        fstype: fat
         force: true
       when: bootmode == 'uefi'
 
