@@ -73,10 +73,11 @@
         force: true
 
     - name: Format UEFI boot partition
-      filesystem:
-        dev: "{{'/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath }}"
-        fstype: fat
-        force: true
+      shell:
+        executable: /bin/bash
+        cmd: |
+          # TODO: ansible filesystem task is not supporting fat/fat32
+          mkfs.fat -F 32 {{'/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath }}
       when: bootmode == 'uefi'
 
     - name: Mount root partition
