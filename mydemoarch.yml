@@ -16,20 +16,13 @@
               - lightdm-gtk-greeter
               - xfce4
               - xfce4-goodies
-              - ttf-dejavu
-              - ttf-liberation
-              - ttf-droid
-              - ttf-symbola
-              - ttf-ubuntu-font-family
-              - ttf-roboto
+              - adobe-source-sans-fonts
+              - adobe-source-serif-fonts
               - noto-fonts
-              - noto-fonts-extra
-              - noto-fonts-cjk
-              - ttf-fira-sans
-              - ttf-fira-mono
-              - adobe-source-serif-pro-fonts
-              - adobe-source-sans-pro-fonts
-              - adobe-source-code-pro-fonts
+              - gnu-free-fonts
+              - ttf-dejavu
+              - ttf-dejavu-nerd
+              - ttf-droid
 
         - name: Let LightDM wait until graphical drivers are ready
           lineinfile:
