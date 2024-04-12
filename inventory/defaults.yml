@@ -1,5 +1,8 @@
 all:
   vars:
+    selfrepo: https://github.com/perryflynn/iac.git
+    selfbranch: dev
+
     timezone: Europe/Berlin
     timeregion: Europe
     timecity: Berlin
@@ -15,14 +18,28 @@ all:
       children:
 
         # I use Arch Linux, btw
-
         archlinux:
           vars:
             diskdev: /dev/sda
             chrootmountpoint: /mnt
             hostname: mydemoarch
             rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
+            additionalpackages:
+              - ansible
+              - bash
+              - grub
+              - networkmanager
+              - openssh
+              - git
           hosts:
             archiso:
             /mnt:
               ansible_connection: chroot
+
+    # Configure Operating Systems
+
+    configuration:
+      hosts:
+
+        # retired Thinkpad X230 Laptop
+        mydemoarch:
