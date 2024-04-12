@@ -237,6 +237,8 @@
         executable: /bin/bash
         cmd: |
           grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=debian --recheck --no-nvram --removable
+      environment:
+        PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       when: flavor == 'debian' and bootmode == 'uefi'
 
     - name: Generate GRUB config
