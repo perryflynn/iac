@@ -10,6 +10,8 @@ all:
     localelong: en_US.UTF-8 UTF-8
     vconsolekeymap: de-latin1
 
+    rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
+
   children:
 
     # Bootstrapping Operating Systems
@@ -18,43 +20,54 @@ all:
       children:
 
         # I use Arch Linux, btw
-        archlinux:
+        bootstrap-archlinux:
           vars:
             diskdev: /dev/sda
             bootmode: uefi
             flavor: archlinux
-            chrootmountpoint: /mnt
+            chrootmountpoint: /mnt/archlinux
             hostname: mydemoarch
-            rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
             additionalpackages:
-              archlinux:
-                - ansible
-                - networkmanager
-                - openssh
-                - git
-                - inetutils
-                - net-tools
-                - dnsutils
-                - curl
-                - ca-certificates
-                - gnupg
-                - iputils
-                - iproute2
-              debian:
-                - ansible
-                - network-manager
-                - openssh-server
-                - git
-                - net-tools
-                - dnsutils
-                - curl
-                - ca-certificates
-                - gnupg
-                - iputils-ping
-                - iproute2
+              - ansible
+              - networkmanager
+              - openssh
+              - git
+              - inetutils
+              - net-tools
+              - dnsutils
+              - curl
+              - ca-certificates
+              - gnupg
+              - iputils
+              - iproute2
           hosts:
-            archiso:
-            /mnt:
+            archlinuxiso:
+            /mnt/archlinux:
+              ansible_connection: chroot
+
+        # Debian is also okay
+        bootstrap-debian:
+          vars:
+            diskdev: /dev/sda
+            bootmode: uefi
+            flavor: debian
+            chrootmountpoint: /mnt/debian
+            hostname: mydemodebian
+            additionalpackages:
+              - ansible
+              - network-manager
+              - openssh-server
+              - git
+              - net-tools
+              - dnsutils
+              - curl
+              - ca-certificates
+              - gnupg
+              - iputils-ping
+              - iproute2
+          hosts:
+            debianiso:
+            /mnt/debian:
               ansible_connection: chroot
 
     # Configure Operating Systems

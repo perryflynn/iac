@@ -60,6 +60,14 @@
         part_end: 100%
         state: present
 
+    - name: Ensure chroot folder
+      file:
+        path: "{{chrootmountpoint}}"
+        owner: root
+        group: root
+        mode: u=rwx,go=rx
+        state: directory
+
     - name: Ensure chroot is unmounted
       include_role:
         name: chrootsetup
