@@ -135,6 +135,12 @@
 
   tasks:
 
+    - name: Check parameters
+      assert:
+        that:
+          - bootmode == 'uefi' or bootmode == 'bios'
+          - flavor == 'debian' or flavor == 'archlinux'
+
     - name: Configure Arch Linux System
       block:
 
@@ -266,7 +272,7 @@
     - name: Template a file, using symbolic modes (equivalent to 0644)
       template:
         src: files/svrls-ansible-apply.sh.j2
-        dest: /usr/local/sbin/svrls-ansible-apply.sh
+        dest: /usr/local/sbin/perrys-ansible-apply.sh
         owner: root
         group: root
         mode: u=rwx,g=rx,o=r
