@@ -1,0 +1,3 @@
+#!/bin/bash
+
+PYTHONUNBUFFERED=1 ansible-pull -U "{{selfrepo}}" -C "{{selfbranch}}" -l "$(uname -n)"

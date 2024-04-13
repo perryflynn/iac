@@ -1,0 +1,34 @@
+---
+# roles/chrootsetup/tasks/uninstall.yml
+
+- name: Validate parameters
+  assert:
+    that:
+      - chrootmountpoint is directory
+
+- name: Ensure proc unmounted
+  mount:
+    path: "{{chrootmountpoint}}/proc"
+    state: unmounted
+
+- name: Ensure sys unmounted
+  mount:
+    path: "{{chrootmountpoint}}/sys"
+    state: unmounted
+
+- name: Ensure dev unmounted
+  mount:
+    path: "{{chrootmountpoint}}/dev"
+    state: unmounted
+
+- name: Ensure UEFI boot partition unmounted
+  mount:
+    path: "{{chrootmountpoint}}{{efipath}}"
+    state: unmounted
+  when: efibootdevice != ''
+
+- name: Ensure root partition is unmounted
+  mount:
+    src: "{{chrootdevice}}"
+    path: "{{chrootmountpoint}}"
+    state: unmounted

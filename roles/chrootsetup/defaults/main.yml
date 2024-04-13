@@ -1,0 +1,7 @@
+---
+# roles/chrootsetup/defaults/main.yml
+
+chrootmountpoint: ''
+chrootdevice: ''
+efibootdevice: ''
+efipath: /efi

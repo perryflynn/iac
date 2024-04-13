@@ -1,0 +1,105 @@
+---
+- name: Configure my retired X230 Thinkpad
+  hosts:
+    - mydemoarch
+
+  tasks:
+
+    - name: Desktop Environment
+      block:
+
+        - name: Install Desktop Environment
+          package:
+            name:
+              - xf86-video-vmware
+              - lightdm
+              - lightdm-gtk-greeter
+              - xfce4
+              - xfce4-goodies
+              - adobe-source-sans-fonts
+              - adobe-source-serif-fonts
+              - noto-fonts
+              - gnu-free-fonts
+              - ttf-dejavu
+              - ttf-dejavu-nerd
+              - ttf-droid
+
+        - name: Let LightDM wait until graphical drivers are ready
+          lineinfile:
+            path: /etc/lightdm/lightdm.conf
+            regexp: '^#?logind-check-graphical='
+            line: logind-check-graphical=true
+
+        - name: Check if x.org config exist
+          stat:
+            path: /etc/X11/xorg.conf
+          register: xconfexist
+
+        - name: Create x.org configuration
+          shell:
+            executable: /bin/bash
+            cmd: |
+              Xorg :0 -configure
+          when: not xconfexist.stat.exists
+
+        - name: Install new x.org configuration
+          copy:
+            remote_src: true
+            src: /root/xorg.conf.new
+            dest: /etc/X11/xorg.conf
+            owner: root
+            group: root
+            mode: u=rw,go=r
+          when: not xconfexist.stat.exists
+
+        - name: Cleanup temp x.org file
+          file:
+            path: /root/xorg.conf.new
+            state: absent
+
+        - name: Enable lightdm
+          systemd_service:
+            name: lightdm
+            enabled: true
+            state: started
+
+    - name: Shell Tools
+      block:
+
+        - name: Install shell tools
+          package:
+            name:
+              - vim
+              - htop
+              - curl
+              - mc
+              - screen
+              - git
+              - ncdu
+
+        - name: Create vimrc
+          copy:
+            dest: /root/.vimrc
+            owner: root
+            group: root
+            mode: u=rw,go=-
+            content: |
+              set background=dark
+              syntax on
+              set mouse=
+
+    - name: Desktop Tools
+      block:
+
+        - name: Install Desktop Tools
+          package:
+            name:
+              - firefox
+              - code
+              - element-desktop
+              - keepass
+              - bitwarden
+              - gimp
+              - vlc
+              - virt-viewer
+              - nextcloud-client

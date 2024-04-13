@@ -1,0 +1,54 @@
+---
+# roles/chrootsetup/tasks/install.yml
+
+- name: Validate parameters
+  assert:
+    that:
+      - chrootmountpoint is directory
+
+- name: Mount root partition
+  mount:
+    src: "{{chrootdevice}}"
+    path: "{{chrootmountpoint}}"
+    fstype: ext4
+    state: ephemeral
+
+- name: Ensure efi mount point
+  file:
+    path: "{{chrootmountpoint}}{{efipath}}"
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+    state: directory
+  when: efibootdevice != ''
+
+- name: Mount UEFI boot partition
+  mount:
+    src: "{{efibootdevice}}"
+    path: "{{chrootmountpoint}}{{efipath}}"
+    fstype: vfat
+    state: ephemeral
+  when: efibootdevice != ''
+
+- name: Mount proc
+  mount:
+    src: none
+    path: "{{chrootmountpoint}}/proc"
+    fstype: proc
+    state: ephemeral
+
+- name: Mount sys
+  mount:
+    path: "{{chrootmountpoint}}/sys"
+    src: /sys
+    opts: bind
+    state: ephemeral
+    fstype: none
+
+- name: Mount dev
+  mount:
+    path: "{{chrootmountpoint}}/dev"
+    src: /dev
+    opts: bind
+    state: ephemeral
+    fstype: none
