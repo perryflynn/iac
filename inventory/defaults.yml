@@ -14,6 +14,16 @@ all:
 
   children:
 
+    isos:
+      hosts:
+        archlinuxiso:
+        debianiso:
+
+    chroots:
+      hosts:
+        /mnt/archlinux:
+        /mnt/debian:
+
     # Bootstrapping Operating Systems
 
     bootstrap:

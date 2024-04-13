@@ -1,6 +1,6 @@
 ---
 - name: Setup my old retired laptop
-  hosts: archiso
+  hosts: isos
 
   tasks:
 
@@ -131,7 +131,7 @@
           genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
 - name: Continue setup in chroot
-  hosts: /mnt
+  hosts: chroots
 
   tasks:
 
