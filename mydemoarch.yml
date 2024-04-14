@@ -67,6 +67,10 @@
       include_role:
         name: xfcesetup
 
+    - name: Install Pulseaudio
+      include_role:
+        name: pulseaudiosetup
+
     - name: Desktop Tools
       block:
 

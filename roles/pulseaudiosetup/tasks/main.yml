@@ -1,0 +1,11 @@
+---
+# roles/pulseaudiosetup/tasks/main.yml
+
+- name: Install pulseaudio
+  package:
+    name:
+      - pulseaudio
+      - pulseaudio-alsa
+      - pamixer
+      - pulsemixer
+      - pavucontrol
