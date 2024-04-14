@@ -22,7 +22,7 @@
         {% else %}
         xf86-video-vesa
         {% endif %}
-        {$ endset %}
+        {% endset %}
         {{package | trim}}
       - lightdm
       - lightdm-gtk-greeter
