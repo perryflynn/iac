@@ -102,6 +102,8 @@
           xfconf-query --channel keyboard-layout --property /Default/XkbDisable --create --type bool --set false
           xfconf-query --channel keyboard-layout --property /Default/XkbLayout --create --type string --set de,en
           xfconf-query --channel keyboard-layout --property /Default/XkbVariant --create --type string --set deadactute,
+      become: true
+      become_user: christian
       environment:
         DISPLAY: :0.0
         DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1000/bus
