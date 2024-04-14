@@ -115,6 +115,19 @@
               - virt-viewer
               - nextcloud-client
 
+    - name: Check if xfce4-sesion is active
+      shell:
+        executable: /usr/bin/bash
+        cmd: |
+          if ( pgrep -U 1000 -x xfce4-session > /dev/null 2>&1 )
+          then
+              exit 98
+          fi
+          exit 99
+      changed_when: False
+      failed_when: xfcestatus.rc not in [ 98, 99 ]
+      register: xfcestatus
+
     - name: Configure XFCE
       shell:
         executable: /usr/bin/bash
@@ -129,4 +142,5 @@
       become_user: christian
       environment:
         DISPLAY: :0.0
-        DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1000/bus
+        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
+      when: xfcestatus.rc == 98
