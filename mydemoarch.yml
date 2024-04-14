@@ -17,7 +17,7 @@
             append: true
             create_home: true
             group: "{{username}}"
-            groups: "{{ [ username ] + usergroups ] }}"
+            groups: "{{ [ username ] + usergroups }}"
             home: "/home/{{username}}"
             name: "{{username}}"
             password: "{{userpassword}}"
