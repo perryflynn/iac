@@ -5,25 +5,15 @@
   assert:
     that:
       - ansible_distribution == 'Archlinux'
+      - xorg_video_driver in [ 'amdgpu', 'intel', 'nouveau', 'vesa', 'vmware' ]
 
-- name: Install Desktop Environment
+- name: Install graphics driver
+  package:
+    name: "xf86-video-{{xorg_video_driver}}"
+
+- name: Install LightDM
   package:
     name:
-      - |
-        {% set package %}
-        {% if xorg_video_driver == 'vmware' %}
-        xf86-video-vmware
-        {% elif xorg_video_driver == 'intel' %}
-        xf86-video-intel
-        {% elif xorg_video_driver == 'amd' %}
-        xf86-video-amdgpu
-        {% elif xorg_video_driver == 'nouveau' %}
-        xf86-video-nouveau
-        {% else %}
-        xf86-video-vesa
-        {% endif %}
-        {% endset %}
-        {{package | trim}}
       - lightdm
       - lightdm-gtk-greeter
 
