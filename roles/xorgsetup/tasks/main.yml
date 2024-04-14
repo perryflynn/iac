@@ -11,6 +11,11 @@
   package:
     name: "xf86-video-{{xorg_video_driver}}"
 
+- name: Install virtualbox guest utilities
+  package:
+    name: virtualbox-guest-utils
+  when: ansible_product_name == 'VirtualBox'
+
 - name: Install LightDM
   package:
     name:
