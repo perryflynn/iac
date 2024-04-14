@@ -8,9 +8,28 @@
     - name: Install user account
       block:
 
+        - name: Set ssh keys for root account
+          authorized_key:
+            user: root
+            key: "{{rootsshkeys|join('\n')}}"
+            exclusive: true
+
+        - name: Create sudo group
+          group:
+            name: sudo
+            system: true
+
         - name: Install sudo
           package:
             name: sudo
+
+        - name: Enable sudo group in sudoers
+          lineinfile:
+            path: /etc/sudoers
+            state: present
+            regexp: '^[# ]+%sudo '
+            line: '%sudo ALL=(ALL:ALL) ALL'
+            validate: /usr/sbin/visudo -cf %s
 
         - name: Install user group
           group:
@@ -27,6 +46,7 @@
             password: "{{userpassword}}"
             shell: /usr/bin/bash
             update_password: on_create
+          register: useraccount
 
         - name: Set ssh keys for user account
           authorized_key:
