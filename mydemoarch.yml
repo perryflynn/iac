@@ -100,7 +100,7 @@
         executable: /usr/bin/bash
         cmd: |
           xfconf-query --channel keyboard-layout --property /Default/XkbDisable --create --type bool --set false
-          xfconf-query --channel keyboard-layout --property /Default/XkbLayout --create --type string --set de,en
+          xfconf-query --channel keyboard-layout --property /Default/XkbLayout --create --type string --set de,us
           xfconf-query --channel keyboard-layout --property /Default/XkbVariant --create --type string --set deadactute,
       become: true
       become_user: christian
