@@ -115,53 +115,49 @@
               - virt-viewer
               - nextcloud-client
 
-    - name: Check if xfce4-sesion is active
-      shell:
-        executable: /usr/bin/bash
-        cmd: |
-          if ( pgrep -U 1000 -x xfce4-session > /dev/null 2>&1 )
-          then
-              exit 98
-          fi
-          exit 99
-      changed_when: False
-      failed_when: xfcestatus.rc not in [ 98, 99 ]
-      register: xfcestatus
+    - name: XFCE Desktop configuration
+      block:
 
-    - name: Configure XFCE
-      shell:
-        executable: /usr/bin/bash
-        cmd: |
-          value=$(xfconf-query --channel "{{item.c}}" --property "{{item.p}}" 2> /dev/null)
-          result=$?
+        - name: Check if xfce4-sesion is active
+          shell:
+            executable: /usr/bin/bash
+            cmd: |
+              if ( pgrep -U 1000 -x xfce4-session > /dev/null 2>&1 )
+              then
+                  exit 98
+              fi
+              exit 99
+          changed_when: False
+          failed_when: xfcestatus.rc not in [ 98, 99 ]
+          register: xfcestatus
 
-          if [ $result -ne 0 ] || [ ! "$value" == "{{item.v}}" ]
-          then
-              xfconf-query --channel "{{item.c}}" --property "{{item.p}}" --create --type "{{item.t}}" --set "{{item.v}}"
-              exit 98
-          fi
+        - name: Configure XFCE
+          shell:
+            executable: /usr/bin/bash
+            cmd: |
+              value=$(xfconf-query --channel "{{item.c}}" --property "{{item.p}}" 2> /dev/null)
+              result=$?
 
-          exit 99
+              if [ $result -ne 0 ] || [ ! "$value" == "{{item.v}}" ]
+              then
+                  xfconf-query --channel "{{item.c}}" --property "{{item.p}}" --create --type "{{item.t}}" --set "{{item.v}}"
+                  exit 98
+              fi
 
-          #xfconf-query --channel keyboard-layout --property /Default/XkbDisable --create --type bool --set false
-          #xfconf-query --channel keyboard-layout --property /Default/XkbLayout --create --type string --set de,us
-          #xfconf-query --channel keyboard-layout --property /Default/XkbVariant --create --type string --set deadactute,
-          #xfconf-query --channel xfce4-session --property /shutdown/LockScreen --create --type bool --set true
-          #xfconf-query --channel xfce4-power-manager --property /xfce4-power-manager/lock-screen-suspend-hibernate --create --type bool --set true
-          #xfconf-query --channel xfce4-session --property /general/SaveOnExit --create --type bool --set false
-      become: true
-      become_user: christian
-      environment:
-        DISPLAY: :0.0
-        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
-      loop:
-        - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
-        - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: 'de' }
-        - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: 'deadactute' }
-        - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
-        - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
-        - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
-      when: xfcestatus.rc == 98
-      register: xfconfresult
-      changed_when: xfconfresult.rc == 98
-      failed_when: xfconfresult.rc not in [ 98, 99 ]
+              exit 99
+          become: true
+          become_user: christian
+          environment:
+            DISPLAY: :0.0
+            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
+          loop:
+            - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
+            - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: 'de' }
+            - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: 'deadactute' }
+            - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
+            - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
+            - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
+          when: xfcestatus.rc == 98
+          register: xfconfresult
+          changed_when: xfconfresult.rc == 98
+          failed_when: xfconfresult.rc not in [ 98, 99 ]
