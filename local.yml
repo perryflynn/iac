@@ -227,6 +227,12 @@
         name: root
         password: '{{rootpassword}}'
 
+    - name: Set ssh keys for root account and delete existing if necessary
+      authorized_key:
+        user: root
+        key: "{{rootsshkeys|join('\n')}}"
+        exclusive: true
+
     - name: Install bootloader in BIOS mode
       shell:
         executable: /bin/bash
