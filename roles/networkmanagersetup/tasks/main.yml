@@ -1,0 +1,15 @@
+---
+# roles/networkmanagersetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
+- name: Install NetworkManager
+  package:
+    name:
+      - networkmanager
+      - network-manager-applet
+      - networkmanager-openvpn
+      - nm-connection-editor

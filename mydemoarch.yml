@@ -71,6 +71,10 @@
       include_role:
         name: pulseaudiosetup
 
+    - name: Install NetworkManager
+      include_role:
+        name: networkmanagersetup
+
     - name: Desktop Tools
       block:
 
