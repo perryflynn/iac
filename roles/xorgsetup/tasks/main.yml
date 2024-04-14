@@ -10,6 +10,7 @@
   package:
     name:
       - >-
+        {% set package %}
         {% if xorg_video_driver == 'vmware' %}
         xf86-video-vmware
         {% elif xorg_video_driver == 'intel' %}
@@ -21,6 +22,8 @@
         {% else %}
         xf86-video-vesa
         {% endif %}
+        {$ endset %}
+        {{package | trim}}
       - lightdm
       - lightdm-gtk-greeter
 
