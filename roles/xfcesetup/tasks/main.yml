@@ -31,7 +31,8 @@
   loop:
     - { c: keyboard-layout, p: /Default/XkbDisable, a: false, t: bool, v: 'false' }
     - { c: keyboard-layout, p: /Default/XkbLayout, a: true, t: string, v: [ de, en ] }
-  #become: true
-  #become_user: christian
-  #environment:
-  #  DISPLAY: :0.0
+  become: true
+  become_user: christian
+  environment:
+    DISPLAY: :0.0
+    DBUS_SESSION_BUS_ADDRESS: unix:path=/run/user/1000/bus
