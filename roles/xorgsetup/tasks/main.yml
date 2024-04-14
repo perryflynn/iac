@@ -1,0 +1,69 @@
+---
+# roles/xorgsetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
+- name: Install Desktop Environment
+  package:
+    name:
+      - >-
+        {% if xorg_video_driver == 'vmware' %}
+        xf86-video-vmware
+        {% elif xorg_video_driver == 'intel' %}
+        xf86-video-intel
+        {% elif xorg_video_driver == 'amd' %}
+        xf86-video-amdgpu
+        {% elif xorg_video_driver == 'nouveau' %}
+        xf86-video-nouveau
+        {% else %}
+        xf86-video-vesa
+        {% endif %}
+      - lightdm
+      - lightdm-gtk-greeter
+
+- name: Let LightDM wait until graphical drivers are ready
+  lineinfile:
+    path: /etc/lightdm/lightdm.conf
+    regexp: '^#?logind-check-graphical='
+    line: logind-check-graphical=true
+  notify:
+    - Restart lightdm
+
+- name: Check if x.org config exist
+  stat:
+    path: /etc/X11/xorg.conf
+  register: xconfexist
+
+- name: Create x.org configuration
+  shell:
+    executable: /bin/bash
+    cmd: |
+      Xorg :0 -configure
+  when: not xconfexist.stat.exists
+
+- name: Install new x.org configuration
+  copy:
+    remote_src: true
+    src: /root/xorg.conf.new
+    dest: /etc/X11/xorg.conf
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  when: not xconfexist.stat.exists
+  notify:
+    - Restart lightdm
+
+- name: Cleanup temp x.org file
+  file:
+    path: /root/xorg.conf.new
+    state: absent
+
+- name: Enable lightdm
+  systemd_service:
+    name: lightdm
+    enabled: true
+  notify:
+    - Restart lightdm

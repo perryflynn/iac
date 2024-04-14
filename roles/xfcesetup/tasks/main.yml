@@ -1,0 +1,22 @@
+---
+# roles/xfcesetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
+- name: Install Desktop Environment
+  package:
+    name:
+      - xfce4
+      - xfce4-goodies
+      - adobe-source-sans-fonts
+      - adobe-source-serif-fonts
+      - noto-fonts
+      - gnu-free-fonts
+      - ttf-dejavu
+      - ttf-dejavu-nerd
+      - ttf-droid
+      - ttf-liberation
+      - ttf-ubuntu-font-family

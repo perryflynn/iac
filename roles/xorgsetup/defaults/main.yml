@@ -1,0 +1,4 @@
+---
+# roles/xorgsetup/defaults/main.yml
+
+xorg_video_driver: 'vmware'

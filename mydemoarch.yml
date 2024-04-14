@@ -5,64 +5,6 @@
 
   tasks:
 
-    - name: Desktop Environment
-      block:
-
-        - name: Install Desktop Environment
-          package:
-            name:
-              - xf86-video-vmware
-              - lightdm
-              - lightdm-gtk-greeter
-              - xfce4
-              - xfce4-goodies
-              - adobe-source-sans-fonts
-              - adobe-source-serif-fonts
-              - noto-fonts
-              - gnu-free-fonts
-              - ttf-dejavu
-              - ttf-dejavu-nerd
-              - ttf-droid
-
-        - name: Let LightDM wait until graphical drivers are ready
-          lineinfile:
-            path: /etc/lightdm/lightdm.conf
-            regexp: '^#?logind-check-graphical='
-            line: logind-check-graphical=true
-
-        - name: Check if x.org config exist
-          stat:
-            path: /etc/X11/xorg.conf
-          register: xconfexist
-
-        - name: Create x.org configuration
-          shell:
-            executable: /bin/bash
-            cmd: |
-              Xorg :0 -configure
-          when: not xconfexist.stat.exists
-
-        - name: Install new x.org configuration
-          copy:
-            remote_src: true
-            src: /root/xorg.conf.new
-            dest: /etc/X11/xorg.conf
-            owner: root
-            group: root
-            mode: u=rw,go=r
-          when: not xconfexist.stat.exists
-
-        - name: Cleanup temp x.org file
-          file:
-            path: /root/xorg.conf.new
-            state: absent
-
-        - name: Enable lightdm
-          systemd_service:
-            name: lightdm
-            enabled: true
-            state: started
-
     - name: Shell Tools
       block:
 
@@ -76,6 +18,8 @@
               - screen
               - git
               - ncdu
+              - wget
+              - less
 
         - name: Create vimrc
           copy:
@@ -87,6 +31,16 @@
               set background=dark
               syntax on
               set mouse=
+
+    - name: Install X11
+      include_role:
+        name: xorgsetup
+      vars:
+        xorg_video_driver: "{{ 'vmware' if ansible_product_name == 'VirtualBox' else 'intel' }}"
+
+    - name: Install XFCE
+      include_role:
+        name: xfcesetup
 
     - name: Desktop Tools
       block:
