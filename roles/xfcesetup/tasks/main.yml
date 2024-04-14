@@ -20,3 +20,16 @@
       - ttf-droid
       - ttf-liberation
       - ttf-ubuntu-font-family
+
+- name: Configure xfce
+  xfconf:
+    channel: "{{item.c}}"
+    property: "{{item.p}}"
+    value_type: "{{item.t}}"
+    value: "{{item.v}}"
+    force_array: "{{item.a}}"
+  loop:
+    - { c: keyboard-layout, p: /Default/XkbDisable, a: false, t: bool, v: 'false' }
+    - { c: keyboard-layout, p: /Default/XkbLayout, a: true, t: string, v: [ de, en ] }
+  become: true
+  become_user: christian
