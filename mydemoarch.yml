@@ -5,6 +5,31 @@
 
   tasks:
 
+    - name: Install user account
+      block:
+
+        - name: Install user group
+          group:
+            name: "{{username}}"
+
+        - name: Install user
+          user:
+            append: true
+            create_home: true
+            group: "{{username}}"
+            groups: "{{ [ username ] + usergroups ] }}"
+            home: "/home/{{username}}"
+            name: "{{username}}"
+            password: "{{userpassword}}"
+            shell: /usr/bin/bash
+            update_password: on_create
+
+        - name: Set ssh keys for user account
+          authorized_key:
+            user: "{{username}}"
+            key: "{{usersshkeys|join('\n')}}"
+            exclusive: true
+
     - name: Shell Tools
       block:
 

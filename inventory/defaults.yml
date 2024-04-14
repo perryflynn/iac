@@ -14,6 +14,12 @@ all:
     rootsshkeys:
       - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqrQkBwBaMTfN0vHvW6aldKK9MBd8X7GyiaMWLczdNo christian@kompaktes2k'
 
+    username: christian
+    userpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
+    usergroups: [ adm, games, audio, optical, storage, network ]
+    usersshkeys:
+      - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqrQkBwBaMTfN0vHvW6aldKK9MBd8X7GyiaMWLczdNo christian@kompaktes2k'
+
   children:
 
     isos:

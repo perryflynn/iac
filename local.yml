@@ -226,6 +226,7 @@
       user:
         name: root
         password: '{{rootpassword}}'
+        update_password: always
 
     - name: Set ssh keys for root account and delete existing if necessary
       authorized_key:
