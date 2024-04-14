@@ -9,7 +9,7 @@
 - name: Install Desktop Environment
   package:
     name:
-      - >-
+      - |
         {% set package %}
         {% if xorg_video_driver == 'vmware' %}
         xf86-video-vmware
