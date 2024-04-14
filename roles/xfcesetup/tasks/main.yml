@@ -30,7 +30,8 @@
     force_array: "{{item.a}}"
   loop:
     - { c: keyboard-layout, p: /Default/XkbDisable, a: false, t: bool, v: 'false' }
-    - { c: keyboard-layout, p: /Default/XkbLayout, a: true, t: string, v: [ de, en ] }
+    - { c: keyboard-layout, p: /Default/XkbLayout, a: false, t: string, v: [ de, us ] }
+    - { c: keyboard-layout, p: /Default/XkbVariant, a: false, t: string, v: [ deadacute, '' ] }
   become: true
   become_user: christian
   environment:
