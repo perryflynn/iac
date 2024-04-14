@@ -8,6 +8,10 @@
     - name: Install user account
       block:
 
+        - name: Install sudo
+          package:
+            name: sudo
+
         - name: Install user group
           group:
             name: "{{username}}"
