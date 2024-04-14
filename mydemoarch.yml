@@ -102,6 +102,9 @@
           xfconf-query --channel keyboard-layout --property /Default/XkbDisable --create --type bool --set false
           xfconf-query --channel keyboard-layout --property /Default/XkbLayout --create --type string --set de,us
           xfconf-query --channel keyboard-layout --property /Default/XkbVariant --create --type string --set deadactute,
+          xfconf-query --channel xfce4-session --property /shutdown/LockScreen --create --type bool --set true
+          xfconf-query --channel xfce4-power-manager --property /xfce4-power-manager/lock-screen-suspend-hibernate --create --type bool --set true
+          xfconf-query --channel xfce4-session --property /general/SaveOnExit --create --type bool --set false
       become: true
       become_user: christian
       environment:
