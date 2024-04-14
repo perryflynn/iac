@@ -1,6 +1,11 @@
 ---
 # roles/pulseaudiosetup/tasks/main.yml
 
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
 - name: Install pulseaudio
   package:
     name:
