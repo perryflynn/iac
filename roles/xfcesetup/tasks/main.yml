@@ -20,3 +20,7 @@
       - ttf-droid
       - ttf-liberation
       - ttf-ubuntu-font-family
+      - gvfs
+      - gvfs-mtp
+      - gvfs-nfs
+      - gvfs-smb
