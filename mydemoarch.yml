@@ -69,6 +69,7 @@
               - ncdu
               - wget
               - less
+              - neofetch
 
         - name: Create vimrc
           copy:
