@@ -13,3 +13,6 @@
       - network-manager-applet
       - networkmanager-openvpn
       - nm-connection-editor
+      - wireless_tools
+      - iw
+      - crda

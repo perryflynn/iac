@@ -11,6 +11,7 @@
     name:
       - pulseaudio
       - pulseaudio-alsa
+      - pulseaudio-bluetooth
       - pamixer
       - pulsemixer
       - pavucontrol

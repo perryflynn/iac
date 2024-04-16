@@ -91,6 +91,10 @@
       include_role:
         name: xfcesetup
 
+    - name: Install Bluetooth
+      include_role:
+        name: bluetoothsetup
+
     - name: Install Pulseaudio
       include_role:
         name: pulseaudiosetup
