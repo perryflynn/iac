@@ -20,7 +20,7 @@
   register: swapfilestatus
 
 - name: Create swapfile
-  filesize:
+  community.general.filesize:
     path: "{{swappath}}"
     size: "{{swapsizegb}}G"
     owner: root
