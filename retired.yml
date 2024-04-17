@@ -1,7 +1,7 @@
 ---
 - name: Configure my retired X230 Thinkpad
   hosts:
-    - mydemoarch
+    - retired
 
   tasks:
 
