@@ -1,0 +1,50 @@
+---
+# roles/swapsetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
+- name: Check if swapfile exists
+  shell:
+    executable: /usr/bin/bash
+    cmd: |
+      if ( swapon --noheadings --show=NAME,TYPE,SIZE,USED --bytes | grep -P "^/swapfile\s+" )
+      then
+          exit 98
+      fi
+      exit 99
+  changed_when: False
+  failed_when: swapfilestatus.rc not in [ 98, 99 ]
+  register: swapfilestatus
+
+- name: Create swapfile
+  filesize:
+    path: "{{swappath}}"
+    size: "{{swapsizegb}}G"
+    owner: root
+    group: root
+    mode: u=rw,go=-
+  when: swapfilestatus.rc == 99
+  register: mkswapfile
+
+- name: Format swapfile
+  filesystem:
+    dev: "{{swappath}}"
+    fstype: swap
+  when: mkswapfile.changed
+
+- name: Ensure swapfile in fstab
+  lineinfile:
+    path: /etc/fstab
+    state: present
+    regexp: '^{{swappath}}\s+'
+    line: '{{swapfile}} none swap defaults 0 0'
+
+- name: Mount swapfile
+  shell:
+    executable: /usr/bin/bash
+    cmd: |
+      swapon "{{swappath}}"
+  when: swapfilestatus.rc == 99 and mkswapfile.changed

@@ -1,0 +1,5 @@
+---
+# roles/swapsetup/defaults/main.yml
+
+swapsizegb: 4
+swappath: /swapfile

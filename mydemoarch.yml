@@ -5,6 +5,13 @@
 
   tasks:
 
+    - name: Install Swapfile
+      include_role:
+        name: swapfilesetup
+      vars:
+        swapsizegb: 8
+        swappath: /swapfile
+
     - name: Install user account
       block:
 

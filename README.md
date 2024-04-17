@@ -36,4 +36,9 @@ a Dockerfile and some scripts to build a custom Arch Linux installer iso with ad
 
 Run `perrys-ansible-apply.sh` as root.
 
-It pull automatically pull the correct playbook from this repo by the hostname of the operating system.
+It pulls automatically the correct playbook from this repo by the hostname of the operating system.
+
+## TODO
+
+- [x] Swap File
+- [ ] Disk Encryption
