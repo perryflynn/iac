@@ -1,0 +1,7 @@
+---
+# roles/bluetoothsetup/handlers/main.yml
+
+- name: Restart bluetooth
+  systemd_service:
+    name: bluetooth
+    state: restarted
