@@ -6,11 +6,12 @@ set -e
 export PYTHONUNBUFFERED=1
 
 UEFI_HOSTNAME="/sys/firmware/efi/efivars/PerryHostname-ed38a5bf-1135-4b0f-aa72-49d30b05dfd4"
+UEFI_FLAVOR="/sys/firmware/efi/efivars/PerryFlavor-ed38a5bf-1135-4b0f-aa72-49d30b05dfd4"
 
 # Arguments
 ARG_HELP=0
 UNKNOWN_OPTION=0
-ARG_FLAVOR=archlinux
+ARG_FLAVOR=""
 ARG_HOSTNAME=""
 
 # Arguments from cli
@@ -39,9 +40,6 @@ then
         esac
         shift # past argument or value
     done
-else
-    # no arguments passed, show help
-    ARG_HELP=1
 fi
 
 # Help
@@ -64,6 +62,14 @@ then
     echo "                    one of 'debian' or 'archlinux'"
     echo
     exit
+fi
+
+if [ -z "$ARG_FLAVOR" ] && [ -f "$UEFI_FLAVOR" ]; then
+    ARG_FLAVOR=$(cat "$UEFI_FLAVOR" | tr -cd "[:print:]\r\n\t")
+fi
+
+if [ -z "$ARG_FLAVOR" ]; then
+    ARG_FLAVOR=archlinux
 fi
 
 # Set hostname
