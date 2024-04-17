@@ -10,6 +10,10 @@
           - bootmode == 'uefi' or bootmode == 'bios'
           - flavor == 'debian' or flavor == 'archlinux'
 
+    - name: Show hostname to use
+      debug:
+        var: hostname
+
     - name: Set timezone
       timezone:
         name: "{{timezone}}"

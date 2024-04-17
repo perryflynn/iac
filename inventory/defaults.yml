@@ -93,5 +93,9 @@ all:
     configuration:
       hosts:
 
-        # retired Thinkpad X230 Laptop
+        # Default hostnames
         mydemoarch:
+        mydemodebian:
+
+        # retired Thinkpad X230 Laptop
+        retired:
