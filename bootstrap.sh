@@ -82,7 +82,7 @@ extraargs=()
 if [ -n "$ARG_HOSTNAME" ]; then
     extraargs+=( "{ \"hostname\": \"$ARG_HOSTNAME\" }" )
 elif [ -f "$UEFI_HOSTNAME" ]
-    extraargs+=( "{ \"hostname\": \"$(cat "$UEFI_HOSTNAME")\" }" )
+    extraargs+=( "{ \"hostname\": \"$(cat "$UEFI_HOSTNAME" | tr -cd "[:print:]\r\n\t")\" }" )
 fi
 
 # Run ansible
