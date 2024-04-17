@@ -10,7 +10,7 @@
   shell:
     executable: /usr/bin/bash
     cmd: |
-      if ( swapon --noheadings --show=NAME,TYPE,SIZE,USED --bytes | grep -P "^/swapfile\s+" )
+      if ( swapon --noheadings --show=NAME,TYPE,SIZE,USED --bytes | grep -P "^{{swappath}}\s+" )
       then
           exit 98
       fi
@@ -40,7 +40,7 @@
     path: /etc/fstab
     state: present
     regexp: '^{{swappath}}\s+'
-    line: '{{swapfile}} none swap defaults 0 0'
+    line: '{{swappath}} none swap defaults 0 0'
 
 - name: Mount swapfile
   shell:
