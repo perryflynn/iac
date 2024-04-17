@@ -48,3 +48,11 @@
     cmd: |
       swapon "{{swappath}}"
   when: swapfilestatus.rc == 99
+
+- name: Ensure resume hoom in mkinitcpio
+    lineinfile:
+      path: /etc/mkinitcpio.conf
+      backrefs: true
+      state: present
+      regexp: '^HOOKS=\((.*?)(?: resume)?( fsck.*?)\)$'
+      line: 'HOOKS=(\1 resume fsck)'
