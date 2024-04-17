@@ -80,9 +80,9 @@ pacman --noconfirm --needed -S ansible git
 extraargs=()
 
 if [ -n "$ARG_HOSTNAME" ]; then
-    extraargs+=( "{ \"hostname\": \"$ARG_HOSTNAME\" }" )
+    extraargs+=( -e "{ \"hostname\": \"$ARG_HOSTNAME\" }" )
 elif [ -f "$UEFI_HOSTNAME" ]; then
-    extraargs+=( "{ \"hostname\": \"$(cat "$UEFI_HOSTNAME" | tr -cd "[:print:]\r\n\t")\" }" )
+    extraargs+=( -e "{ \"hostname\": \"$(cat "$UEFI_HOSTNAME" | tr -cd "[:print:]\r\n\t")\" }" )
 fi
 
 # Run ansible
