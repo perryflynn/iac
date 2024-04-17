@@ -1,0 +1,8 @@
+---
+# roles/swapfilesetup/handlers/main.yml
+
+- name: Regenerate Kernel Image
+  shell:
+    executable: /usr/bin/bash
+    cmd: |
+      mkinitcpio -p linux

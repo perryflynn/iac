@@ -56,3 +56,5 @@
     state: present
     regexp: '^HOOKS=\((.*?)(?: resume)?( fsck.*?)\)$'
     line: 'HOOKS=(\1 resume fsck)'
+  notify:
+    - Regenerate Kernel Image
