@@ -3,9 +3,7 @@
 set -e
 set -u
 
-export PERRY_ANSIBLE_DESKTOP=1
-
 if [ ! -f ~/.noperrysansibleapply ]; then
-    xfce4-terminal -e "sudo --preserve-env=PERRY_ANSIBLE_DESKTOP /usr/local/sbin/perrys-ansible-apply.sh" &
+    xfce4-terminal -e "sudo PERRY_ANSIBLE_DESKTOP=1 /usr/local/sbin/perrys-ansible-apply.sh" &
     touch ~/.noperrysansibleapply
 fi
