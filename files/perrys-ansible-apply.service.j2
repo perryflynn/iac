@@ -7,8 +7,12 @@ Before=lightdm.service getty@tty1.service
 [Service]
 Type=oneshot
 Restart=no
+User=root
+Group=root
 StandardOutput=journal+console
+StandardError=journal+console
 ExecStart=/usr/local/sbin/perrys-ansible-apply.sh
+Environment="HOME=/root"
 
 [Install]
 #WantedBy=network-online.target

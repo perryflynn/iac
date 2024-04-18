@@ -37,7 +37,7 @@
 
 - name: Create x.org configuration
   shell:
-    executable: /bin/bash
+    executable: /usr/bin/bash
     cmd: |
       Xorg :0 -configure
   when: not xconfexist.stat.exists
