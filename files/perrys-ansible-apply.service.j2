@@ -1,0 +1,15 @@
+[Unit]
+Description=Perrys Ansible Apply
+Requires=network-online.target
+After=network-online.target
+Before=lightdm.service getty@tty1.service
+
+[Service]
+Type=oneshot
+Restart=no
+StandardOutput=journal+console
+ExecStart=/usr/local/sbin/perrys-ansible-apply.sh
+
+[Install]
+#WantedBy=network-online.target
+WantedBy=multi-user.target

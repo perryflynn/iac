@@ -3,6 +3,13 @@
   hosts:
     - retired
 
+  post_tasks:
+
+    - name: Disable automatic ansible apply service
+      systemd_service:
+        name: perrys-ansible-apply
+        enabled: false
+
   tasks:
 
     - name: Install Swapfile

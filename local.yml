@@ -238,6 +238,13 @@
         key: "{{rootsshkeys|join('\n')}}"
         exclusive: true
 
+    - name: Configure verbose output in bootloader
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
+      when: flavor == 'archlinux'
+
     - name: Install bootloader in BIOS mode
       shell:
         executable: /bin/bash
@@ -282,8 +289,22 @@
 
     - name: Template a file, using symbolic modes (equivalent to 0644)
       template:
-        src: files/svrls-ansible-apply.sh.j2
+        src: files/perrys-ansible-apply.sh.j2
         dest: /usr/local/sbin/perrys-ansible-apply.sh
         owner: root
         group: root
         mode: u=rwx,g=rx,o=r
+
+    - name: Add service to run ansible on boot
+      template:
+        src: files/perrys-ansible-apply.service.j2
+        dest: /etc/systemd/system/perrys-ansible-apply.service
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=r
+
+    - name: Enable ansible apply on first boot
+      systemd_service:
+        enabled: true
+        daemon_reload: yes
+        name: perrys-ansible-apply
