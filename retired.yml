@@ -74,8 +74,8 @@
           lineinfile:
             path: /etc/sudoers
             state: present
-            regexp: '^ALL ALL=NOPASSWD: /usr/local/sbin/perrys-ansible-apply.sh'
-            line: 'ALL ALL=NOPASSWD: /usr/local/sbin/perrys-ansible-apply.sh'
+            regexp: '^ALL ALL=NOPASSWD: .*?/usr/local/sbin/perrys-ansible-apply.sh$'
+            line: 'ALL ALL=NOPASSWD: PERRY_ANSIBLE_DESKTOP=1 /usr/local/sbin/perrys-ansible-apply.sh'
             validate: /usr/sbin/visudo -cf %s
 
         - name: Install user group
