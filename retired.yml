@@ -5,6 +5,7 @@
 
   vars:
     use_handlers: 'true'
+    use_reboot: 'false'
 
   post_tasks:
 
@@ -12,6 +13,13 @@
       systemd_service:
         name: perrys-ansible-apply
         enabled: false
+
+    - name: Trigger handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Reboot
+      reboot:
+      when: "{{use_reboot|bool}}"
 
   tasks:
 
