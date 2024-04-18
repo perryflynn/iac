@@ -8,33 +8,6 @@
     use_reboot: 'false'
     use_logout: 'false'
 
-  post_tasks:
-
-    - name: Disable automatic ansible apply service
-      systemd_service:
-        name: perrys-ansible-apply
-        enabled: false
-
-    - name: Trigger handlers
-      ansible.builtin.meta: flush_handlers
-
-    - name: Reboot
-      shell:
-        executable: /usr/bin/bash
-        cmd: reboot
-      when: use_reboot | bool
-
-    - name: Logout
-      shell:
-        executable: /usr/bin/bash
-        cmd: 'xfce4-session-logout -l'
-      become: true
-      become_user: "{{useraccount.name}}"
-      environment:
-        DISPLAY: :0.0
-        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
-      when: use_logout | bool
-
   tasks:
 
     - name: Install Swapfile
@@ -238,3 +211,28 @@
           register: xfconfresult
           changed_when: xfconfresult.rc == 98
           failed_when: xfconfresult.rc not in [ 98, 99 ]
+
+    - name: Disable automatic ansible apply service
+      systemd_service:
+        name: perrys-ansible-apply
+        enabled: false
+
+    - name: Trigger handlers
+      ansible.builtin.meta: flush_handlers
+
+    - name: Reboot
+      shell:
+        executable: /usr/bin/bash
+        cmd: reboot
+      when: use_reboot | bool
+
+    - name: Logout
+      shell:
+        executable: /usr/bin/bash
+        cmd: 'xfce4-session-logout -l'
+      become: true
+      become_user: "{{useraccount.name}}"
+      environment:
+        DISPLAY: :0.0
+        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
+      when: xfcestatus.rc == 98 and (use_logout | bool)
