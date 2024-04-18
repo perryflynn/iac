@@ -19,7 +19,7 @@
 
     - name: Reboot
       reboot:
-      when: "{{use_reboot|bool}}"
+      when: use_reboot | bool
 
   tasks:
 
