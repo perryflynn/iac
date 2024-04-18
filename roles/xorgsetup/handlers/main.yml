@@ -5,3 +5,4 @@
   systemd_service:
     name: lightdm
     state: restarted
+  when: xorg_handle_lightdm_restart

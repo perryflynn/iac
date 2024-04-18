@@ -2,3 +2,4 @@
 # roles/xorgsetup/defaults/main.yml
 
 xorg_video_driver: 'vmware'
+xorg_handle_lightdm_restart: true

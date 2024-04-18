@@ -13,6 +13,7 @@ StandardOutput=journal+console
 StandardError=journal+console
 ExecStart=/usr/local/sbin/perrys-ansible-apply.sh
 Environment="HOME=/root"
+Environment="PERRY_NO_HANDLERS=1"
 
 [Install]
 #WantedBy=network-online.target

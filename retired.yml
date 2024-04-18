@@ -3,6 +3,9 @@
   hosts:
     - retired
 
+  vars:
+    use_handlers: 'true'
+
   post_tasks:
 
     - name: Disable automatic ansible apply service
@@ -101,6 +104,7 @@
         name: xorgsetup
       vars:
         xorg_video_driver: "{{ 'vmware' if ansible_product_name == 'VirtualBox' else 'intel' }}"
+        xorg_handle_lightdm_restart: "{{use_handlers|bool}}"
 
     - name: Install XFCE
       include_role:

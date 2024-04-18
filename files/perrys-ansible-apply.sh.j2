@@ -1,3 +1,14 @@
 #!/bin/bash
 
-PYTHONUNBUFFERED=1 ansible-pull -U "{{selfrepo}}" -C "{{selfbranch}}" -l "$(uname -n)"
+set -u
+set -e
+
+export PYTHONUNBUFFERED=1
+
+extraargs=()
+
+if [ "${PERRY_NO_HANDLERS:-0}" == "1" ]; then
+    extraargs+=( -e "{ \"use_handlers\": \"false\" }" )
+fi
+
+ansible-pull -U "{{selfrepo}}" -C "{{selfbranch}}" -l "$(uname -n)" "${extraargs[@]}"
