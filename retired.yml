@@ -58,6 +58,14 @@
             line: '%sudo ALL=(ALL:ALL) ALL'
             validate: /usr/sbin/visudo -cf %s
 
+        - name: Allow passwordless sudo for ansible-apply
+          lineinfile:
+            path: /etc/sudoers
+            state: present
+            regexp: '^ALL ALL=NOPASSWD: /usr/local/sbin/perrys-ansible-apply.sh'
+            line: 'ALL ALL=NOPASSWD: /usr/local/sbin/perrys-ansible-apply.sh'
+            validate: /usr/sbin/visudo -cf %s
+
         - name: Install user group
           group:
             name: "{{username}}"
