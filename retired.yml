@@ -6,6 +6,7 @@
   vars:
     use_handlers: 'true'
     use_reboot: 'false'
+    use_logout: 'false'
 
   post_tasks:
 
@@ -22,6 +23,17 @@
         executable: /usr/bin/bash
         cmd: reboot
       when: use_reboot | bool
+
+    - name: Logout
+      shell:
+        executable: /usr/bin/bash
+        cmd: 'xfce4-session-logout -l'
+      become: true
+      become_user: "{{useraccount.name}}"
+      environment:
+        DISPLAY: :0.0
+        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
+      when: use_logout | bool
 
   tasks:
 
@@ -159,11 +171,35 @@
     - name: XFCE Desktop configuration
       block:
 
+        - name: Create autostart folder
+          file:
+            path: "/home/{{useraccount.name}}/.config/autostart"
+            owner: "{{useraccount.name}}"
+            group: "{{useraccount.name}}"
+            mode: u=rwx,go=rx
+            state: directory
+
+        - name: Add ansible autostart script
+          template:
+            src: files/autostart-ansible.sh.j2
+            dest: /home/{{useraccount.name}}/.config/xfce-perrys-ansible-apply.sh
+            owner: "{{useraccount.name}}"
+            group: "{{useraccount.name}}"
+            mode: u=rwx,go=r
+
+        - name: Add ansible autostart to XDG folder
+          template:
+            src: files/autostart-ansible.desktop.j2
+            dest: /home/{{useraccount.name}}/.config/autostart/ansible.desktop
+            owner: "{{useraccount.name}}"
+            group: "{{useraccount.name}}"
+            mode: u=rwx,go=r
+
         - name: Check if xfce4-sesion is active
           shell:
             executable: /usr/bin/bash
             cmd: |
-              if ( pgrep -U 1000 -x xfce4-session > /dev/null 2>&1 )
+              if ( pgrep -U {{useraccount.uid}} -x xfce4-session > /dev/null 2>&1 )
               then
                   exit 98
               fi
@@ -187,7 +223,7 @@
 
               exit 99
           become: true
-          become_user: christian
+          become_user: "{{useraccount.name}}"
           environment:
             DISPLAY: :0.0
             DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"

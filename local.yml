@@ -287,7 +287,7 @@
         enabled: true
         name: "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
 
-    - name: Template a file, using symbolic modes (equivalent to 0644)
+    - name: Add ansible apply script to OS
       template:
         src: files/perrys-ansible-apply.sh.j2
         dest: /usr/local/sbin/perrys-ansible-apply.sh

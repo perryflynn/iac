@@ -1,0 +1,9 @@
+#!/usr/bin/bash
+
+set -e
+set -u
+
+if [ ! -f ~/.noperrysansibleapply ]; then
+    xfce4-terminal -e "sudo PERRY_ANSIBLE_DESKTOP=1 /usr/local/sbin/perrys-ansible-apply.sh" &
+    touch ~/.noperrysansibleapply
+fi
