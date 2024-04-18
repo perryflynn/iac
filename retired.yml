@@ -18,7 +18,9 @@
       ansible.builtin.meta: flush_handlers
 
     - name: Reboot
-      reboot:
+      shell:
+        executable: /usr/bin/bash
+        cmd: reboot
       when: use_reboot | bool
 
   tasks:
