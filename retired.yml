@@ -140,7 +140,9 @@
               - gimp
               - vlc
               - virt-viewer
-              - nextcloud-client
+              #- nextcloud-client
+              - libreoffice-still
+              - libreoffice-still-de
 
     - name: XFCE Desktop configuration
       block:
