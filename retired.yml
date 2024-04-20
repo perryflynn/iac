@@ -90,6 +90,7 @@
               - wget
               - less
               - neofetch
+              - usbutils
 
         - name: Create vimrc
           copy:
@@ -212,32 +213,35 @@
           changed_when: xfconfresult.rc == 98
           failed_when: xfconfresult.rc not in [ 98, 99 ]
 
-    - name: Disable automatic ansible apply service
-      systemd_service:
-        name: perrys-ansible-apply
-        enabled: false
+    - name: Finish Setup
+      block:
 
-    - name: Trigger handlers
-      ansible.builtin.meta: flush_handlers
+        - name: Disable automatic ansible apply service
+          systemd_service:
+            name: perrys-ansible-apply
+            enabled: false
 
-    - name: Delete XFCE4 sessions
-      file:
-        path: /home/{{useraccount.name}}/.cache/sessions
-        state: absent
+        - name: Trigger handlers
+          ansible.builtin.meta: flush_handlers
 
-    - name: Logout
-      shell:
-        executable: /usr/bin/bash
-        cmd: 'xfce4-session-logout -l -f'
-      become: true
-      become_user: "{{useraccount.name}}"
-      environment:
-        DISPLAY: :0.0
-        DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
-      when: xfcestatus.rc == 98 and (use_logout | bool)
+        - name: Delete XFCE4 sessions
+          file:
+            path: /home/{{useraccount.name}}/.cache/sessions
+            state: absent
 
-    - name: Reboot
-      shell:
-        executable: /usr/bin/bash
-        cmd: reboot
-      when: use_reboot | bool
+        - name: Logout
+          shell:
+            executable: /usr/bin/bash
+            cmd: 'xfce4-session-logout -l -f'
+          become: true
+          become_user: "{{useraccount.name}}"
+          environment:
+            DISPLAY: :0.0
+            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
+          when: xfcestatus.rc == 98 and (use_logout | bool)
+
+        - name: Reboot
+          shell:
+            executable: /usr/bin/bash
+            cmd: reboot
+          when: use_reboot | bool

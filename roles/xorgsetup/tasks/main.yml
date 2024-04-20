@@ -21,6 +21,7 @@
     name:
       - lightdm
       - lightdm-gtk-greeter
+      - xorg-xrandr
 
 - name: Let LightDM wait until graphical drivers are ready
   lineinfile:
