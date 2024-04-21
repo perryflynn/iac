@@ -91,6 +91,9 @@
               - less
               - neofetch
               - usbutils
+              - nmap
+              - wireshark-cli
+              - mtr
 
         - name: Create vimrc
           copy:
@@ -143,6 +146,7 @@
               #- nextcloud-client
               - libreoffice-still
               - libreoffice-still-de
+              - wireshark-qt
 
     - name: XFCE Desktop configuration
       block:
