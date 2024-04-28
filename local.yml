@@ -36,8 +36,6 @@
 
     - name: Pause for checking parameters
       pause:
-        echo: false
-        prompt: Check the parameters above, will continue on ENTER for after 30 seconds
         seconds: 30
 
     - name: Set timezone
