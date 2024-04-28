@@ -8,11 +8,13 @@ This project installs and configures Arch Linux or Debian operating systems full
 
 Features:
 
-- Uses `ansible-pull` for apply configurations by hostname
-- Build the installer ISO image
-- Install a minimal Arch Linux OS
-- Install a minimal Debian OS
-- Configure the Arch Linux OS with a graphical environment
+- 💿 Build the installer ISO image in a Docker environment
+- 💡 Read hostname and OS type from UEFI variables
+- 🔨 Install a minimal Arch Linux OS or Debian OS
+- ❓ Decide target disk for installation, etc by hostname
+- 🔐 Setup root password, SSH keys and user accounts
+- 🚀 Autostart OS configuration at first boot
+- 💻 Autostart Desktop configuration at first Desktop logon
 
 ## archiso
 
@@ -30,7 +32,7 @@ correct ansible inventory variables.
 Set hostname in UEFI variable:
 
 ```sh
-echo -n wuseldusel > efi-hostname
+echo -n myhostname > efi-hostname
 efivar --name ed38a5bf-1135-4b0f-aa72-49d30b05dfd4-PerryHostname -w -f efi-hostname
 ```
 
@@ -39,6 +41,9 @@ Get the hostname from UEFI variable:
 ```sh
 cat /sys/firmware/efi/efivars/PerryHostname-ed38a5bf-1135-4b0f-aa72-49d30b05dfd4
 ```
+
+In addition the variable `PerryFlavor-ed38a5bf-1135-4b0f-aa72-49d30b05dfd4` can be used to
+set the flavor (`debian` or `archlinux`).
 
 ## How to install a OS
 
@@ -58,5 +63,13 @@ It pulls automatically the correct playbook from this repo by the hostname of th
 
 ## TODO
 
+- [x] Bluetooth
+- [x] NetworkManager
+- [x] NFTables
+- [x] Pulseaudio
 - [x] Swap File
+- [x] Unix Account
+- [x] X11
+- [x] XFCE
+- [ ] SSH Daemon config
 - [ ] Disk Encryption
