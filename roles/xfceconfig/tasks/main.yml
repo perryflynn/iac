@@ -1,0 +1,33 @@
+---
+# roles/xfceconfig/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+      - useraccount_name is defined
+      - useraccount_uid is defined
+
+- name: Configure XFCE
+  shell:
+    executable: /usr/bin/bash
+    cmd: |
+      value=$(xfconf-query --channel "{{item.c}}" --property "{{item.p}}" 2> /dev/null)
+      result=$?
+
+      if [ $result -ne 0 ] || [ ! "$value" == "{{item.v}}" ]
+      then
+          xfconf-query --channel "{{item.c}}" --property "{{item.p}}" --create --type "{{item.t}}" --set "{{item.v}}"
+          exit 98
+      fi
+
+      exit 99
+  become: true
+  become_user: "{{useraccount_name}}"
+  environment:
+    DISPLAY: "{{x11desktop}}"
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount_uid}}/bus"
+  loop: "{{xfceparameters}}"
+  register: xfconfresult
+  changed_when: xfconfresult.rc == 98
+  failed_when: xfconfresult.rc not in [ 98, 99 ]

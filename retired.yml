@@ -101,52 +101,22 @@
               - libreoffice-still-de
               - wireshark-qt
 
-    - name: XFCE Desktop configuration
-      block:
+    - name: Check if xfce is running
+      include_role:
+        name: xfcestatus
 
-        - name: Check if xfce4-sesion is active
-          shell:
-            executable: /usr/bin/bash
-            cmd: |
-              if ( pgrep -U {{useraccount_name}} -x xfce4-session > /dev/null 2>&1 )
-              then
-                  exit 98
-              fi
-              exit 99
-          changed_when: False
-          failed_when: xfcestatus.rc not in [ 98, 99 ]
-          register: xfcestatus
-
-        - name: Configure XFCE
-          shell:
-            executable: /usr/bin/bash
-            cmd: |
-              value=$(xfconf-query --channel "{{item.c}}" --property "{{item.p}}" 2> /dev/null)
-              result=$?
-
-              if [ $result -ne 0 ] || [ ! "$value" == "{{item.v}}" ]
-              then
-                  xfconf-query --channel "{{item.c}}" --property "{{item.p}}" --create --type "{{item.t}}" --set "{{item.v}}"
-                  exit 98
-              fi
-
-              exit 99
-          become: true
-          become_user: "{{useraccount_name}}"
-          environment:
-            DISPLAY: :0.0
-            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount_uid}}/bus"
-          loop:
-            - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
-            - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: "{{xfcekeymap}}" }
-            - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: "{{xfcekeymapvariant}}" }
-            - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
-            - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
-            - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
-          when: xfcestatus.rc == 98
-          register: xfconfresult
-          changed_when: xfconfresult.rc == 98
-          failed_when: xfconfresult.rc not in [ 98, 99 ]
+    - name: Configure XFCE Desktop
+      include_role:
+        name: xfcestatus
+      when: xfcestatus_isrunning
+      vars:
+        xfceparameters:
+          - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
+          - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: "{{xfcekeymap}}" }
+          - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: "{{xfcekeymapvariant}}" }
+          - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
+          - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
+          - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
 
     - name: Finish Setup
       block:
@@ -173,7 +143,7 @@
           environment:
             DISPLAY: :0.0
             DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount_uid}}/bus"
-          when: xfcestatus.rc == 98 and (use_logout | bool)
+          when: xfcestatus_isrunning and (use_logout | bool)
 
         - name: Reboot
           shell:

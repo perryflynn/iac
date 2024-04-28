@@ -1,0 +1,25 @@
+---
+# roles/xfcestatus/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+      - useraccount_name is defined
+
+- name: Check if xfce4-sesion is active
+  shell:
+    executable: /usr/bin/bash
+    cmd: |
+      if ( pgrep -U {{useraccount_name}} -x xfce4-session > /dev/null 2>&1 )
+      then
+          exit 98
+      fi
+      exit 99
+  changed_when: False
+  failed_when: xfcestatus.rc not in [ 98, 99 ]
+  register: xfcestatus
+
+- name: Register xfcestatus
+  set_fact:
+    xfcestatus_isrunning: "{{xfcestatus.rc == 98}}"
