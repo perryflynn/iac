@@ -25,4 +25,5 @@ file_permissions=(
   ["/usr/local/bin/Installation_guide"]="0:0:755"
   ["/usr/local/bin/livecd-sound"]="0:0:755"
   ["/usr/local/sbin/perrys-bootstrapper.sh"]="0:0:755"
+  ["/etc/pacman.conf"]="0:0:644"
 )
