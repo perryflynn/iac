@@ -4,7 +4,7 @@
 
   tasks:
 
-    - name: Check parameters
+    - name: Check if hostname is known
       assert:
         that:
           - hostname in bootstrapparameters
@@ -13,14 +13,14 @@
       set_fact: { "{{item[0]}}": "{{item[1]}}" }
       loop: "{{bootstrapparameters[hostname].items()}}"
 
-    - name: Check parameters
+    - name: Check bootstrap parameters
       assert:
         that:
           - bootmode == 'uefi' or bootmode == 'bios'
           - flavor == 'debian' or flavor == 'archlinux'
           - diskdev is defined and diskdev is string and (diskdev|length) > 0
 
-    - name: Show parameters to use
+    - name: Show bootstrap parameters to use
       debug:
         var: |
           {
