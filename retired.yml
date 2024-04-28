@@ -130,6 +130,7 @@
           when: xfcestatus_isrunning
           vars:
             xfceparameters:
+              # DISPLAY=:0.0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus xfconf-query -c xfce4-desktop -m
               - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
               - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: "{{xfcekeymap}}" }
               - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: "{{xfcekeymapvariant}}" }
@@ -138,6 +139,9 @@
               - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
               - { c: xfce4-desktop, p: /backdrop/single-workspace-mode, t: bool, v: 'true' }
               - { c: xfce4-desktop, p: /backdrop/screen0/monitorLVDS1/workspace0/last-image, t: string, v: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}" }
+              - { c: xfce4-desktop, p: /backdrop/screen0/monitorLVDS1/workspace0/image-style, t: int, v: "3" }
+              - { c: xfce4-panel, p: /panels/panel-1/autohide-behavior, t: uint, v: "1" }
+              - { c: xfce4-panel, p: /panels/panel-2/autohide-behavior, t: uint, v: "1" }
 
     - name: Finish Setup
       block:
