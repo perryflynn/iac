@@ -1,0 +1,23 @@
+---
+# roles/bluetoothsetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
+- name: Install pulseaudio
+  package:
+    name:
+      - bluez
+      - bluez-utils
+      - blueman
+  notify:
+    - Restart bluetooth
+
+- name: Enable Bluetooth
+  systemd_service:
+    name: bluetooth
+    enabled: true
+  notify:
+    - Restart bluetooth

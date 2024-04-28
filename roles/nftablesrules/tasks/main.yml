@@ -1,0 +1,35 @@
+---
+# roles/nftablesrules/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
+- name: Install nftables
+  package:
+    name:
+      - nftables
+
+- name: Add nftables config
+  template:
+    src: files/nftables.conf.j2
+    dest: /etc/nftables.conf
+    owner: root
+    group: root
+    mode: u=rwx,go=r
+
+- name: Create config folder
+  file:
+    path: /etc/nftables.d/
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+    state: directory
+
+- name: Enable nftables
+  systemd_service:
+    name: nftables
+    enabled: true
+  notify:
+    - Restart nftables

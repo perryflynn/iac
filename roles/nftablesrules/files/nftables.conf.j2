@@ -1,0 +1,27 @@
+#!/usr/sbin/nft -f
+
+flush ruleset
+
+table ip global {
+
+    chain inbound {
+        type filter hook input priority 0; policy drop;
+        ct state vmap { established : accept, related : accept, invalid : drop }
+        iifname lo accept
+
+        {% if nficmp %}
+        icmp type echo-request limit rate 5/second accept
+        {% endif %}
+
+        {% for port in nfinputports_tcp %}
+        tcp dport {{port}} accept
+        {% endfor %}
+
+        {% for port in nfinputports_udp %}
+        udp dport {{port}} accept
+        {% endfor %}
+    }
+
+}
+
+include "/etc/nftables.d/*.nft"

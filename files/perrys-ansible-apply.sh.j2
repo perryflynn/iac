@@ -1,0 +1,18 @@
+#!/bin/bash
+
+set -u
+set -e
+
+export PYTHONUNBUFFERED=1
+
+extraargs=()
+
+if [ "${PERRY_ANSIBLE_SERVICE:-0}" == "1" ]; then
+    extraargs+=( -e "{ \"use_handlers\": \"false\", \"use_reboot\": \"true\" }" )
+fi
+
+if [ "${PERRY_ANSIBLE_DESKTOP:-0}" == "1" ]; then
+    extraargs+=( -e "{ \"use_logout\": \"true\" }" )
+fi
+
+ansible-pull -U "{{selfrepo}}" -C "{{selfbranch}}" -l "$(uname -n)" "${extraargs[@]}"

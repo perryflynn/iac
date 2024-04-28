@@ -1,0 +1,183 @@
+---
+- name: Configure my retired X230 Thinkpad
+  hosts:
+    - retired
+
+  vars:
+    use_handlers: 'true'
+    use_reboot: 'false'
+    use_logout: 'false'
+
+  tasks:
+
+    - name: Install Swapfile
+      include_role:
+        name: swapfilesetup
+      vars:
+        swapsizegb: 8
+        swappath: /swapfile
+
+    - name: Install nftables
+      include_role:
+        name: nftablesrules
+      vars:
+        nfinputports_tcp: [ 22 ]
+
+    - name: Set ssh keys for root account
+      authorized_key:
+        user: root
+        key: "{{rootsshkeys|join('\n')}}"
+        exclusive: true
+
+    - name: Create useraccount
+      include_role:
+        name: useraccount
+
+    - name: Shell Tools
+      block:
+
+        - name: Install shell tools
+          package:
+            name:
+              - vim
+              - htop
+              - curl
+              - mc
+              - screen
+              - git
+              - ncdu
+              - wget
+              - less
+              - neofetch
+              - usbutils
+              - nmap
+              - wireshark-cli
+              - mtr
+
+        - name: Create vimrc
+          copy:
+            dest: /root/.vimrc
+            owner: root
+            group: root
+            mode: u=rw,go=-
+            content: |
+              set background=dark
+              syntax on
+              set mouse=
+
+    - name: Install X11
+      include_role:
+        name: xorgsetup
+      vars:
+        xorg_video_driver: "{{ 'vmware' if ansible_product_name == 'VirtualBox' else 'intel' }}"
+        xorg_handle_lightdm_restart: "{{use_handlers|bool}}"
+
+    - name: Install XFCE
+      include_role:
+        name: xfcesetup
+
+    - name: Install Bluetooth
+      include_role:
+        name: bluetoothsetup
+
+    - name: Install Pulseaudio
+      include_role:
+        name: pulseaudiosetup
+
+    - name: Install NetworkManager
+      include_role:
+        name: networkmanagersetup
+
+    - name: Desktop Tools
+      block:
+
+        - name: Install Desktop Tools
+          package:
+            name:
+              - firefox
+              - code
+              - element-desktop
+              - keepass
+              - bitwarden
+              - gimp
+              - vlc
+              - virt-viewer
+              #- nextcloud-client
+              - libreoffice-still
+              - libreoffice-still-de
+              - wireshark-qt
+
+    - name: Check if xfce is running
+      include_role:
+        name: xfcestatus
+
+    - name: Configure Desktop
+      block:
+
+        - name: Create wallpapers folder
+          file:
+            path: "{{useraccount_home}}/Pictures/Wallpapers"
+            owner: "{{useraccount_uid}}"
+            group: "{{useraccount_gid}}"
+            mode: u=rwx,go=rx
+            state: directory
+
+        - name: Copy wallpaper
+          copy:
+            src: "files/wallpapers/{{wallpaper}}"
+            dest: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}"
+            owner: "{{useraccount_uid}}"
+            group: "{{useraccount_gid}}"
+            mode: u=rwx,go=rx
+
+        - name: Apply XFCE settings
+          include_role:
+            name: xfceconfig
+          when: xfcestatus_isrunning
+          vars:
+            xfceparameters:
+              # DISPLAY=:0.0 DBUS_SESSION_BUS_ADDRESS=unix:path=/run/user/1000/bus xfconf-query -c xfce4-desktop -m
+              - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
+              - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: "{{xfcekeymap}}" }
+              - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: "{{xfcekeymapvariant}}" }
+              - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
+              - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
+              - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
+              - { c: xfce4-desktop, p: /backdrop/single-workspace-mode, t: bool, v: 'true' }
+              - { c: xfce4-desktop, p: /backdrop/screen0/monitorLVDS1/workspace0/last-image, t: string, v: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}" }
+              - { c: xfce4-desktop, p: /backdrop/screen0/monitorLVDS1/workspace0/image-style, t: int, v: "3" }
+              - { c: xfce4-panel, p: /panels/panel-1/autohide-behavior, t: uint, v: "1" }
+              - { c: xfce4-panel, p: /panels/panel-2/autohide-behavior, t: uint, v: "1" }
+
+    - name: Finish Setup
+      block:
+
+        - name: Disable automatic ansible apply service
+          systemd_service:
+            name: perrys-ansible-apply
+            enabled: false
+
+        - name: Trigger handlers
+          ansible.builtin.meta: flush_handlers
+
+        - name: Delete XFCE4 sessions
+          file:
+            path: /home/{{useraccount_name}}/.cache/sessions
+            state: absent
+
+        - name: Logout
+          shell:
+            executable: /usr/bin/bash
+            cmd: 'xfce4-session-logout -l -f'
+          become: true
+          become_user: "{{useraccount_name}}"
+          environment:
+            DISPLAY: :0.0
+            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount_uid}}/bus"
+          when: xfcestatus_isrunning and (use_logout | bool)
+
+        - name: Reboot
+          shell:
+            executable: /usr/bin/bash
+            cmd: reboot
+          when: use_reboot | bool

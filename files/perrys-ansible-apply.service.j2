@@ -1,0 +1,20 @@
+[Unit]
+Description=Perrys Ansible Apply
+Requires=network-online.target
+After=network-online.target
+Before=lightdm.service getty@tty1.service
+
+[Service]
+Type=oneshot
+Restart=no
+User=root
+Group=root
+StandardOutput=journal+console
+StandardError=journal+console
+ExecStart={{selfapplyscript}}
+Environment="HOME=/root"
+Environment="PERRY_ANSIBLE_SERVICE=1"
+
+[Install]
+#WantedBy=network-online.target
+WantedBy=multi-user.target

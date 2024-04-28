@@ -22,6 +22,24 @@ a Dockerfile and some scripts to build a custom Arch Linux installer iso with ad
 - `./archiso/build.sh` builds the container image
 - `./archiso/pack.sh` runs the container image to build the Arch Linux ISO image
 
+## Automatic hostname detection
+
+The `perrys-bootstrapper.sh` script is using UEFI variables to fetch the hostname from the system and use the
+correct ansible inventory variables.
+
+Set hostname in UEFI variable:
+
+```sh
+echo -n wuseldusel > efi-hostname
+efivar --name ed38a5bf-1135-4b0f-aa72-49d30b05dfd4-PerryHostname -w -f efi-hostname
+```
+
+Get the hostname from UEFI variable:
+
+```sh
+cat /sys/firmware/efi/efivars/PerryHostname-ed38a5bf-1135-4b0f-aa72-49d30b05dfd4
+```
+
 ## How to install a OS
 
 - Build the Arch Linux ISO image
@@ -36,4 +54,9 @@ a Dockerfile and some scripts to build a custom Arch Linux installer iso with ad
 
 Run `perrys-ansible-apply.sh` as root.
 
-It pull automatically pull the correct playbook from this repo by the hostname of the operating system.
+It pulls automatically the correct playbook from this repo by the hostname of the operating system.
+
+## TODO
+
+- [x] Swap File
+- [ ] Disk Encryption

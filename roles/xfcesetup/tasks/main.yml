@@ -1,0 +1,51 @@
+---
+# roles/xfcesetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+      - useraccount_name is defined and useraccount_name is string and (useraccount_name|length) > 0
+
+- name: Install Desktop Environment
+  package:
+    name:
+      - xfce4
+      - xfce4-goodies
+      - adobe-source-sans-fonts
+      - adobe-source-serif-fonts
+      - noto-fonts
+      - gnu-free-fonts
+      - ttf-dejavu
+      - ttf-dejavu-nerd
+      - ttf-droid
+      - ttf-liberation
+      - ttf-ubuntu-font-family
+      - gvfs
+      - gvfs-mtp
+      - gvfs-nfs
+      - gvfs-smb
+
+- name: Create autostart folder
+  file:
+    path: "/home/{{useraccount_name}}/.config/autostart"
+    owner: "{{useraccount_name}}"
+    group: "{{useraccount_name}}"
+    mode: u=rwx,go=rx
+    state: directory
+
+- name: Add ansible autostart script
+  template:
+    src: files/autostart-ansible.sh.j2
+    dest: /home/{{useraccount_name}}/.config/xfce-perrys-ansible-apply.sh
+    owner: "{{useraccount_name}}"
+    group: "{{useraccount_name}}"
+    mode: u=rwx,go=r
+
+- name: Add ansible autostart to XDG folder
+  template:
+    src: files/autostart-ansible.desktop.j2
+    dest: /home/{{useraccount_name}}/.config/autostart/ansible.desktop
+    owner: "{{useraccount_name}}"
+    group: "{{useraccount_name}}"
+    mode: u=rwx,go=r

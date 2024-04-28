@@ -1,0 +1,6 @@
+---
+# roles/nftablesrules/defaults/main.yml
+
+nficmp: true
+nfinputports_tcp: []
+nfinputports_udp: []

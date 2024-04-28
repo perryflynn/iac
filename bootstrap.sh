@@ -5,10 +5,14 @@ set -e
 
 export PYTHONUNBUFFERED=1
 
+UEFI_HOSTNAME="/sys/firmware/efi/efivars/PerryHostname-ed38a5bf-1135-4b0f-aa72-49d30b05dfd4"
+UEFI_FLAVOR="/sys/firmware/efi/efivars/PerryFlavor-ed38a5bf-1135-4b0f-aa72-49d30b05dfd4"
+
 # Arguments
 ARG_HELP=0
 UNKNOWN_OPTION=0
-ARG_FLAVOR=archlinux
+ARG_FLAVOR=""
+ARG_HOSTNAME=""
 
 # Arguments from cli
 if [ $# -ge 1 ]
@@ -21,6 +25,10 @@ then
                 shift
                 ARG_FLAVOR=$1
                 ;;
+            --hostname)
+                shift
+                ARG_HOSTNAME=$1
+                ;;
             -h|--help)
                 ARG_HELP=1
                 ;;
@@ -32,9 +40,6 @@ then
         esac
         shift # past argument or value
     done
-else
-    # no arguments passed, show help
-    ARG_HELP=1
 fi
 
 # Help
@@ -51,18 +56,45 @@ then
     echo
     echo "Usage: $0 --flavor [debian|archlinux]"
     echo
-    echo "-h, --help         Print this help"
-    echo "--flavor os        OS to bootstrap"
-    echo "                   one of 'debian' or 'archlinux'"
+    echo "-h, --help          Print this help"
+    echo "--hostname myhost   Override hostname of bootstrapped OS"
+    echo "--flavor os         OS to bootstrap"
+    echo "                    one of 'debian' or 'archlinux'"
     echo
     exit
 fi
 
-loadkeys de
+if [ -z "$ARG_FLAVOR" ] && [ -f "$UEFI_FLAVOR" ]; then
+    ARG_FLAVOR=$(cat "$UEFI_FLAVOR" | tr -cd "[:print:]\r\n\t")
+fi
+
+if [ -z "$ARG_FLAVOR" ]; then
+    ARG_FLAVOR=archlinux
+fi
+
+# Set hostname
 hostnamectl hostname "${ARG_FLAVOR}iso"
 
-mount -o remount,size=2G /run/archiso/cowspace
+# Expand disk size to 50% memory
+memsize=$(cat /proc/meminfo | grep -P "^MemTotal:\s+" | awk '{print $2}')
+mount -o "remount,size=$(($memsize / 1000 / 1000 / 2))G" /run/archiso/cowspace
+
+# Install tools
 pacman --noconfirm --needed -Sy archlinux-keyring
+pacman --noconfirm --needed -Suu
 pacman --noconfirm --needed -S ansible git
 
-ansible-pull -U https://github.com/perryflynn/iac.git -C dev -l "bootstrap-$ARG_FLAVOR"
+# Build arguments
+extraargs=()
+
+if [ -n "$ARG_HOSTNAME" ]; then
+    extraargs+=( -e "{ \"hostname\": \"$ARG_HOSTNAME\" }" )
+elif [ -f "$UEFI_HOSTNAME" ]; then
+    extraargs+=( -e "{ \"hostname\": \"$(cat "$UEFI_HOSTNAME" | tr -cd "[:print:]\r\n\t")\" }" )
+fi
+
+# Run ansible
+ansible-pull \
+    -U https://github.com/perryflynn/iac.git -C dev \
+    -l "bootstrap-$ARG_FLAVOR" \
+    "${extraargs[@]}"

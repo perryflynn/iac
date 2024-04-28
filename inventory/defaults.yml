@@ -2,6 +2,7 @@ all:
   vars:
     selfrepo: https://github.com/perryflynn/iac.git
     selfbranch: dev
+    selfapplyscript: /usr/local/sbin/perrys-ansible-apply.sh
 
     timezone: Europe/Berlin
     timeregion: Europe
@@ -9,8 +10,18 @@ all:
     locale: en_US.UTF-8
     localelong: en_US.UTF-8 UTF-8
     vconsolekeymap: de-latin1
+    xfcekeymap: de
+    xfcekeymapvariant: deadactute
 
     rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
+    rootsshkeys:
+      - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqrQkBwBaMTfN0vHvW6aldKK9MBd8X7GyiaMWLczdNo christian@kompaktes2k'
+
+    username: christian
+    userpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
+    usergroups: [ adm, games, audio, optical, storage, network, sudo ]
+    usersshkeys:
+      - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqrQkBwBaMTfN0vHvW6aldKK9MBd8X7GyiaMWLczdNo christian@kompaktes2k'
 
   children:
 
@@ -27,13 +38,18 @@ all:
     # Bootstrapping Operating Systems
 
     bootstrap:
+      vars:
+        # parameters by target systems hostname
+        bootstrapparameters:
+          retired:
+            bootmode: uefi
+            diskdev: /dev/sda
+
       children:
 
         # I use Arch Linux, btw
         bootstrap-archlinux:
           vars:
-            diskdev: /dev/sda
-            bootmode: uefi
             flavor: archlinux
             chrootmountpoint: /mnt/archlinux
             hostname: mydemoarch
@@ -58,8 +74,6 @@ all:
         # Debian is also okay
         bootstrap-debian:
           vars:
-            diskdev: /dev/sda
-            bootmode: uefi
             flavor: debian
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
@@ -85,5 +99,10 @@ all:
     configuration:
       hosts:
 
-        # retired Thinkpad X230 Laptop
+        # Default hostnames
         mydemoarch:
+        mydemodebian:
+
+        # retired Thinkpad X230 Laptop
+        retired:
+          wallpaper: dragonfly.jpg

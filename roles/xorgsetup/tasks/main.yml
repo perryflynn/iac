@@ -1,0 +1,68 @@
+---
+# roles/xorgsetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+      - xorg_video_driver in [ 'amdgpu', 'intel', 'nouveau', 'vesa', 'vmware' ]
+
+- name: Install graphics driver
+  package:
+    name: "xf86-video-{{xorg_video_driver}}"
+
+- name: Install virtualbox guest utilities
+  package:
+    name: virtualbox-guest-utils
+  when: ansible_product_name == 'VirtualBox'
+
+- name: Install LightDM
+  package:
+    name:
+      - lightdm
+      - lightdm-gtk-greeter
+      - xorg-xrandr
+
+- name: Let LightDM wait until graphical drivers are ready
+  lineinfile:
+    path: /etc/lightdm/lightdm.conf
+    regexp: '^#?logind-check-graphical='
+    line: logind-check-graphical=true
+  notify:
+    - Restart lightdm
+
+- name: Check if x.org config exist
+  stat:
+    path: /etc/X11/xorg.conf
+  register: xconfexist
+
+- name: Create x.org configuration
+  shell:
+    executable: /usr/bin/bash
+    cmd: |
+      Xorg :0 -configure
+  when: not xconfexist.stat.exists
+
+- name: Install new x.org configuration
+  copy:
+    remote_src: true
+    src: /root/xorg.conf.new
+    dest: /etc/X11/xorg.conf
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  when: not xconfexist.stat.exists
+  notify:
+    - Restart lightdm
+
+- name: Cleanup temp x.org file
+  file:
+    path: /root/xorg.conf.new
+    state: absent
+
+- name: Enable lightdm
+  systemd_service:
+    name: lightdm
+    enabled: true
+  notify:
+    - Restart lightdm

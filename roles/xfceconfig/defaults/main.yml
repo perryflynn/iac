@@ -1,0 +1,5 @@
+---
+# roles/xfceconfig/defaults/main.yml
+
+x11desktop: :0.0
+xfceparameters: []
