@@ -126,7 +126,7 @@
 
         - name: Apply XFCE settings
           include_role:
-            name: xfcestatus
+            name: xfceconfig
           when: xfcestatus_isrunning
           vars:
             xfceparameters:
