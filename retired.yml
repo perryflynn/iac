@@ -105,18 +105,39 @@
       include_role:
         name: xfcestatus
 
-    - name: Configure XFCE Desktop
-      include_role:
-        name: xfcestatus
-      when: xfcestatus_isrunning
-      vars:
-        xfceparameters:
-          - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
-          - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: "{{xfcekeymap}}" }
-          - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: "{{xfcekeymapvariant}}" }
-          - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
-          - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
-          - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
+    - name: Configure Desktop
+      block:
+
+        - name: Create wallpapers folder
+          file:
+            path: "{{useraccount_home}}/Pictures/Wallpapers"
+            owner: "{{useraccount_uid}}"
+            group: "{{useraccount_gid}}"
+            mode: u=rwx,go=rx
+            state: directory
+
+        - name: Copy wallpaper
+          copy:
+            src: "files/wallpapers/{{wallpaper}}"
+            dest: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}"
+            owner: "{{useraccount_uid}}"
+            group: "{{useraccount_gid}}"
+            mode: u=rwx,go=rx
+
+        - name: Apply XFCE settings
+          include_role:
+            name: xfcestatus
+          when: xfcestatus_isrunning
+          vars:
+            xfceparameters:
+              - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
+              - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: "{{xfcekeymap}}" }
+              - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: "{{xfcekeymapvariant}}" }
+              - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
+              - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
+              - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
+              - { c: xfce4-desktop, p: /backdrop/single-workspace-mode, t: bool, v: 'true' }
+              - { c: xfce4-desktop, p: /backdrop/screen0/monitorLVDS1/workspace0/last-image, t: string, v: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}" }
 
     - name: Finish Setup
       block:

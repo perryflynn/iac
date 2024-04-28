@@ -63,3 +63,5 @@
   set_fact:
     useraccount_name: "{{useraccount.name}}"
     useraccount_uid: "{{useraccount.uid}}"
+    useraccount_gid: "{{useraccount.group}}"
+    useraccount_home: "{{useraccount.home}}"
