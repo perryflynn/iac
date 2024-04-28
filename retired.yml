@@ -69,8 +69,6 @@
     - name: Install XFCE
       include_role:
         name: xfcesetup
-      vars:
-        xfceusername: "{{useraccount_name}}"
 
     - name: Install Bluetooth
       include_role:
