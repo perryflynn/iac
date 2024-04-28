@@ -1,0 +1,65 @@
+---
+# roles/useraccount/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+      - username is defined
+      - userpassword is defined
+      - usergroups is defined
+      - selfapplyscript is defined
+      - usersshkeys is defined
+
+- name: Create sudo group
+  group:
+    name: sudo
+    system: true
+
+- name: Install sudo
+  package:
+    name: sudo
+
+- name: Enable sudo group in sudoers
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^[# ]+%sudo '
+    line: '%sudo ALL=(ALL:ALL) ALL'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Allow passwordless sudo for ansible-apply
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^ALL .*? {{selfapplyscript}}$'
+    line: 'ALL ALL=NOPASSWD:SETENV: {{selfapplyscript}}'
+    validate: /usr/sbin/visudo -cf %s
+
+- name: Install user group
+  group:
+    name: "{{username}}"
+
+- name: Install user
+  user:
+    append: true
+    create_home: true
+    group: "{{username}}"
+    groups: "{{ [ username ] + usergroups }}"
+    home: "/home/{{username}}"
+    name: "{{username}}"
+    password: "{{userpassword}}"
+    shell: /usr/bin/bash
+    update_password: on_create
+  register: useraccount
+
+- name: Set ssh keys for user account
+  authorized_key:
+    user: "{{username}}"
+    key: "{{usersshkeys|join('\n')}}"
+    exclusive: true
+
+- name: Register return values
+  set_fact:
+    useraccount_name: "{{useraccount.name}}"
+    useraccount_uid: "{{useraccount.uid}}"

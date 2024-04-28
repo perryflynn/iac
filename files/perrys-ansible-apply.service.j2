@@ -11,7 +11,7 @@ User=root
 Group=root
 StandardOutput=journal+console
 StandardError=journal+console
-ExecStart=/usr/local/sbin/perrys-ansible-apply.sh
+ExecStart={{selfapplyscript}}
 Environment="HOME=/root"
 Environment="PERRY_ANSIBLE_SERVICE=1"
 

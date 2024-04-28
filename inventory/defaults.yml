@@ -2,6 +2,7 @@ all:
   vars:
     selfrepo: https://github.com/perryflynn/iac.git
     selfbranch: dev
+    selfapplyscript: /usr/local/sbin/perrys-ansible-apply.sh
 
     timezone: Europe/Berlin
     timeregion: Europe
@@ -9,6 +10,8 @@ all:
     locale: en_US.UTF-8
     localelong: en_US.UTF-8 UTF-8
     vconsolekeymap: de-latin1
+    xfcekeymap: de
+    xfcekeymapvariant: deadactute
 
     rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
     rootsshkeys:

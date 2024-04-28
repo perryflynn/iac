@@ -312,7 +312,7 @@
     - name: Add ansible apply script to OS
       template:
         src: files/perrys-ansible-apply.sh.j2
-        dest: /usr/local/sbin/perrys-ansible-apply.sh
+        dest: "{{selfapplyscript}}"
         owner: root
         group: root
         mode: u=rwx,g=rx,o=r

@@ -17,62 +17,15 @@
         swapsizegb: 8
         swappath: /swapfile
 
-    - name: Install user account
-      block:
+    - name: Set ssh keys for root account
+      authorized_key:
+        user: root
+        key: "{{rootsshkeys|join('\n')}}"
+        exclusive: true
 
-        - name: Set ssh keys for root account
-          authorized_key:
-            user: root
-            key: "{{rootsshkeys|join('\n')}}"
-            exclusive: true
-
-        - name: Create sudo group
-          group:
-            name: sudo
-            system: true
-
-        - name: Install sudo
-          package:
-            name: sudo
-
-        - name: Enable sudo group in sudoers
-          lineinfile:
-            path: /etc/sudoers
-            state: present
-            regexp: '^[# ]+%sudo '
-            line: '%sudo ALL=(ALL:ALL) ALL'
-            validate: /usr/sbin/visudo -cf %s
-
-        - name: Allow passwordless sudo for ansible-apply
-          lineinfile:
-            path: /etc/sudoers
-            state: present
-            regexp: '^ALL .*? /usr/local/sbin/perrys-ansible-apply.sh$'
-            line: 'ALL ALL=NOPASSWD:SETENV: /usr/local/sbin/perrys-ansible-apply.sh'
-            validate: /usr/sbin/visudo -cf %s
-
-        - name: Install user group
-          group:
-            name: "{{username}}"
-
-        - name: Install user
-          user:
-            append: true
-            create_home: true
-            group: "{{username}}"
-            groups: "{{ [ username ] + usergroups }}"
-            home: "/home/{{username}}"
-            name: "{{username}}"
-            password: "{{userpassword}}"
-            shell: /usr/bin/bash
-            update_password: on_create
-          register: useraccount
-
-        - name: Set ssh keys for user account
-          authorized_key:
-            user: "{{username}}"
-            key: "{{usersshkeys|join('\n')}}"
-            exclusive: true
+    - name: Create useraccount
+      include_role:
+        name: useraccount
 
     - name: Shell Tools
       block:
@@ -116,6 +69,8 @@
     - name: Install XFCE
       include_role:
         name: xfcesetup
+      vars:
+        xfceusername: "{{useraccount_name}}"
 
     - name: Install Bluetooth
       include_role:
@@ -151,35 +106,11 @@
     - name: XFCE Desktop configuration
       block:
 
-        - name: Create autostart folder
-          file:
-            path: "/home/{{useraccount.name}}/.config/autostart"
-            owner: "{{useraccount.name}}"
-            group: "{{useraccount.name}}"
-            mode: u=rwx,go=rx
-            state: directory
-
-        - name: Add ansible autostart script
-          template:
-            src: files/autostart-ansible.sh.j2
-            dest: /home/{{useraccount.name}}/.config/xfce-perrys-ansible-apply.sh
-            owner: "{{useraccount.name}}"
-            group: "{{useraccount.name}}"
-            mode: u=rwx,go=r
-
-        - name: Add ansible autostart to XDG folder
-          template:
-            src: files/autostart-ansible.desktop.j2
-            dest: /home/{{useraccount.name}}/.config/autostart/ansible.desktop
-            owner: "{{useraccount.name}}"
-            group: "{{useraccount.name}}"
-            mode: u=rwx,go=r
-
         - name: Check if xfce4-sesion is active
           shell:
             executable: /usr/bin/bash
             cmd: |
-              if ( pgrep -U {{useraccount.uid}} -x xfce4-session > /dev/null 2>&1 )
+              if ( pgrep -U {{useraccount_name}} -x xfce4-session > /dev/null 2>&1 )
               then
                   exit 98
               fi
@@ -203,14 +134,14 @@
 
               exit 99
           become: true
-          become_user: "{{useraccount.name}}"
+          become_user: "{{useraccount_name}}"
           environment:
             DISPLAY: :0.0
-            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
+            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount_uid}}/bus"
           loop:
             - { c: keyboard-layout, p: /Default/XkbDisable, t: bool, v: 'false' }
-            - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: 'de' }
-            - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: 'deadactute' }
+            - { c: keyboard-layout, p: /Default/XkbLayout, t: string, v: "{{xfcekeymap}}" }
+            - { c: keyboard-layout, p: /Default/XkbVariant, t: string, v: "{{xfcekeymapvariant}}" }
             - { c: xfce4-session, p: /shutdown/LockScreen, t: bool, v: 'true' }
             - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
             - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
@@ -232,7 +163,7 @@
 
         - name: Delete XFCE4 sessions
           file:
-            path: /home/{{useraccount.name}}/.cache/sessions
+            path: /home/{{useraccount_name}}/.cache/sessions
             state: absent
 
         - name: Logout
@@ -240,10 +171,10 @@
             executable: /usr/bin/bash
             cmd: 'xfce4-session-logout -l -f'
           become: true
-          become_user: "{{useraccount.name}}"
+          become_user: "{{useraccount_name}}"
           environment:
             DISPLAY: :0.0
-            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount.uid}}/bus"
+            DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount_uid}}/bus"
           when: xfcestatus.rc == 98 and (use_logout | bool)
 
         - name: Reboot

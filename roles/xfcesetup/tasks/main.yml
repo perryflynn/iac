@@ -5,6 +5,7 @@
   assert:
     that:
       - ansible_distribution == 'Archlinux'
+      - xfceusername is defined and xfceusername is string and (xfceusername|length) > 0
 
 - name: Install Desktop Environment
   package:
@@ -24,3 +25,27 @@
       - gvfs-mtp
       - gvfs-nfs
       - gvfs-smb
+
+- name: Create autostart folder
+  file:
+    path: "/home/{{xfceusername}}/.config/autostart"
+    owner: "{{xfceusername}}"
+    group: "{{xfceusername}}"
+    mode: u=rwx,go=rx
+    state: directory
+
+- name: Add ansible autostart script
+  template:
+    src: files/autostart-ansible.sh.j2
+    dest: /home/{{xfceusername}}/.config/xfce-perrys-ansible-apply.sh
+    owner: "{{xfceusername}}"
+    group: "{{xfceusername}}"
+    mode: u=rwx,go=r
+
+- name: Add ansible autostart to XDG folder
+  template:
+    src: files/autostart-ansible.desktop.j2
+    dest: /home/{{xfceusername}}/.config/autostart/ansible.desktop
+    owner: "{{xfceusername}}"
+    group: "{{xfceusername}}"
+    mode: u=rwx,go=r

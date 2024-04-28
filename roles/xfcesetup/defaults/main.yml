@@ -1,0 +1,4 @@
+---
+# roles/xfcesetup/defaults/main.yml
+
+xfceusername: ''
