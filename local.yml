@@ -4,31 +4,35 @@
 
   tasks:
 
-    - name: Check if hostname is known
-      assert:
-        that:
-          - hostname in bootstrapparameters
+    - &prepare_environment
+      name: Prepare environment
+      block:
 
-    - name: Decleare bootstrap parameters
-      set_fact: { "{{item[0]}}": "{{item[1]}}" }
-      loop: "{{bootstrapparameters[hostname].items()}}"
+        - name: Check if hostname is known
+          assert:
+            that:
+              - hostname in bootstrapparameters
 
-    - name: Check bootstrap parameters
-      assert:
-        that:
-          - bootmode == 'uefi' or bootmode == 'bios'
-          - flavor == 'debian' or flavor == 'archlinux'
-          - diskdev is defined and diskdev is string and (diskdev|length) > 0
+        - name: Decleare bootstrap parameters
+          set_fact: { "{{item[0]}}": "{{item[1]}}" }
+          loop: "{{bootstrapparameters[hostname].items()}}"
 
-    - name: Show bootstrap parameters to use
-      debug:
-        var: |
-          {
-            'hostname': hostname,
-            'bootmode': bootmode,
-            'flavor': flavor,
-            'diskdev': diskdev
-          }
+        - name: Check bootstrap parameters
+          assert:
+            that:
+              - bootmode == 'uefi' or bootmode == 'bios'
+              - flavor == 'debian' or flavor == 'archlinux'
+              - diskdev is defined and diskdev is string and (diskdev|length) > 0
+
+        - name: Show bootstrap parameters to use
+          debug:
+            var: |
+              {
+                'hostname': hostname,
+                'bootmode': bootmode,
+                'flavor': flavor,
+                'diskdev': diskdev
+              }
 
     - name: Pause for checking parameters
       pause:
@@ -161,11 +165,7 @@
 
   tasks:
 
-    - name: Check parameters
-      assert:
-        that:
-          - bootmode == 'uefi' or bootmode == 'bios'
-          - flavor == 'debian' or flavor == 'archlinux'
+    - *prepare_environment
 
     - name: Configure Arch Linux System
       block:
