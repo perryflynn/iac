@@ -1,0 +1,7 @@
+---
+# roles/nftablesrules/handlers/main.yml
+
+- name: Restart nftables
+  systemd_service:
+    name: nftables
+    state: restarted

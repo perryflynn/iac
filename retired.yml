@@ -17,6 +17,12 @@
         swapsizegb: 8
         swappath: /swapfile
 
+    - name: Install nftables
+      include_role:
+        name: nftablesrules
+      vars:
+        nfinputports_tcp: [ 22 ]
+
     - name: Set ssh keys for root account
       authorized_key:
         user: root
