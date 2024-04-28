@@ -7,12 +7,34 @@
     - name: Check parameters
       assert:
         that:
+          - hostname in bootstrapparameters
+
+    - name: Decleare bootstrap parameters
+      set_fact: { "{{item[0]}}": "{{item[1]}}" }
+      loop: "{{bootstrapparameters[hostname].items()}}"
+
+    - name: Check parameters
+      assert:
+        that:
           - bootmode == 'uefi' or bootmode == 'bios'
           - flavor == 'debian' or flavor == 'archlinux'
+          - diskdev is defined and diskdev is string and (diskdev|length) > 0
 
-    - name: Show hostname to use
+    - name: Show parameters to use
       debug:
-        var: hostname
+        var: |
+          {
+            'hostname': hostname,
+            'bootmode': bootmode,
+            'flavor': flavor,
+            'diskdev': diskdev
+          }
+
+    - name: Pause for checking parameters
+      pause:
+        echo: false
+        prompt: Check the parameters above, will continue on ENTER for after 30 seconds
+        seconds: 30
 
     - name: Set timezone
       timezone:

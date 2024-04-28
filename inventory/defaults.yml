@@ -35,13 +35,18 @@ all:
     # Bootstrapping Operating Systems
 
     bootstrap:
+      vars:
+        # parameters by target systems hostname
+        bootstrapparameters:
+          retired:
+            bootmode: uefi
+            diskdev: /dev/sda
+
       children:
 
         # I use Arch Linux, btw
         bootstrap-archlinux:
           vars:
-            diskdev: /dev/sda
-            bootmode: uefi
             flavor: archlinux
             chrootmountpoint: /mnt/archlinux
             hostname: mydemoarch
@@ -66,8 +71,6 @@ all:
         # Debian is also okay
         bootstrap-debian:
           vars:
-            diskdev: /dev/sda
-            bootmode: uefi
             flavor: debian
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
