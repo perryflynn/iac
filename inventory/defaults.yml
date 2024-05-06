@@ -44,6 +44,9 @@ all:
           retired:
             bootmode: uefi
             diskdev: /dev/sda
+          biostest:
+            bootmode: bios
+            diskdev: /dev/sda
 
       children:
 
