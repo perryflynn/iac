@@ -49,8 +49,8 @@ all:
           biostest:
             bootmode: bios
             diskdev: /dev/sda
-          mydemoarch:
-            bootmode: bios
+          uefitest:
+            bootmode: uefi
             diskdev: /dev/sda
 
       children:
@@ -124,6 +124,9 @@ all:
         mydemoarch:
         mydemodebian:
         mydemoubuntu:
+
+        uefitest:
+        biostest:
 
         # retired Thinkpad X230 Laptop
         retired:
