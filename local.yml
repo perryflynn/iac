@@ -205,7 +205,7 @@
     - *prepare_environment
 
     - name: Update package sources for Debian/Ubuntu Systems
-      import_role:
+      include_role:
         name: sourceslist
         defaults_from: "{{flavor}}-{{codename}}"
       when: flavor in [ ubuntu, debian ]
