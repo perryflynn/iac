@@ -49,6 +49,9 @@ all:
           biostest:
             bootmode: bios
             diskdev: /dev/sda
+          mydemoarch:
+            bootmode: bios
+            diskdev: /dev/sda
 
       children:
 
