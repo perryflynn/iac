@@ -44,17 +44,7 @@
 
     - name: Set locale
       locale_gen:
-        name: "{{locale}}"
-
-    - name: Install required packages
-      package:
-        name: "{{item}}"
-      loop:
-        - parted
-        - dosfstools
-        - e2fsprogs
-        - bash
-        - debootstrap
+        name: en_US.UTF-8
 
     - name: Create BIOS boot partition
       parted:

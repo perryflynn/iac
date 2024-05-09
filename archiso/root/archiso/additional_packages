@@ -1,1 +1,7 @@
 git
+ansible
+parted
+dosfstools
+e2fsprogs
+bash
+debootstrap

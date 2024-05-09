@@ -75,15 +75,6 @@ fi
 # Set hostname
 hostnamectl hostname "${ARG_FLAVOR}iso"
 
-# Expand disk size to 50% memory
-memsize=$(cat /proc/meminfo | grep -P "^MemTotal:\s+" | awk '{print $2}')
-mount -o "remount,size=$(($memsize / 1000 / 1000 / 2))G" /run/archiso/cowspace
-
-# Install tools
-pacman --noconfirm --needed -Sy archlinux-keyring
-pacman --noconfirm --needed -Suu
-pacman --noconfirm --needed -S ansible git
-
 # Build arguments
 extraargs=()
 
