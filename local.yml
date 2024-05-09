@@ -334,7 +334,7 @@
               - grub-efi
               - os-prober
 
-        - name: Install Debian/Ubuntu Linux Kernel
+        - name: Install Ubuntu Linux Kernel
           apt:
             name: linux-generic
           when: flavor == 'ubuntu'
@@ -386,7 +386,7 @@
       shell:
         executable: /bin/bash
         cmd: |
-          grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --no-nvram --removable
+          grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --recheck --no-nvram --removable
           grub-mkconfig -o /boot/grub/grub.cfg
       when: flavor == 'archlinux' and bootmode == 'uefi'
 
@@ -402,7 +402,7 @@
       shell:
         executable: /bin/bash
         cmd: |
-          grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --no-nvram --removable
+          grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck --no-nvram --removable
           update-grub
       when: flavor in [ 'debian', 'ubuntu' ] and bootmode == 'uefi'
 
