@@ -21,7 +21,7 @@
           assert:
             that:
               - bootmode == 'uefi' or bootmode == 'bios'
-              - flavor == 'debian' or flavor == 'archlinux'
+              - flavor in [ 'debian', 'ubuntu', 'archlinux' ]
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
 
         - name: Show bootstrap parameters to use
@@ -34,7 +34,7 @@
                 'diskdev': diskdev
               }
 
-    - name: Pause for checking parameters
+    - name: Give the user time to check the shown parameters
       pause:
         seconds: 30
 
@@ -45,6 +45,8 @@
     - name: Set locale
       locale_gen:
         name: en_US.UTF-8
+
+    # -> Partition Disk
 
     - name: Create BIOS boot partition
       parted:
@@ -115,12 +117,14 @@
         fstype: ext4
         state: ephemeral
 
+    # -> Bootstrap root filesystem
+
     - name: Run pacstrap for Arch Linux
       shell:
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr {{additionalpackages|join(' ')}}
+          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr
       when: flavor == 'archlinux'
 
     - name: Run debootstrap for Debian
@@ -129,8 +133,64 @@
         executable: /bin/bash
         cmd: |
           debootstrap --variant=minbase --arch amd64 bookworm {{chrootmountpoint}} http://deb.debian.org/debian/
-          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages|join(' ')}}"
       when: flavor == 'debian'
+
+    - name: Run debootstrap for Ubuntu
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          debootstrap --variant=minbase --no-check-certificate --arch amd64 noble {{chrootmountpoint}} http://de.archive.ubuntu.com/ubuntu/
+      when: flavor == 'ubuntu'
+
+    # -> Customizations to make networking work for proxies / corporate CAs
+
+    - name: Ensure environment variables
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cp /etc/environment {{chrootmountpoint}}/etc/environment
+
+    - name: Ensure TLS certificates on Arch Linux systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cat /etc/ca-certificates/trust-source/anchors/*.crt >> {{chrootmountpoint}}/etc/ssl/certs/ca-certificates.crt || true
+          mkdir -p {{chrootmountpoint}}/etc/ca-certificates/trust-source/anchors
+          cp /etc/ca-certificates/trust-source/anchors/*.crt {{chrootmountpoint}}/etc/ca-certificates/trust-source/anchors || true
+      when: flavor == 'archlinux'
+
+    - name: Ensure TLS certificates on Debian/Ubuntu systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cat /etc/ca-certificates/trust-source/anchors/*.crt >> {{chrootmountpoint}}/etc/ssl/certs/ca-certificates.crt || true
+          mkdir -p {{chrootmountpoint}}/usr/local/share/ca-certificates
+          cp /etc/ca-certificates/trust-source/anchors/*.crt {{chrootmountpoint}}/usr/local/share/ca-certificates || true
+      when: flavor in [ 'debian', 'ubuntu' ]
+
+    # -> Install additional packages required to make chroot work
+
+    - name: Install additional packages on Arch Linux Systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy {{additionalpackages|join(' ')}}"
+      when: flavor == 'archlinux'
+
+    - name: Install additional packages on Debian/Ubuntu Systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages|join(' ')}}"
+      when: flavor in [ 'debian', 'ubuntu' ]
+
+    # -> Prepare chroot for second stage
 
     - name: Ensure chroot is mounted
       include_role:
@@ -141,7 +201,7 @@
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
-    - name: Run genfstab
+    - name: Generate fstab file
       shell:
         chdir: /
         executable: /bin/bash

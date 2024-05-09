@@ -29,11 +29,13 @@ all:
       hosts:
         archlinuxiso:
         debianiso:
+        ubuntuiso:
 
     chroots:
       hosts:
         /mnt/archlinux:
         /mnt/debian:
+        /mnt/ubuntu:
 
     # Bootstrapping Operating Systems
 
@@ -97,6 +99,29 @@ all:
             /mnt/debian:
               ansible_connection: chroot
 
+        # So is Ubuntu...
+        bootstrap-ubuntu:
+          vars:
+            flavor: ubuntu
+            chrootmountpoint: /mnt/ubuntu
+            hostname: mydemoubuntu
+            additionalpackages:
+              - ansible
+              - network-manager
+              - openssh-server
+              - git
+              - net-tools
+              - dnsutils
+              - curl
+              - ca-certificates
+              - gnupg
+              - iputils-ping
+              - iproute2
+          hosts:
+            ubuntuiso:
+            /mnt/ubuntu:
+              ansible_connection: chroot
+
     # Configure Operating Systems
 
     configuration:
@@ -105,6 +130,7 @@ all:
         # Default hostnames
         mydemoarch:
         mydemodebian:
+        mydemoubuntu:
 
         # retired Thinkpad X230 Laptop
         retired:
