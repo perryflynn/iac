@@ -325,6 +325,13 @@
               - firmware-linux
           when: flavor == 'debian'
 
+        - name: Ensure uninstalled packages
+          apt:
+            name:
+              - grub2
+              - grub-efi
+              - os-prober
+
         - name: Install Debian/Ubuntu Linux Kernel
           apt:
             name: linux-generic
@@ -393,7 +400,7 @@
       shell:
         executable: /bin/bash
         cmd: |
-          grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --no-nvram --removable
+          grub-install {{diskdev}}
           update-grub
       when: flavor in [ 'debian', 'ubuntu' ] and bootmode == 'uefi'
 
