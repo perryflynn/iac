@@ -152,6 +152,13 @@
         cmd: |
           cp /etc/environment {{chrootmountpoint}}/etc/environment
 
+    - name: Ensure resolv.conf
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cp /etc/resolv.conf {{chrootmountpoint}}/etc/resolv.conf
+
     - name: Ensure TLS certificates on Arch Linux systems
       shell:
         chdir: /
