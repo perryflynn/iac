@@ -205,7 +205,7 @@
         defaults_from: "{{flavor}}-{{codename}}"
       vars:
         sourcesfileprefix: "{{chrootmountpoint}}"
-      when: flavor in [ ubuntu, debian ]
+      when: flavor in [ 'ubuntu', 'debian' ]
 
     - name: Install additional packages on Arch Linux Systems
       shell:
