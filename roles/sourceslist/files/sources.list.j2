@@ -1,10 +1,10 @@
 # Default package sources for {{sourcesflavor}}
 
 {% for source in sources %}
-Types: {{source.types|join(' ')
+Types: {{source.types|join(' ')}}
 URIs: {{source.url}}
-Suites: {{source.suites|join(' ')
-Components: {{source.components|join(' ')
+Suites: {{source.suites|join(' ')}}
+Components: {{source.components|join(' ')}}
 Signed-By: {{source.signedby}}
 
 {% endfor %}
