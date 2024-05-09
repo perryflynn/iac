@@ -325,8 +325,10 @@
               - firmware-linux
           when: flavor == 'debian'
 
-        - name: Ensure uninstalled packages
+        - name: Ensure bootloader packages are uninstalled
           apt:
+            state: absent
+            purge: true
             name:
               - grub2
               - grub-efi
