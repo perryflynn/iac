@@ -402,7 +402,8 @@
       shell:
         executable: /bin/bash
         cmd: |
-          grub-install {{diskdev}}
+          #grub-install {{diskdev}}
+          grub-install --target=x86_64-efi --efi-directory=/boot/efi --recheck --no-nvram --removable
           update-grub
       when: flavor in [ 'debian', 'ubuntu' ] and bootmode == 'uefi'
 
