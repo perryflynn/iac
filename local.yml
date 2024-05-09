@@ -235,7 +235,7 @@
         name: "{{additionalpackages}}"
         force_apt_get: true
         update_cache: true
-      when: flavor in [ ubuntu, debian ]
+      when: flavor in [ 'ubuntu', 'debian' ]
 
     - name: Install additional software for Arch Linux Systems
       pacman:
