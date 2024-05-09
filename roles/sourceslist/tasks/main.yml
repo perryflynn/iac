@@ -9,7 +9,7 @@
 
 - name: Clear sources.list
   copy:
-    dest: /etc/apt/sources.list
+    dest: "{{sourcesfileprefix}}/etc/apt/sources.list"
     owner: root
     group: root
     mode: u=rw,go=r
@@ -20,7 +20,7 @@
 - name: Create file in sources.list.d
   template:
     src: files/sources.list.j2
-    dest: "{{sourcesfile}}"
+    dest: "{{sourcesfileprefix}}{{sourcesfile}}"
     owner: root
     group: root
     mode: u=rw,go=r

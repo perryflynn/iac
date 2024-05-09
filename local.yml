@@ -197,18 +197,38 @@
         cmd: |
           genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
+    # -> Install additional packages to make ansible chroot work
+
+    - name: Update package sources for Debian/Ubuntu Systems
+      include_role:
+        name: sourceslist
+        defaults_from: "{{flavor}}-{{codename}}"
+      vars:
+        sourcesfileprefix: "{{chrootmountpoint}}"
+      when: flavor in [ ubuntu, debian ]
+
+    - name: Install additional packages on Arch Linux Systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy git ansible curl ca-certificates"
+      when: flavor == 'archlinux'
+
+    - name: Install additional packages on Debian/Ubuntu Systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y git ansible curl ca-certificates"
+      when: flavor in [ 'debian', 'ubuntu' ]
+
 - name: Continue setup in chroot
   hosts: chroots
 
   tasks:
 
     - *prepare_environment
-
-    - name: Update package sources for Debian/Ubuntu Systems
-      include_role:
-        name: sourceslist
-        defaults_from: "{{flavor}}-{{codename}}"
-      when: flavor in [ ubuntu, debian ]
 
     - name: Install additional software for Debian/Ubuntu Systems
       apt:

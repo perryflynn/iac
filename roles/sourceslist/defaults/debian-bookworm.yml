@@ -1,4 +1,5 @@
 sourcesflavor: 'Debian 12 Bookworm'
+sourcesfileprefix: ''
 sourcesfile: /etc/apt/sources.list.d/debian.sources
 sources:
   - types: [ deb, deb-src ]

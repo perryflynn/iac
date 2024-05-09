@@ -1,4 +1,5 @@
 sourcesflavor: 'Ubuntu 24.04 Noble'
+sourcesfileprefix: ''
 sourcesfile: /etc/apt/sources.list.d/ubuntu.sources
 sources:
   - types: [ deb, deb-src ]

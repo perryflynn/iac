@@ -62,15 +62,11 @@ all:
             chrootmountpoint: /mnt/archlinux
             hostname: mydemoarch
             additionalpackages:
-              - ansible
               - networkmanager
               - openssh
-              - git
               - inetutils
               - net-tools
               - dnsutils
-              - curl
-              - ca-certificates
               - gnupg
               - iputils
               - iproute2
@@ -87,14 +83,10 @@ all:
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
             additionalpackages:
-              - ansible
               - network-manager
               - openssh-server
-              - git
               - net-tools
               - dnsutils
-              - curl
-              - ca-certificates
               - gnupg
               - iputils-ping
               - iproute2
@@ -111,14 +103,10 @@ all:
             chrootmountpoint: /mnt/ubuntu
             hostname: mydemoubuntu
             additionalpackages:
-              - ansible
               - network-manager
               - openssh-server
-              - git
               - net-tools
               - dnsutils
-              - curl
-              - ca-certificates
               - gnupg
               - iputils-ping
               - iproute2
