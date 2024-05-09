@@ -315,11 +315,20 @@
         #     cmd: |
         #       debconf-set-selections <<< "grub-efi-amd64 grub2/update_nvram boolean false"
 
-        - name: Install Debian/Ubuntu Linux Kernel
+        - name: Install Debian Linux Kernel
           apt:
             name:
-              - linux-image-amd64
-              - linux-headers-amd64
+              - linux-image-generic
+              - linux-headers-generic
+              - intel-microcode
+              - amd64-microcode
+              - firmware-linux
+          when: flavor == 'debian'
+
+        - name: Install Debian/Ubuntu Linux Kernel
+          apt:
+            name: linux-generic
+          when: flavor == 'ubuntu'
 
         - name: Install Grub for BIOS on Debian/Ubuntu
           apt:
