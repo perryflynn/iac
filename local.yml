@@ -197,30 +197,31 @@
         cmd: |
           genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
-    # -> Install additional packages required to make chroot work
-
-    - name: Install additional packages on Arch Linux Systems
-      shell:
-        chdir: /
-        executable: /bin/bash
-        cmd: |
-          chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy {{additionalpackages|join(' ')}}"
-      when: flavor == 'archlinux'
-
-    - name: Install additional packages on Debian/Ubuntu Systems
-      shell:
-        chdir: /
-        executable: /bin/bash
-        cmd: |
-          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages|join(' ')}}"
-      when: flavor in [ 'debian', 'ubuntu' ]
-
 - name: Continue setup in chroot
   hosts: chroots
 
   tasks:
 
     - *prepare_environment
+
+    - name: Update package sources for Debian/Ubuntu Systems
+      import_role:
+        name: sourceslist
+        defaults_from: "{{flavor}}-{{codename}}"
+      when: flavor in [ ubuntu, debian ]
+
+    - name: Install additional software for Debian/Ubuntu Systems
+      apt:
+        name: "{{additionalpackages}}"
+        force_apt_get: true
+        update_cache: true
+      when: flavor in [ ubuntu, debian ]
+
+    - name: Install additional software for Arch Linux Systems
+      pacman:
+        name: "{{additionalpackages}}"
+        update_cache: true
+      when: flavor == 'archlinux'
 
     - name: Configure Arch Linux System
       block:

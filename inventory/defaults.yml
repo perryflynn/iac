@@ -83,6 +83,7 @@ all:
         bootstrap-debian:
           vars:
             flavor: debian
+            codename: bookworm
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
             additionalpackages:
@@ -106,6 +107,7 @@ all:
         bootstrap-ubuntu:
           vars:
             flavor: ubuntu
+            codename: noble
             chrootmountpoint: /mnt/ubuntu
             hostname: mydemoubuntu
             additionalpackages:

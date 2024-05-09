@@ -1,0 +1,13 @@
+sourcesflavor: 'Ubuntu 24.04 Noble'
+sourcesfile: /etc/apt/sources.list.d/ubuntu.sources
+sources:
+  - types: [ deb, deb-src ]
+    url: http://archive.ubuntu.com/ubuntu/
+    suites: [ noble, noble-updates, noble-backports ]
+    components: [ main, universe, restricted, multiverse ]
+    signedby: /usr/share/keyrings/ubuntu-archive-keyring.gpg
+  - types: [ deb, deb-src ]
+    url: http://security.ubuntu.com/ubuntu/
+    suites: [ noble-security ]
+    components: [ main, universe, restricted, multiverse ]
+    signedby: /usr/share/keyrings/ubuntu-archive-keyring.gpg
