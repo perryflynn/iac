@@ -172,24 +172,6 @@
           cp /etc/ca-certificates/trust-source/anchors/*.crt {{chrootmountpoint}}/usr/local/share/ca-certificates || true
       when: flavor in [ 'debian', 'ubuntu' ]
 
-    # -> Install additional packages required to make chroot work
-
-    - name: Install additional packages on Arch Linux Systems
-      shell:
-        chdir: /
-        executable: /bin/bash
-        cmd: |
-          chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy {{additionalpackages|join(' ')}}"
-      when: flavor == 'archlinux'
-
-    - name: Install additional packages on Debian/Ubuntu Systems
-      shell:
-        chdir: /
-        executable: /bin/bash
-        cmd: |
-          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages|join(' ')}}"
-      when: flavor in [ 'debian', 'ubuntu' ]
-
     # -> Prepare chroot for second stage
 
     - name: Ensure chroot is mounted
@@ -207,6 +189,24 @@
         executable: /bin/bash
         cmd: |
           genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
+
+    # -> Install additional packages required to make chroot work
+
+    - name: Install additional packages on Arch Linux Systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy {{additionalpackages|join(' ')}}"
+      when: flavor == 'archlinux'
+
+    - name: Install additional packages on Debian/Ubuntu Systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages|join(' ')}}"
+      when: flavor in [ 'debian', 'ubuntu' ]
 
 - name: Continue setup in chroot
   hosts: chroots
