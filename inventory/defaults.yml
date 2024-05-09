@@ -62,7 +62,7 @@ all:
             chrootmountpoint: /mnt/archlinux
             hostname: mydemoarch
             additionalpackages:
-              - networkmanager
+              #- networkmanager
               - openssh
               - inetutils
               - net-tools
@@ -83,7 +83,7 @@ all:
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
             additionalpackages:
-              - network-manager
+              #- network-manager
               - openssh-server
               - net-tools
               - dnsutils
@@ -103,7 +103,7 @@ all:
             chrootmountpoint: /mnt/ubuntu
             hostname: mydemoubuntu
             additionalpackages:
-              - network-manager
+              #- network-manager
               - openssh-server
               - net-tools
               - dnsutils

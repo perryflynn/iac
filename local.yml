@@ -207,7 +207,7 @@
         sourcesfileprefix: "{{chrootmountpoint}}"
       when: flavor in [ 'ubuntu', 'debian' ]
 
-    - name: Install additional packages on Arch Linux Systems
+    - name: Install Ansible in chroot for Arch Linux systems
       shell:
         chdir: /
         executable: /bin/bash
@@ -215,7 +215,7 @@
           chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy git ansible curl ca-certificates"
       when: flavor == 'archlinux'
 
-    - name: Install additional packages on Debian/Ubuntu Systems
+    - name: Install Ansible in chroot for Ubuntu/Debian systems
       shell:
         chdir: /
         executable: /bin/bash
@@ -226,9 +226,23 @@
 - name: Continue setup in chroot
   hosts: chroots
 
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
+
   tasks:
 
     - *prepare_environment
+
+    - name: Create hostname file
+      copy:
+        dest: /etc/hostname
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          {{hostname}}
+
+    # -> Install additional packages
 
     - name: Install additional software for Debian/Ubuntu Systems
       apt:
@@ -242,6 +256,8 @@
         name: "{{additionalpackages}}"
         update_cache: true
       when: flavor == 'archlinux'
+
+    # -> Configure OS-specific things
 
     - name: Configure Arch Linux System
       block:
@@ -290,39 +306,34 @@
 
       when: flavor == 'archlinux'
 
-    - name: Configure Debian System
+    - name: Configure Debian/Ubuntu System
       block:
 
-        - name: Configure grub package
-          shell:
-            executable: /bin/bash
-            cmd: |
-              debconf-set-selections <<< "grub-efi-amd64 grub2/update_nvram boolean false"
+        # - name: Configure grub package
+        #   shell:
+        #     executable: /bin/bash
+        #     cmd: |
+        #       debconf-set-selections <<< "grub-efi-amd64 grub2/update_nvram boolean false"
 
-        - name: Remove packages
-          apt:
-            state: absent
-            name:
-              - grub-efi
-              - grub-efi-amd64
-
-        - name: Install packages
+        - name: Install Debian/Ubuntu Linux Kernel
           apt:
             name:
               - linux-image-amd64
               - linux-headers-amd64
-              - grub-efi
 
-      when: flavor == 'debian'
+        - name: Install Grub for BIOS on Debian/Ubuntu
+          apt:
+            name: grub2
+          when: bootmode == 'bios'
 
-    - name: Create hostname file
-      copy:
-        dest: /etc/hostname
-        owner: root
-        group: root
-        mode: u=rw,go=r
-        content: |
-          {{hostname}}
+        - name: Install Grub for UEFI on Debian/Ubuntu
+          apt:
+            name: grub-efi
+          when: bootmode == 'uefi'
+
+      when: flavor in [ 'debian', 'ubuntu' ]
+
+    # -> Root Account
 
     - name: Set root password
       user:
@@ -336,20 +347,22 @@
         key: "{{rootsshkeys|join('\n')}}"
         exclusive: true
 
-    - name: Configure verbose output in bootloader
+    # -> Bootloader
+
+    - name: Configure verbose boot output in bootloader for Arch Linux
       ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
       when: flavor == 'archlinux'
 
-    - name: Install bootloader in BIOS mode
+    - name: Install bootloader in BIOS mode for Arch Linux
       shell:
         executable: /bin/bash
         cmd: |
           grub-install --target=i386-pc {{diskdev}}
           grub-mkconfig -o /boot/grub/grub.cfg
-      when: bootmode == 'bios'
+      when: flavor == 'archlinux' and bootmode == 'bios'
 
     - name: Install bootloader in UEFI mode for Arch Linux
       shell:
@@ -359,50 +372,50 @@
           grub-mkconfig -o /boot/grub/grub.cfg
       when: flavor == 'archlinux' and bootmode == 'uefi'
 
-    - name: Install bootloader in UEFI mode for Debian
+    - name: Install bootloader in BIOS mode for Debian/Ubuntu
+      shell:
+        executable: /bin/bash
+        cmd: |
+          grub-install --target=i386-pc {{diskdev}}
+          update-grub
+      when: flavor in [ 'debian', 'ubuntu' ] and bootmode == 'bios'
+
+    - name: Install bootloader in UEFI mode for Debian/Ubuntu
       shell:
         executable: /bin/bash
         cmd: |
           grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --no-nvram --removable
           update-grub
-      environment:
-        PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
-      when: flavor == 'debian' and bootmode == 'uefi'
+      when: flavor in [ 'debian', 'ubuntu' ] and bootmode == 'uefi'
 
-    - name: Generate GRUB config
-      shell:
-        executable: /bin/bash
-        cmd: 'grub-mkconfig -o /boot/grub/grub.cfg'
-      when: flavor == 'archlinux'
-
-    - name: Enable networkmanager
-      systemd_service:
-        enabled: true
-        name: NetworkManager
+    # - name: Enable networkmanager
+    #   systemd_service:
+    #     enabled: true
+    #     name: NetworkManager
 
     - name: Enable ssh
       systemd_service:
         enabled: true
         name: "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
 
-    - name: Add ansible apply script to OS
-      template:
-        src: files/perrys-ansible-apply.sh.j2
-        dest: "{{selfapplyscript}}"
-        owner: root
-        group: root
-        mode: u=rwx,g=rx,o=r
+    # - name: Add ansible apply script to OS
+    #   template:
+    #     src: files/perrys-ansible-apply.sh.j2
+    #     dest: "{{selfapplyscript}}"
+    #     owner: root
+    #     group: root
+    #     mode: u=rwx,g=rx,o=r
 
-    - name: Add service to run ansible on boot
-      template:
-        src: files/perrys-ansible-apply.service.j2
-        dest: /etc/systemd/system/perrys-ansible-apply.service
-        owner: root
-        group: root
-        mode: u=rwx,g=rx,o=r
+    # - name: Add service to run ansible on boot
+    #   template:
+    #     src: files/perrys-ansible-apply.service.j2
+    #     dest: /etc/systemd/system/perrys-ansible-apply.service
+    #     owner: root
+    #     group: root
+    #     mode: u=rwx,g=rx,o=r
 
-    - name: Enable ansible apply on first boot
-      systemd_service:
-        enabled: true
-        daemon_reload: yes
-        name: perrys-ansible-apply
+    # - name: Enable ansible apply on first boot
+    #   systemd_service:
+    #     enabled: true
+    #     daemon_reload: yes
+    #     name: perrys-ansible-apply
