@@ -1,3 +1,5 @@
+cloud-init
+cloud-guest-utils
 git
 ansible
 parted
