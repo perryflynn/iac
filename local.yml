@@ -377,20 +377,6 @@
         - { r: '^LC_ALL=', l: 'LC_ALL={{locale}}' }
         - { r: '^LANG=', l: 'LANG={{locale}}' }
 
-    # - name: Create keyboard configuration for Debian/Ubuntu Systems
-    #   copy:
-    #     dest: "/etc/default/keyboard"
-    #     owner: root
-    #     group: root
-    #     mode: u=rw,go=r
-    #     content: |
-    #       XKBMODEL="pc105"
-    #       XKBLAYOUT={{vconsolekeymap}}
-    #       XKBVARIANT="{{vconsolekeymapvariant}}"
-    #       XKBOPTIONS="lv3:ralt_switch,compose:lwin"
-    #       BACKSPACE="guess"
-    #   when: flavor in [ 'ubuntu', 'debian' ]
-
     - name: Create keyboard configuration for Arch Linux systems
       copy:
         dest: "/etc/vconsole.conf"
@@ -401,6 +387,35 @@
           KEYMAP={{vconsolekeymap}}
       when: flavor == 'archlinux'
 
+    - name: Keyboard config for Debian/Ubuntu systems
+      copy:
+        dest: /etc/default/keyboard
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          XKBMODEL="pc105"
+          XKBLAYOUT="{{debconfkeymaplayoutcode}}"
+          XKBVARIANT="{{debconfkeymapvariantcode}}"
+          XKBOPTIONS="lv3:ralt_switch"
+          BACKSPACE="guess"
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Console-Setup config for Debian/Ubuntu systems
+      copy:
+        dest: /etc/default/console-setup
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          ACTIVE_CONSOLES="/dev/tty[1-6]"
+          CHARMAP="{{debconfcharmap}}"
+          CODESET="{{debconfcodeset}}"
+          FONTFACE="{{debconffontface}}"
+          FONTSIZE="{{debconffontsize}}"
+          VIDEOMODE=
+      when: flavor in [ 'ubuntu', 'debian' ]
+
     - name: Debconf for Ubuntu/Debian systems
       debconf:
         name: "{{item[0]}}"
@@ -408,37 +423,21 @@
         vtype: "{{item[2]}}"
         value: "{{item[3]}}"
       loop:
-        - [ 'keyboard-configuration', 'console-setup/ask_detect', 'boolean', 'false' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/altgr', 'select', 'Right Alt (AltGr)' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/compose', 'select', 'Left Logo key' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/ctrl_alt_bksp', 'boolean', 'false' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/layout', 'select', '{{debconfkeymap}}' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/layoutcode', 'string', '{{debconfkeymaplayoutcode}}' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/model', 'select', 'Generic 105-key PC' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/modelcode', 'string', 'pc105' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/optionscode', 'string', 'lv3:ralt_switch,compose:lwin' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/store_defaults_in_debconf_db', 'boolean', 'true' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/switch', 'select', 'No temporary switch' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/toggle', 'select', 'No toggling' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_config_layout', 'boolean', 'false' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_config_options', 'boolean', 'true' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_layout', 'boolean', 'true' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_options', 'boolean', 'true' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/variant', 'select', '{{debconfkeymapvariant}}' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/variantcode', 'string', '{{debconfkeymapvariantcode}}' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/xkb-keymap', 'select', '' ]
+        - [ 'console-setup', 'console-setup/store_defaults_in_debconf_db', 'boolean', 'true' ]
         - [ 'locales', 'locales/default_environment_locale', 'select', '{{locale}}' ]
         - [ 'locales', 'locales/locales_to_be_generated', 'multiselect', "{{locales|join(' UTF-8, ')}} UTF-8" ]
         - [ 'tzdata', 'tzdata/Zones/Etc', 'select', '{{timeregion}}' ]
         - [ 'tzdata', 'tzdata/Zones/{{timeregion}}', 'select', '{{timecity}}' ]
       when: flavor in [ 'ubuntu', 'debian' ]
 
-    - name: Run dpkg-reconfigure
+    - name: Run dpkg-reconfigure on Ubuntu/Debian systems
       shell:
         chdir: /
         executable: /bin/bash
         cmd: 'dpkg-reconfigure -fnoninteractive {{item}}'
       loop:
+        - console-setup
         - keyboard-configuration
         - locales
         - tzdata

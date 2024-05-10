@@ -21,9 +21,11 @@ all:
     xfcekeymapvariant: deadacute
 
     debconfkeymaplayoutcode: de
-    debconfkeymap: German
-    debconfkeymapvariant: German - German (dead acute)
     debconfkeymapvariantcode: deadacute
+    debconfcharmap: UTF-8
+    debconfcodeset: Lat15
+    debconffontface: VGA
+    debconffontsize: 8x16
 
     rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
     rootsshkeys:
