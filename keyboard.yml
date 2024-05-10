@@ -1,0 +1,52 @@
+---
+- name: Keyboard experiments
+  hosts: all
+
+  tasks:
+
+    - name: Debconf for Ubuntu/Debian systems
+      debconf:
+        name: "{{item[0]}}"
+        question: "{{item[1]}}"
+        vtype: "{{item[2]}}"
+        value: "{{item[3]}}"
+      loop:
+        - [ 'keyboard-configuration', 'console-setup/ask_detect', 'boolean', 'false' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/altgr', 'select', 'Right Alt (AltGr)' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/compose', 'select', 'Left Logo key' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/ctrl_alt_bksp', 'boolean', 'false' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/layout', 'select', '{{debconfkeymap}}' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/layoutcode', 'string', '{{debconfkeymaplayoutcode}}' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/model', 'select', 'Generic 105-key PC' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/modelcode', 'string', 'pc105' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/optionscode', 'string', 'lv3:ralt_switch,compose:lwin' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/store_defaults_in_debconf_db', 'boolean', 'true' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/switch', 'select', 'No temporary switch' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/toggle', 'select', 'No toggling' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_config_layout', 'boolean', 'false' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_config_options', 'boolean', 'true' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_layout', 'boolean', 'true' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_options', 'boolean', 'true' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/variant', 'select', '{{debconfkeymapvariant}}' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/variantcode', 'string', '{{debconfkeymapvariantcode}}' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/xkb-keymap', 'select', '' ]
+        - [ 'locales', 'locales/default_environment_locale', 'select', '{{locale}}' ]
+        - [ 'locales', 'locales/locales_to_be_generated', 'multiselect', "{{locales|join(' UTF-8, ')}} UTF-8" ]
+        - [ 'tzdata', 'tzdata/Zones/Etc', 'select', '{{timeregion}}' ]
+        - [ 'tzdata', 'tzdata/Zones/{{timeregion}}', 'select', '{{timecity}}' ]
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Run dpkg-reconfigure
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: 'dpkg-reconfigure -fnoninteractive {{item}}'
+      loop:
+        - keyboard-configuration
+        - locales
+        - tzdata
+      when: flavor in [ 'ubuntu', 'debian' ]
+      register: reconf
+
+    - debug:
+        var: reconf
