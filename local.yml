@@ -409,6 +409,8 @@
         value: "{{item[3]}}"
       loop:
         - [ 'keyboard-configuration', 'console-setup/ask_detect', 'boolean', 'false' ]
+        - [ 'keyboard-configuration', 'console-setup/detect', 'detect-keyboard', '' ]
+        - [ 'keyboard-configuration', 'console-setup/detected', 'note', '' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/altgr', 'select', 'Right Alt (AltGr)' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/compose', 'select', 'Left Logo key' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/ctrl_alt_bksp', 'boolean', 'false' ]
@@ -426,6 +428,7 @@
         - [ 'keyboard-configuration', 'keyboard-configuration/unsupported_options', 'boolean', 'true' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/variant', 'select', '{{debconfkeymapvariant}}' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/variantcode', 'string', '{{debconfkeymapvariantcode}}' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/xkb-keymap', 'select', '' ]
         - [ 'locales', 'locales/default_environment_locale', 'select', '{{locale}}' ]
         - [ 'locales', 'locales/locales_to_be_generated', 'multiselect', "{{locales|join(' UTF-8, ')}} UTF-8" ]
         - [ 'tzdata', 'tzdata/Zones/Etc', 'select', '{{timeregion}}' ]
