@@ -30,6 +30,20 @@
           XKBOPTIONS="lv3:ralt_switch"
           BACKSPACE="guess"
 
+    - name: Console-Setup config
+      copy:
+        dest: /etc/default/console-setup
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          ACTIVE_CONSOLES="/dev/tty[1-6]"
+          CHARMAP="UTF-8"
+          CODESET="Lat15"
+          FONTFACE="VGA"
+          FONTSIZE="8x16"
+          VIDEOMODE=
+
     # - name: Set timezone
     #   timezone:
     #     name: "{{timezone}}"
