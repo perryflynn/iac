@@ -29,7 +29,7 @@
         question: "{{item[1]}}"
         vtype: "{{item[2]}}"
         value: "{{item[3]}}"
-        unseen: true
+        unseen: false
       loop:
         - [ 'console-setup', 'console-setup/charmap47', 'select', 'UTF-8' ]
         - [ 'console-setup', 'console-setup/codeset47', 'select', '# Latin1 and Latin5 - western Europe and Turkic languages' ]
