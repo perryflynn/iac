@@ -15,6 +15,15 @@
         - [ absent, true ]
         - [ present, false ]
 
+    - name: Set timezone
+      timezone:
+        name: "{{timezone}}"
+
+    - name: Set locale
+      locale_gen:
+        name: "{{item}}"
+      loop: "{{locales}}"
+
     - name: Debconf for Ubuntu/Debian systems
       debconf:
         name: "{{item[0]}}"
