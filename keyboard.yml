@@ -11,6 +11,7 @@
           - locales
           - keyboard-configuration
           - console-setup
+          - tzdata
       loop:
         - [ absent, true ]
         - [ present, false ]
@@ -38,6 +39,7 @@
         - [ 'console-setup', 'console-setup/fontsize', 'select', '8x16' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/altgr', 'select', 'Right Alt (AltGr)' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/compose', 'select', 'No compose key' ]
+        - [ 'keyboard-configuration', 'keyboard-configuration/ctrl_alt_bksp', 'boolean', 'false' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/layout', 'select', '{{debconfkeymap}}' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/model', 'select', 'Generic 105-key PC' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/variant', 'select', '{{debconfkeymapvariant}}' ]
@@ -53,6 +55,7 @@
         cmd: 'dpkg-reconfigure -fnoninteractive {{item}}'
       loop:
         - keyboard-configuration
+        - console-setup
         - locales
         - tzdata
       register: reconf
