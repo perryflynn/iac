@@ -2,6 +2,9 @@
 - name: Keyboard experiments
   hosts: all
 
+  environment:
+    DEBIAN_FRONTEND: noninteractive
+
   tasks:
 
     - apt:
@@ -14,48 +17,85 @@
         - [ absent, true ]
         - [ present, false ]
 
-    - name: Set timezone
-      timezone:
-        name: "{{timezone}}"
+    # - name: Set timezone
+    #   timezone:
+    #     name: "{{timezone}}"
 
-    - name: Set locale
-      locale_gen:
-        name: "{{item}}"
-      loop: "{{locales}}"
+    # - name: Set locale
+    #   locale_gen:
+    #     name: "{{item}}"
+    #   loop: "{{locales}}"
 
-    - name: Debconf for Ubuntu/Debian systems
-      debconf:
-        name: "{{item[0]}}"
-        question: "{{item[1]}}"
-        vtype: "{{item[2]}}"
-        value: "{{item[3]}}"
-        unseen: false
-      loop:
-        - [ 'console-setup', 'console-setup/charmap47', 'select', 'UTF-8' ]
-        - [ 'console-setup', 'console-setup/codeset47', 'select', '# Latin1 and Latin5 - western Europe and Turkic languages' ]
-        - [ 'console-setup', 'console-setup/fontface47', 'select', 'VGA' ]
-        - [ 'console-setup', 'console-setup/fontsize', 'select', '8x16' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/altgr', 'select', 'Right Alt (AltGr)' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/compose', 'select', 'No compose key' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/ctrl_alt_bksp', 'boolean', 'false' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/layout', 'select', '{{debconfkeymap}}' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/model', 'select', 'Generic 105-key PC' ]
-        - [ 'keyboard-configuration', 'keyboard-configuration/variant', 'select', '{{debconfkeymapvariant}}' ]
-        - [ 'locales', 'locales/default_environment_locale', 'select', '{{locale}}' ]
-        - [ 'locales', 'locales/locales_to_be_generated', 'multiselect', "{{locales|join(' UTF-8, ')}} UTF-8" ]
-        - [ 'tzdata', 'tzdata/Zones/Etc', 'select', '{{timeregion}}' ]
-        - [ 'tzdata', 'tzdata/Zones/{{timeregion}}', 'select', '{{timecity}}' ]
+    # - name: Debconf for Ubuntu/Debian systems
+    #   debconf:
+    #     name: "{{item[0]}}"
+    #     question: "{{item[1]}}"
+    #     vtype: "{{item[2]}}"
+    #     value: "{{item[3]}}"
+    #     unseen: false
+    #   loop:
+    #     - [ 'console-setup', 'console-setup/charmap47', 'select', 'UTF-8' ]
+    #     - [ 'console-setup', 'console-setup/codeset47', 'select', '# Latin1 and Latin5 - western Europe and Turkic languages' ]
+    #     - [ 'console-setup', 'console-setup/fontface47', 'select', 'VGA' ]
+    #     - [ 'console-setup', 'console-setup/fontsize', 'select', '8x16' ]
+    #     - [ 'keyboard-configuration', 'keyboard-configuration/altgr', 'select', 'Right Alt (AltGr)' ]
+    #     - [ 'keyboard-configuration', 'keyboard-configuration/compose', 'select', 'No compose key' ]
+    #     - [ 'keyboard-configuration', 'keyboard-configuration/ctrl_alt_bksp', 'boolean', 'false' ]
+    #     - [ 'keyboard-configuration', 'keyboard-configuration/layout', 'select', '{{debconfkeymap}}' ]
+    #     - [ 'keyboard-configuration', 'keyboard-configuration/model', 'select', 'Generic 105-key PC' ]
+    #     - [ 'keyboard-configuration', 'keyboard-configuration/variant', 'select', '{{debconfkeymapvariant}}' ]
+    #     - [ 'locales', 'locales/default_environment_locale', 'select', '{{locale}}' ]
+    #     - [ 'locales', 'locales/locales_to_be_generated', 'multiselect', "{{locales|join(' UTF-8, ')}} UTF-8" ]
+    #     - [ 'tzdata', 'tzdata/Zones/Etc', 'select', '{{timeregion}}' ]
+    #     - [ 'tzdata', 'tzdata/Zones/{{timeregion}}', 'select', '{{timecity}}' ]
+
+    - name: Set selections
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cat > /tmp/keyboard-selections.txt << EOL
+          console-setup   console-setup/charmap47 select  UTF-8
+          console-setup   console-setup/codeset47 select  # Latin1 and Latin5 - western Europe and Turkic languages
+          console-setup   console-setup/codesetcode       string  Lat15
+          console-setup   console-setup/fontface47        select  VGA
+          console-setup   console-setup/fontsize  string  8x16
+          console-setup   console-setup/fontsize-fb47     select  8x16
+          console-setup   console-setup/fontsize-text47   select  8x16
+          console-setup   console-setup/store_defaults_in_debconf_db      boolean true
+          keyboard-configuration  console-setup/ask_detect        boolean false
+          keyboard-configuration  console-setup/detect    detect-keyboard
+          keyboard-configuration  console-setup/detected  note
+          keyboard-configuration  keyboard-configuration/altgr    select  Right Alt (AltGr)
+          keyboard-configuration  keyboard-configuration/compose  select  No compose key
+          keyboard-configuration  keyboard-configuration/ctrl_alt_bksp    boolean false
+          keyboard-configuration  keyboard-configuration/layout   select  German
+          keyboard-configuration  keyboard-configuration/layoutcode       string  de
+          keyboard-configuration  keyboard-configuration/model    select  Generic 105-key PC
+          keyboard-configuration  keyboard-configuration/modelcode        string  pc105
+          keyboard-configuration  keyboard-configuration/optionscode      string  lv3:ralt_switch
+          keyboard-configuration  keyboard-configuration/store_defaults_in_debconf_db     boolean true
+          keyboard-configuration  keyboard-configuration/switch   select  No temporary switch
+          keyboard-configuration  keyboard-configuration/toggle   select  No toggling
+          keyboard-configuration  keyboard-configuration/unsupported_config_layout        boolean true
+          keyboard-configuration  keyboard-configuration/unsupported_config_options       boolean true
+          keyboard-configuration  keyboard-configuration/unsupported_layout       boolean true
+          keyboard-configuration  keyboard-configuration/unsupported_options      boolean true
+          keyboard-configuration  keyboard-configuration/variant  select  German - German (dead acute)
+          keyboard-configuration  keyboard-configuration/variantcode      string  deadacute
+          keyboard-configuration  keyboard-configuration/xkb-keymap       select
+          EOL
+
+          debconf-set-selections < /tmp/keyboard-selections.txt
 
     - name: Run dpkg-reconfigure
       shell:
         chdir: /
         executable: /bin/bash
-        cmd: 'dpkg-reconfigure -fnoninteractive {{item}}'
+        cmd: 'dpkg-reconfigure {{item}}'
       loop:
         - keyboard-configuration
         - console-setup
-        - locales
-        - tzdata
       register: reconf
 
     - debug:
