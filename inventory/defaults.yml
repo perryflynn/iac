@@ -13,9 +13,9 @@ all:
       - de_DE.UTF-8
     localelong: en_US.UTF-8 UTF-8
     vconsolekeymap: de-latin1
-    vconsolekeymapvariant: deadactute
+    vconsolekeymapvariant: deadacute
     xfcekeymap: de
-    xfcekeymapvariant: deadactute
+    xfcekeymapvariant: deadacute
 
     rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
     rootsshkeys:
