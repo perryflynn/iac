@@ -365,8 +365,13 @@
       loop: "{{locales}}"
 
     - name: Set timezone
-      timezone:
-        name: "{{timezone}}"
+      ansible.builtin.file:
+        src: /usr/share/zoneinfo/{{timeregion}}/{{timecity}}
+        dest: /etc/localtime
+        owner: root
+        group: root
+        state: link
+        force: true
 
     - name: Ensure locales environment variables
       lineinfile:
