@@ -242,6 +242,18 @@
         content: |
           {{hostname}}
 
+    - name: Create hosts file
+      copy:
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          127.0.0.1        localhost
+          ::1              localhost ip6-localhost ip6-loopback
+          ff02::1          ip6-allnodes
+          ff02::2          ip6-allrouters
+
     # -> Install additional packages
 
     - name: Install additional software for Debian/Ubuntu Systems
@@ -355,14 +367,29 @@
       locale_gen:
         name: en_US.UTF-8
 
-    # - name: Create vconsole.conf
-    #   copy:
-    #     dest: /etc/vconsole.conf
-    #     owner: root
-    #     group: root
-    #     mode: u=rw,go=r
-    #     content: |
-    #       KEYMAP={{vconsolekeymap}}
+    - name: Create keyboard configuration for Debian/Ubuntu Systems
+      copy:
+        dest: "/etc/default/keyboard"
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          XKBMODEL="pc105"
+          XKBLAYOUT={{vconsolekeymap}}
+          XKBVARIANT="{{vconsolekeymapvariant}}"
+          XKBOPTIONS="lv3:ralt_switch,compose:lwin"
+          BACKSPACE="guess"
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Create keyboard configuration for Arch Linux Systems
+      copy:
+        dest: "/etc/vconsole.conf"
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          KEYMAP={{vconsolekeymap}}
+      when: flavor == 'archlinux'
 
     # -> Root Account
 

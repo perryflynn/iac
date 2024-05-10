@@ -10,6 +10,7 @@ all:
     locale: en_US.UTF-8
     localelong: en_US.UTF-8 UTF-8
     vconsolekeymap: de-latin1
+    vconsolekeymapvariant: deadactute
     xfcekeymap: de
     xfcekeymapvariant: deadactute
 
@@ -72,7 +73,7 @@ all:
               - iproute2
               - vim
               - nano
-              - ncurses
+              - dialog
               - man-db
           hosts:
             archlinuxiso:
@@ -100,7 +101,7 @@ all:
               - keyboard-configuration
               - vim
               - nano
-              - ncurses-bin
+              - dialog
               - man-db
           hosts:
             debianiso:
