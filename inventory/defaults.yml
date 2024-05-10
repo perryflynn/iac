@@ -100,8 +100,8 @@ all:
               - iproute2
               - util-linux-extra
               - locales
-              #- console-setup
-              #- keyboard-configuration
+              - console-setup
+              - keyboard-configuration
               - vim
               - nano
               - dialog
