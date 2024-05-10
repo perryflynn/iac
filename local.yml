@@ -365,7 +365,8 @@
 
     - name: Set locale
       locale_gen:
-        name: en_US.UTF-8
+        name: "{{item}}"
+      loop: "{{locales}}"
 
     - name: Create keyboard configuration for Debian/Ubuntu Systems
       copy:
@@ -390,6 +391,15 @@
         content: |
           KEYMAP={{vconsolekeymap}}
       when: flavor == 'archlinux'
+
+    - name: Ensure locales environment variables
+      lineinfile:
+        path: /etc/environment
+        regexp: "{{item.r}}"
+        line: "{{item.l}}"
+      loop:
+        - { r: '^LC_ALL=', l: 'LC_ALL={{locale}}' }
+        - { r: '^LANG=', l: 'LANG={{locale}}' }
 
     # -> Root Account
 

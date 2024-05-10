@@ -7,7 +7,10 @@ all:
     timezone: Europe/Berlin
     timeregion: Europe
     timecity: Berlin
-    locale: en_US.UTF-8
+    locale: &mainlocale en_US.UTF-8
+    locales:
+      - *mainlocale
+      - de_DE.UTF-8
     localelong: en_US.UTF-8 UTF-8
     vconsolekeymap: de-latin1
     vconsolekeymapvariant: deadactute
@@ -97,8 +100,8 @@ all:
               - iproute2
               - util-linux-extra
               - locales
-              - console-setup
-              - keyboard-configuration
+              #- console-setup
+              #- keyboard-configuration
               - vim
               - nano
               - dialog
