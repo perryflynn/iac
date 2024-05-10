@@ -8,10 +8,8 @@
         state: "{{item[0]}}"
         purge: "{{item[1]}}"
         name:
-          - locales
           - keyboard-configuration
           - console-setup
-          - tzdata
       loop:
         - [ absent, true ]
         - [ present, false ]
