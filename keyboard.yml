@@ -17,6 +17,19 @@
         - [ absent, true ]
         - [ present, false ]
 
+    - name: Keyboard config
+      copy:
+        dest: /etc/default/keyboard
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          XKBMODEL="pc105"
+          XKBLAYOUT="de"
+          XKBVARIANT="deadacute"
+          XKBOPTIONS="lv3:ralt_switch"
+          BACKSPACE="guess"
+
     # - name: Set timezone
     #   timezone:
     #     name: "{{timezone}}"
