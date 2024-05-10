@@ -536,6 +536,7 @@
         name:
           - systemd-resolved
           - systemd-timesyncd
+      when: flavor == 'ubuntu' and bootmode == 'uefi'
 
     - name: Enable services
       systemd:
