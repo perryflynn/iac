@@ -199,7 +199,7 @@
 
     # -> Install additional packages to make ansible chroot work
 
-    - name: Update package sources for Debian/Ubuntu Systems
+    - name: Update package sources for Debian/Ubuntu systems
       include_role:
         name: sourceslist
         defaults_from: "{{flavor}}-{{codename}}"
@@ -215,7 +215,7 @@
           chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy git ansible curl ca-certificates"
       when: flavor == 'archlinux'
 
-    - name: Install Ansible in chroot for Ubuntu/Debian systems
+    - name: Install Ansible in chroot for Debian/Ubuntu systems
       shell:
         chdir: /
         executable: /bin/bash
@@ -256,7 +256,7 @@
 
     # -> Install additional packages
 
-    - name: Install additional software for Debian/Ubuntu Systems
+    - name: Install additional software for Debian/Ubuntu systems
       apt:
         name: "{{additionalpackages}}"
         force_apt_get: true
@@ -318,7 +318,7 @@
 
     #   when: flavor == 'archlinux'
 
-    - name: Configure Debian/Ubuntu System
+    - name: Configure Debian/Ubuntu systems
       block:
 
         - name: Install Debian Linux Kernel
@@ -345,12 +345,12 @@
             name: linux-generic
           when: flavor == 'ubuntu'
 
-        - name: Install Grub for BIOS on Debian/Ubuntu
+        - name: Install Grub for BIOS on Debian/Ubuntu systems
           apt:
             name: grub2
           when: bootmode == 'bios'
 
-        - name: Install Grub for UEFI on Debian/Ubuntu
+        - name: Install Grub for UEFI on Debian/Ubuntu systems
           apt:
             name: grub-efi
           when: bootmode == 'uefi'
@@ -416,7 +416,7 @@
           VIDEOMODE=
       when: flavor in [ 'ubuntu', 'debian' ]
 
-    - name: Debconf for Ubuntu/Debian systems
+    - name: Debconf for Debian/Ubuntu systems
       debconf:
         name: "{{item[0]}}"
         question: "{{item[1]}}"
@@ -431,7 +431,7 @@
         - [ 'tzdata', 'tzdata/Zones/{{timeregion}}', 'select', '{{timecity}}' ]
       when: flavor in [ 'ubuntu', 'debian' ]
 
-    - name: Run dpkg-reconfigure on Ubuntu/Debian systems
+    - name: Run dpkg-reconfigure on Debian/Ubuntu systems
       shell:
         chdir: /
         executable: /bin/bash
@@ -482,7 +482,7 @@
           grub-mkconfig -o /boot/grub/grub.cfg
       when: flavor == 'archlinux' and bootmode == 'uefi'
 
-    - name: Install bootloader in BIOS mode for Debian/Ubuntu
+    - name: Install bootloader in BIOS mode for Debian/Ubuntu systems
       shell:
         executable: /bin/bash
         cmd: |
@@ -525,6 +525,12 @@
     #   systemd_service:
     #     enabled: true
     #     name: NetworkManager
+
+    - name: Install services
+      apt:
+        name:
+          - systemd-resolved
+          - systemd-timesyncd
 
     - name: Enable services
       systemd:
