@@ -82,7 +82,7 @@ all:
             codename: bookworm
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
-            additionalpackages:
+            additionalpackages: &debian_packages
               #- network-manager
               - openssh-server
               - net-tools
@@ -90,6 +90,7 @@ all:
               - gnupg
               - iputils-ping
               - iproute2
+              - util-linux-extra
           hosts:
             debianiso:
             /mnt/debian:
@@ -102,14 +103,7 @@ all:
             codename: noble
             chrootmountpoint: /mnt/ubuntu
             hostname: mydemoubuntu
-            additionalpackages:
-              #- network-manager
-              - openssh-server
-              - net-tools
-              - dnsutils
-              - gnupg
-              - iputils-ping
-              - iproute2
+            additionalpackages: *debian_packages
           hosts:
             ubuntuiso:
             /mnt/ubuntu:

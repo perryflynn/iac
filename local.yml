@@ -259,61 +259,55 @@
 
     # -> Configure OS-specific things
 
-    - name: Configure Arch Linux System
-      block:
+    # - name: Configure Arch Linux System
+    #   block:
 
-        - name: Set timezone
-          file:
-            src: /usr/share/zoneinfo/{{timeregion}}/{{timecity}}
-            dest: /etc/localtime
-            owner: root
-            group: root
-            state: link
+    #     - name: Set timezone
+    #       file:
+    #         src: /usr/share/zoneinfo/{{timeregion}}/{{timecity}}
+    #         dest: /etc/localtime
+    #         owner: root
+    #         group: root
+    #         state: link
 
-        - name: Run hwclock
-          shell:
-            executable: /bin/bash
-            cmd: 'hwclock --systohc'
+    #     - name: Run hwclock
+    #       shell:
+    #         executable: /bin/bash
+    #         cmd: 'hwclock --systohc'
 
-        - name: Enable locales
-          ansible.builtin.lineinfile:
-            path: /etc/locale.gen
-            regexp: '^#?{{localelong}}'
-            line: '{{localelong}}'
+    #     - name: Enable locales
+    #       ansible.builtin.lineinfile:
+    #         path: /etc/locale.gen
+    #         regexp: '^#?{{localelong}}'
+    #         line: '{{localelong}}'
 
-        - name: Run locale-gen
-          shell:
-            executable: /bin/bash
-            cmd: 'locale-gen'
+    #     - name: Run locale-gen
+    #       shell:
+    #         executable: /bin/bash
+    #         cmd: 'locale-gen'
 
-        - name: Create locale.conf
-          copy:
-            dest: /etc/locale.conf
-            owner: root
-            group: root
-            mode: u=rw,go=r
-            content: |
-              LANG={{locale}}
+    #     - name: Create locale.conf
+    #       copy:
+    #         dest: /etc/locale.conf
+    #         owner: root
+    #         group: root
+    #         mode: u=rw,go=r
+    #         content: |
+    #           LANG={{locale}}
 
-        - name: Create vconsole.conf
-          copy:
-            dest: /etc/vconsole.conf
-            owner: root
-            group: root
-            mode: u=rw,go=r
-            content: |
-              KEYMAP={{vconsolekeymap}}
+    #     - name: Create vconsole.conf
+    #       copy:
+    #         dest: /etc/vconsole.conf
+    #         owner: root
+    #         group: root
+    #         mode: u=rw,go=r
+    #         content: |
+    #           KEYMAP={{vconsolekeymap}}
 
-      when: flavor == 'archlinux'
+    #   when: flavor == 'archlinux'
 
     - name: Configure Debian/Ubuntu System
       block:
-
-        # - name: Configure grub package
-        #   shell:
-        #     executable: /bin/bash
-        #     cmd: |
-        #       debconf-set-selections <<< "grub-efi-amd64 grub2/update_nvram boolean false"
 
         - name: Install Debian Linux Kernel
           apt:
@@ -350,6 +344,21 @@
           when: bootmode == 'uefi'
 
       when: flavor in [ 'debian', 'ubuntu' ]
+
+    # -> Localization
+
+    - name: Set timezone
+      timezone:
+        name: "{{timezone}}"
+
+    - name: Set locale
+      locale_gen:
+        name: en_US.UTF-8
+
+    - name: Set keyboard layout
+      shell:
+        executable: /bin/bash
+        cmd: 'localectl set-keymap {{vconsolekeymap}}'
 
     # -> Root Account
 
