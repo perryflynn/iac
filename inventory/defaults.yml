@@ -7,15 +7,23 @@ all:
     timezone: Europe/Berlin
     timeregion: Europe
     timecity: Berlin
+
     locale: &mainlocale en_US.UTF-8
     locales:
       - *mainlocale
       - de_DE.UTF-8
     localelong: en_US.UTF-8 UTF-8
+
     vconsolekeymap: de-latin1
     vconsolekeymapvariant: deadacute
+
     xfcekeymap: de
     xfcekeymapvariant: deadacute
+
+    debconfkeymaplayoutcode: de
+    debconfkeymap: German
+    debconfkeymapvariant: German - German (dead acute)
+    debconfkeymapvariantcode: deadacute
 
     rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
     rootsshkeys:
@@ -106,6 +114,7 @@ all:
               - nano
               - dialog
               - man-db
+              - debconf-utils
           hosts:
             debianiso:
             /mnt/debian:
