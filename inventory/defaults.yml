@@ -91,6 +91,9 @@ all:
               - iputils-ping
               - iproute2
               - util-linux-extra
+              - locales
+              - console-setup
+              - keyboard-configuration
           hosts:
             debianiso:
             /mnt/debian:
