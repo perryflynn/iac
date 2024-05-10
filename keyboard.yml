@@ -4,6 +4,12 @@
 
   tasks:
 
+    - apt:
+        name:
+          - locales
+          - keyboard-configuration
+          - console-setup
+
     - name: Debconf for Ubuntu/Debian systems
       debconf:
         name: "{{item[0]}}"
