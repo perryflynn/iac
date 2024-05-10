@@ -355,14 +355,14 @@
       locale_gen:
         name: en_US.UTF-8
 
-    - name: Create vconsole.conf
-      copy:
-        dest: /etc/vconsole.conf
-        owner: root
-        group: root
-        mode: u=rw,go=r
-        content: |
-          KEYMAP={{vconsolekeymap}}
+    # - name: Create vconsole.conf
+    #   copy:
+    #     dest: /etc/vconsole.conf
+    #     owner: root
+    #     group: root
+    #     mode: u=rw,go=r
+    #     content: |
+    #       KEYMAP={{vconsolekeymap}}
 
     # -> Root Account
 
@@ -427,15 +427,35 @@
           update-grub
       when: flavor == 'ubuntu' and bootmode == 'uefi'
 
+    # -> Services
+
+    - name: Configure network interface with DHCP
+      copy:
+        dest: /etc/systemd/network/20-wired.network
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          [Match]
+          Name=ens*
+
+          [Network]
+          DHCP=yes
+
     # - name: Enable networkmanager
     #   systemd_service:
     #     enabled: true
     #     name: NetworkManager
 
-    - name: Enable ssh
-      systemd_service:
-        enabled: true
-        name: "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
+    - name: Enable services
+      systemd:
+        name: "{{item}}"
+        enabled: yes
+      loop:
+        - systemd-timesyncd
+        - systemd-networkd
+        - systemd-resolved
+        - "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
 
     # - name: Add ansible apply script to OS
     #   template:

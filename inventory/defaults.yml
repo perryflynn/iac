@@ -70,6 +70,10 @@ all:
               - gnupg
               - iputils
               - iproute2
+              - vim
+              - nano
+              - ncurses
+              - man-db
           hosts:
             archlinuxiso:
             /mnt/archlinux:
@@ -94,6 +98,10 @@ all:
               - locales
               - console-setup
               - keyboard-configuration
+              - vim
+              - nano
+              - ncurses-bin
+              - man-db
           hosts:
             debianiso:
             /mnt/debian:
