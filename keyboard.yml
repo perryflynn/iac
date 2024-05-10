@@ -16,6 +16,7 @@
         question: "{{item[1]}}"
         vtype: "{{item[2]}}"
         value: "{{item[3]}}"
+        unseen: true
       loop:
         - [ 'keyboard-configuration', 'keyboard-configuration/altgr', 'select', 'Right Alt (AltGr)' ]
         - [ 'keyboard-configuration', 'keyboard-configuration/compose', 'select', 'No compose key' ]
