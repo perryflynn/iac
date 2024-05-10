@@ -34,7 +34,6 @@
         - [ 'locales', 'locales/locales_to_be_generated', 'multiselect', "{{locales|join(' UTF-8, ')}} UTF-8" ]
         - [ 'tzdata', 'tzdata/Zones/Etc', 'select', '{{timeregion}}' ]
         - [ 'tzdata', 'tzdata/Zones/{{timeregion}}', 'select', '{{timecity}}' ]
-      when: flavor in [ 'ubuntu', 'debian' ]
 
     - name: Run dpkg-reconfigure
       shell:
@@ -45,7 +44,6 @@
         - keyboard-configuration
         - locales
         - tzdata
-      when: flavor in [ 'ubuntu', 'debian' ]
       register: reconf
 
     - debug:
