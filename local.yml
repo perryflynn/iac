@@ -119,6 +119,13 @@
 
     # -> Bootstrap root filesystem
 
+    - name: Ensure up-to-date archlinux-keyring
+      pacman:
+        name: archlinux-keyring
+        state: latest
+        update_cache: true
+      when: flavor == 'archlinux'
+
     - name: Run pacstrap for Arch Linux
       shell:
         chdir: /
