@@ -84,6 +84,8 @@ all:
               - gnupg
               - iputils
               - iproute2
+              - curl
+              - wget
               - vim
               - nano
               - dialog
@@ -108,6 +110,8 @@ all:
               - gnupg
               - iputils-ping
               - iproute2
+              - curl
+              - wget
               - util-linux-extra
               - locales
               - console-setup
