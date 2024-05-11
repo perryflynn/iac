@@ -101,5 +101,6 @@ It pulls automatically the correct playbook from this repo by the hostname of th
 - [x] X11
 - [x] XFCE
 - [ ] Clean up cloud-init
+- [ ] Dynamic repo configs via ENVs
 - [ ] SSH Daemon config
 - [ ] Disk Encryption
