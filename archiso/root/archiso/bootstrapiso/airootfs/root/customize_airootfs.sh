@@ -9,4 +9,4 @@ systemctl enable cloud-config
 systemctl enable cloud-final
 
 # disable mirror reflector
-systemctl disable reflector
+#systemctl disable reflector
