@@ -86,6 +86,6 @@ fi
 
 # Run ansible
 ansible-pull \
-    -U https://${IAC_REPO_TOKEN}${IAC_REPO_TOKEN:+@}${IAC_REPO_URL} -C ${IAC_REPO_BRANCH} \
+    -U https://${IAC_REPO_TOKEN:-}${IAC_REPO_TOKEN:+@}${IAC_REPO_URL} -C ${IAC_REPO_BRANCH} \
     -l "bootstrap-$ARG_FLAVOR" \
     "${extraargs[@]}"
