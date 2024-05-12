@@ -15,7 +15,7 @@ WORKDIR /archiso
 RUN cat additional_packages >> bootstrapiso/packages.x86_64
 
 ENV IAC_SSH_ROOT_KEY=""
-ENV IAC_REPO_URL="https://github.com/perryflynn/iac.git"
+ENV IAC_REPO_URL="github.com/perryflynn/iac.git"
 ENV IAC_REPO_TOKEN=""
 ENV IAC_REPO_BRANCH="dev"
 
