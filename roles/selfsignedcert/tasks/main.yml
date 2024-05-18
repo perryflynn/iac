@@ -23,8 +23,8 @@
     privatekey_path: "{{selfsigned_keypath}}"
     country_name: DE
     locality_name: Lower Saxony
-    organization_name: Perrys Ansible Apply
-    organizational_unit_name: IAC
+    organization_name: IAC
+    organizational_unit_name: Perrys Ansible Apply
     email_address: no-reply@example.com
     common_name: "{{selfsigned_name}}"
     subject_alt_name: "{{newsanlist}}"
