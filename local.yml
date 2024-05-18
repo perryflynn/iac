@@ -23,7 +23,7 @@
               - bootmode == 'uefi' or bootmode == 'bios'
               - flavor in [ 'debian', 'ubuntu', 'archlinux' ]
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
-              - networking in [ 'systemd-networkd', 'networkmanager' ]
+              - networking in [ 'systemd-networkd', 'network-manager' ]
 
         - name: Show bootstrap parameters to use
           debug:
