@@ -1,6 +1,11 @@
 ---
 # roles/selfsignedcert/tasks/main.yml
 
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution in [ 'Archlinux', 'Debian', 'Ubuntu' ]
+
 - name: Install python dependencies
   pip:
     name: cryptography
@@ -36,3 +41,42 @@
     csr_content: "{{csr.csr}}"
     privatekey_path: "{{selfsigned_keypath}}"
     provider: selfsigned
+    owner: root
+    group: root
+    mode: u=rw,go=r
+
+- name: Copy certificate into trust store for Arch Linux systems
+  copy:
+    remote_src: true
+    src: "{{selfsigned_certpath}}"
+    dest: "/etc/ca-certificates/trust-source/anchors/{{selfsigned_certpath|basename}}"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  when: ansible_distribution == 'Archlinux'
+
+- name: Regenerate trust store for Arch Linuy systems
+  shell:
+    chdir: /
+    executable: /bin/bash
+    cmd: |
+      update-ca-trust
+  when: ansible_distribution == 'Archlinux'
+
+- name: Copy certificate into trust store for Debian/Ubuntu systems
+  copy:
+    remote_src: true
+    src: "{{selfsigned_certpath}}"
+    dest: "/usr/local/share/ca-certificates/{{selfsigned_certpath|basename}}"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  when: ansible_distribution in [ 'Debian', 'Ubuntu' ]
+
+- name: Regenerate trust store for Debian/Ubuntu systems
+  shell:
+    chdir: /
+    executable: /bin/bash
+    cmd: |
+      update-ca-certificates
+  when: ansible_distribution in [ 'Debian', 'Ubuntu' ]
