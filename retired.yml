@@ -76,6 +76,9 @@
     - name: Install NGINX
       include_role:
         name: nginxuserserver
+      vars:
+        nginx_userdir: true
+        nginx_userdir_users: [ "{{username}}" ]
 
     - name: Install X11
       include_role:

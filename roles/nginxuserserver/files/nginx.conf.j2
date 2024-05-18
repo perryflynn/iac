@@ -21,15 +21,17 @@ http {
         listen 80 default_server;
         listen [::]:80 default_server;
         server_name _;
-        return 301 https://localhost$request_uri;
+        return 301 https://{{nginx_hostname}}$request_uri;
     }
 
     server {
         listen 443 ssl http2;
         listen [::]:443 ssl http2;
 
-        ssl_certificate /etc/ssl/private/localhost-selfsigned.crt;
-        ssl_certificate_key /etc/ssl/private/localhost-selfsigned.key;
+        server_name {{nginx_hostname}};
+
+        ssl_certificate {{nginx_certpath}};
+        ssl_certificate_key {{nginx_keypath}};
         ssl_session_timeout 1d;
         ssl_session_cache shared:MozSSL:10m;  # about 40000 sessions
         ssl_session_tickets off;
@@ -49,6 +51,14 @@ http {
             root   /usr/share/nginx/html;
             index  index.html index.htm;
         }
+
+{% if nginx_userdir %}
+        location ~ ^/~([^/]+)(.*) {
+            alias /home/$1/public_html$2;
+            index  index.html index.htm;
+            autoindex on;
+        }
+{% endif %}
     }
 
 }

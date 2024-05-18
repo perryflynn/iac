@@ -30,3 +30,12 @@
     mode: u=rw,go=r
   notify:
     - Restart NGINX
+
+- name: Create public_html folder for user
+  file:
+    path: "/home/{{item}}/public_html"
+    mode: u=rwx,go=rx
+    state: directory
+  become: true
+  become_user: "{{item}}"
+  loop: "{{nginx_userdir_users}}"
