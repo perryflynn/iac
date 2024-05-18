@@ -37,6 +37,7 @@
   failed_when: xfconfresult.rc not in [ 98, 99 ]
 
 - name: Find all monitors
+  shell:
     executable: /usr/bin/bash
     cmd: |
       xrandr --listmonitors | \
