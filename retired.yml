@@ -146,10 +146,11 @@
               - { c: xfce4-power-manager, p: /xfce4-power-manager/lock-screen-suspend-hibernate, t: bool, v: 'true' }
               - { c: xfce4-session, p: /general/SaveOnExit, t: bool, v: 'false' }
               - { c: xfce4-desktop, p: /backdrop/single-workspace-mode, t: bool, v: 'true' }
-              - { c: xfce4-desktop, p: /backdrop/screen0/monitorLVDS1/workspace0/last-image, t: string, v: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}" }
-              - { c: xfce4-desktop, p: /backdrop/screen0/monitorLVDS1/workspace0/image-style, t: int, v: "3" }
               - { c: xfce4-panel, p: /panels/panel-1/autohide-behavior, t: uint, v: "1" }
               - { c: xfce4-panel, p: /panels/panel-2/autohide-behavior, t: uint, v: "1" }
+            xfcemonitorsettings:
+              - { c: xfce4-desktop, p: /backdrop/screenSCREENNUM/monitorMONITORNAME/workspace0/last-image, t: string, v: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}" }
+              - { c: xfce4-desktop, p: /backdrop/screenSCREENNUM/monitorMONITORNAME/workspace0/image-style, t: int, v: "3" }
 
     - name: Finish Setup
       block:
