@@ -17,7 +17,7 @@
     size: 4096
     owner: root
     group: root
-    mode: u=rw,g=r,o=-
+    mode: u=rw,go=-
 
 - name: Create certificate signing request (CSR) for CA certificate
   community.crypto.openssl_csr_pipe:
@@ -56,7 +56,7 @@
     size: 4096
     owner: root
     group: root
-    mode: u=rw,g=r,o=-
+    mode: u=rw,go=-
 
 - name: Create SAN list
   set_fact:
@@ -84,7 +84,7 @@
     content: "{{certificate.certificate}}"
     owner: root
     group: root
-    mode: u=rw,g=r,o=-
+    mode: u=rw,go=r
 
 - name: Copy CA into trust store for Arch Linux systems
   copy:
