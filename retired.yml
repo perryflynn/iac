@@ -73,6 +73,10 @@
       include_role:
         name: selfsignedcert
 
+    - name: Install NGINX
+      include_role:
+        name: nginxuserserver
+
     - name: Install X11
       include_role:
         name: xorgsetup
