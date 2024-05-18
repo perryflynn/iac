@@ -242,6 +242,10 @@
 
     - *prepare_environment
 
+    - name: Configure python
+      include_role:
+        name: pythonsetup
+
     - name: Create hostname file
       copy:
         dest: /etc/hostname
