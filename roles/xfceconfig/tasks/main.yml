@@ -56,7 +56,7 @@
 
 - name: Create monitor settings
   set_fact:
-    newxfcemonitorsettings: "{{ (xfcemonitorsettings | default([])) + [ (item.0 | combine({ 'p': (item.0.p | replace('SCREENNUM', item.1.screen) | replace('MONITORNAME', item.1.monitor)) })) ] }}"
+    newxfcemonitorsettings: "{{ (newxfcemonitorsettings | default([])) + [ (item.0 | combine({ 'p': (item.0.p | replace('SCREENNUM', item.1.screen) | replace('MONITORNAME', item.1.monitor)) })) ] }}"
   loop: "{{xfcemonitorsettings|product(screens.stdout|from_json)|list}}"
 
 - debug:
