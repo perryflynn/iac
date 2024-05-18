@@ -65,6 +65,10 @@
               syntax on
               set mouse=
 
+    - name: Install Self-Signed certificate
+      include_role:
+        name: selfsignedcert
+
     - name: Install X11
       include_role:
         name: xorgsetup

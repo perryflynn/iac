@@ -1,0 +1,9 @@
+---
+# roles/selfsignedcert/defaults/main.yml
+
+selfsigned_certpath: /etc/ssl/private/localhost-selfsigned.crt
+selfsigned_keypath: /etc/ssl/private/selfsigned.key
+
+selfsigned_name: localhost
+selfsigned_names:
+  - '*.localhost'

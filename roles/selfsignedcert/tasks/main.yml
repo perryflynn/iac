@@ -1,0 +1,38 @@
+---
+# roles/selfsignedcert/tasks/main.yml
+
+- name: Install python dependencies
+  pip:
+    name: cryptography
+
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
+    path: "{{selfsigned_keypath}}"
+    type: RSA
+    size: 4096
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=-
+
+- name: Create SAN list
+  set_fact:
+    newsanlist: "{{ ([selfsigned_name]+selfsigned_names) | map('regex_replace', '^', 'DNS:') }}"
+
+- name: Create certificate signing request (CSR) for self-signed certificate
+  community.crypto.openssl_csr_pipe:
+    privatekey_path: "{{selfsigned_keypath}}"
+    country_name: DE
+    locality_name: Lower Saxony
+    organization_name: Perrys Ansible Apply
+    organizational_unit_name: IAC
+    email_address: no-reply@example.com
+    common_name: "{{selfsigned_name}}"
+    subject_alt_name: "{{newsanlist}}"
+  register: csr
+
+- name: Create self-signed certificate from CSR
+  community.crypto.x509_certificate:
+    path: "{{selfsigned_certpath}}"
+    csr_content: "{{csr.csr}}"
+    privatekey_path: "{{selfsigned_keypath}}"
+    provider: selfsigned
