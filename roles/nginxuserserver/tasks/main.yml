@@ -31,6 +31,14 @@
   notify:
     - Restart NGINX
 
+- name: Ensure permissions on home directory
+  file:
+    path: "/home/{{item}}"
+    mode: go+rx
+  become: true
+  become_user: "{{item}}"
+  loop: "{{nginx_userdir_users}}"
+
 - name: Create public_html folder for user
   file:
     path: "/home/{{item}}/public_html"

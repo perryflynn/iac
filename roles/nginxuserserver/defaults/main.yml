@@ -6,3 +6,4 @@ nginx_keypath: /etc/ssl/private/localhost-selfsigned.key
 nginx_hostname: localhost
 nginx_userdir: false
 nginx_userdir_users: []
+nginx_user: http
