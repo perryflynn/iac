@@ -4,15 +4,46 @@
 - name: Ensure parameters
   assert:
     that:
-      - ansible_distribution == 'Archlinux'
+      - ansible_distribution in [ 'Archlinux', 'Debian', 'Ubuntu' ]
 
 - name: Install NetworkManager
   package:
     name:
-      - networkmanager
-      - network-manager-applet
+      - "{{ 'networkmanager' if ansible_distribution == 'Archlinux' else 'network-manager' }}"
+
+- name: Install NetworkManager extensions and wireless tools for Arch Linux systems
+  package:
+    name:
       - networkmanager-openvpn
-      - nm-connection-editor
       - wireless_tools
       - iw
       - crda
+  when: ansible_distribution == 'Archlinux'
+
+- name: Install NetworkManager extensions and wireless tools for Ubuntu/Debian systems
+  package:
+    name:
+      - network-manager-openvpn
+      - wireless-tools
+      - iw
+      - wireless-regdb
+  when: ansible_distribution in [ 'Debian', 'Ubuntu' ]
+
+- name: Install NetworkManager GUI tools for Arch Linux systems
+  package:
+    name:
+      - network-manager-applet
+      - nm-connection-editor
+  when: ansible_distribution == 'Archlinux' and networkmanager_gui
+
+- name: Install NetworkManager GUI tools for Ubuntu/Debian systems
+  package:
+    name:
+      - network-manager-gnome
+      - network-manager-openvpn-gnome
+  when: ansible_distribution in [ 'Debian', 'Ubuntu' ] and networkmanager_gui
+
+- name: Enable networkmanager
+  systemd_service:
+    enabled: true
+    name: NetworkManager

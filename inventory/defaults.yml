@@ -4,6 +4,9 @@ all:
     selfbranch: dev
     selfapplyscript: /usr/local/sbin/perrys-ansible-apply.sh
 
+    ubuntumirror: http://de.archive.ubuntu.com/ubuntu/
+    debianmirror: http://deb.debian.org/debian/
+
     timezone: Europe/Berlin
     timeregion: Europe
     timecity: Berlin
@@ -60,12 +63,18 @@ all:
           retired:
             bootmode: uefi
             diskdev: /dev/sda
+            firstbootplaybook: true
+            networking: network-manager
           biostest:
             bootmode: bios
             diskdev: /dev/sda
+            firstbootplaybook: false
+            networking: systemd-networkd
           uefitest:
             bootmode: uefi
             diskdev: /dev/sda
+            firstbootplaybook: false
+            networking: systemd-networkd
 
       children:
 
@@ -76,7 +85,6 @@ all:
             chrootmountpoint: /mnt/archlinux
             hostname: mydemoarch
             additionalpackages:
-              #- networkmanager
               - openssh
               - inetutils
               - net-tools
@@ -105,7 +113,6 @@ all:
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
             additionalpackages: &debian_packages
-              #- network-manager
               - openssh-server
               - net-tools
               - dnsutils

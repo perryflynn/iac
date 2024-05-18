@@ -87,6 +87,8 @@
     - name: Install NetworkManager
       include_role:
         name: networkmanagersetup
+      vars:
+        networkmanager_gui: true
 
     - name: Desktop Tools
       block:

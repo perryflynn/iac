@@ -15,4 +15,8 @@ if [ "${PERRY_ANSIBLE_DESKTOP:-0}" == "1" ]; then
     extraargs+=( -e "{ \"use_logout\": \"true\" }" )
 fi
 
-ansible-pull -U "{{selfrepo}}" -C "{{selfbranch}}" -l "$(uname -n)" "${extraargs[@]}"
+ansible-pull \
+    -U https://${IAC_REPO_TOKEN:-}${IAC_REPO_TOKEN:+@}${IAC_REPO_URL} \
+    -C ${IAC_REPO_BRANCH} \
+    -l "$(uname -n)" \
+    "${extraargs[@]}"

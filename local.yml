@@ -23,6 +23,7 @@
               - bootmode == 'uefi' or bootmode == 'bios'
               - flavor in [ 'debian', 'ubuntu', 'archlinux' ]
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
+              - networking in [ 'systemd-networkd', 'networkmanager' ]
 
         - name: Show bootstrap parameters to use
           debug:
@@ -31,7 +32,8 @@
                 'hostname': hostname,
                 'bootmode': bootmode,
                 'flavor': flavor,
-                'diskdev': diskdev
+                'diskdev': diskdev,
+                'networking': networking
               }
 
     - name: Give the user time to check the shown parameters
@@ -139,7 +141,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --arch amd64 bookworm {{chrootmountpoint}} http://deb.debian.org/debian/
+          debootstrap --variant=minbase --arch amd64 bookworm {{chrootmountpoint}} {{debianmirror}}
       when: flavor == 'debian'
 
     - name: Run debootstrap for Ubuntu
@@ -147,7 +149,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --no-check-certificate --arch amd64 noble {{chrootmountpoint}} http://de.archive.ubuntu.com/ubuntu/
+          debootstrap --variant=minbase --no-check-certificate --arch amd64 noble {{chrootmountpoint}} {{ubuntumirror}}
       when: flavor == 'ubuntu'
 
     # -> Customizations to make networking work for proxies / corporate CAs
@@ -270,62 +272,13 @@
         update_cache: true
       when: flavor in [ 'ubuntu', 'debian' ]
 
-    - name: Install additional software for Arch Linux Systems
+    - name: Install additional software for Arch Linux systems
       pacman:
         name: "{{additionalpackages}}"
         update_cache: true
       when: flavor == 'archlinux'
 
-    # -> Configure OS-specific things
-
-    # - name: Configure Arch Linux System
-    #   block:
-
-    #     - name: Set timezone
-    #       file:
-    #         src: /usr/share/zoneinfo/{{timeregion}}/{{timecity}}
-    #         dest: /etc/localtime
-    #         owner: root
-    #         group: root
-    #         state: link
-
-    #     - name: Run hwclock
-    #       shell:
-    #         executable: /bin/bash
-    #         cmd: 'hwclock --systohc'
-
-    #     - name: Enable locales
-    #       ansible.builtin.lineinfile:
-    #         path: /etc/locale.gen
-    #         regexp: '^#?{{localelong}}'
-    #         line: '{{localelong}}'
-
-    #     - name: Run locale-gen
-    #       shell:
-    #         executable: /bin/bash
-    #         cmd: 'locale-gen'
-
-    #     - name: Create locale.conf
-    #       copy:
-    #         dest: /etc/locale.conf
-    #         owner: root
-    #         group: root
-    #         mode: u=rw,go=r
-    #         content: |
-    #           LANG={{locale}}
-
-    #     - name: Create vconsole.conf
-    #       copy:
-    #         dest: /etc/vconsole.conf
-    #         owner: root
-    #         group: root
-    #         mode: u=rw,go=r
-    #         content: |
-    #           KEYMAP={{vconsolekeymap}}
-
-    #   when: flavor == 'archlinux'
-
-    - name: Configure Debian/Ubuntu systems
+    - name: Install Kernel and Bootloader on Ubuntu/Debian systems
       block:
 
         - name: Install Debian Linux Kernel
@@ -520,23 +473,17 @@
 
     # -> Services
 
-    - name: Configure network interface with DHCP
-      copy:
-        dest: /etc/systemd/network/20-wired.network
-        owner: root
-        group: root
-        mode: u=rw,go=r
-        content: |
-          [Match]
-          Name=ens*
+    - name: Configure systemd-networkd
+      include_role:
+        name: networkdsetup
+      when: networking == 'systemd-networkd'
 
-          [Network]
-          DHCP=yes
-
-    # - name: Enable networkmanager
-    #   systemd_service:
-    #     enabled: true
-    #     name: NetworkManager
+    - name: Install and configure network-manager
+      include_role:
+        name: networkmanagersetup
+      vars:
+        networkmanager_gui: false
+      when: networking == 'network-manager'
 
     - name: Install services
       apt:
@@ -551,28 +498,27 @@
         enabled: yes
       loop:
         - systemd-timesyncd
-        - systemd-networkd
         - systemd-resolved
         - "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
 
-    # - name: Add ansible apply script to OS
-    #   template:
-    #     src: files/perrys-ansible-apply.sh.j2
-    #     dest: "{{selfapplyscript}}"
-    #     owner: root
-    #     group: root
-    #     mode: u=rwx,g=rx,o=r
+    - name: Add ansible apply script to OS
+      template:
+        src: files/perrys-ansible-apply.sh.j2
+        dest: "{{selfapplyscript}}"
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=r
 
-    # - name: Add service to run ansible on boot
-    #   template:
-    #     src: files/perrys-ansible-apply.service.j2
-    #     dest: /etc/systemd/system/perrys-ansible-apply.service
-    #     owner: root
-    #     group: root
-    #     mode: u=rwx,g=rx,o=r
+    - name: Add service to run ansible on boot
+      template:
+        src: files/perrys-ansible-apply.service.j2
+        dest: /etc/systemd/system/perrys-ansible-apply.service
+        owner: root
+        group: root
+        mode: u=rwx,g=rx,o=r
 
-    # - name: Enable ansible apply on first boot
-    #   systemd_service:
-    #     enabled: true
-    #     daemon_reload: yes
-    #     name: perrys-ansible-apply
+    - name: Ensure ansible apply on first boot
+      systemd_service:
+        enabled: "{{firstbootplaybook}}"
+        daemon_reload: yes
+        name: perrys-ansible-apply
