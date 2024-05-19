@@ -47,3 +47,27 @@
   become: true
   become_user: "{{item}}"
   loop: "{{nginx_userdir_users}}"
+
+- name: Create readme.html file
+  copy:
+    dest: "/home/{{item}}/public_html/README.html"
+    mode: u=rw,go=r
+    content: |
+      <!DOCTYPE html>
+      <html lang="en">
+          <head>
+              <meta charset="utf-8">
+              <title>Tilde user directories made by perrys IAC</title>
+
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <meta name="apple-mobile-web-app-capable" content="yes">
+          </head>
+          <body>
+              <h1>Hello World!</h1>
+              <p>This folder was created by perrys IAC. Place static HTML into it as you like.</p>
+          </body>
+      </html>
+  become: true
+  become_user: "{{item}}"
+  loop: "{{nginx_userdir_users}}"
