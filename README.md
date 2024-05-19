@@ -4,7 +4,7 @@ Infrastructure as Code.
 
 This project installs and configures Arch Linux, Debian or Ubuntu operating systems fully automated.
 
-> ⚠ This project is in beta state and all scripts referencing hard coded to the `dev` branch.
+> ⚠ Make sure to create a `.env` file and reference to the correct code branch with the env vars in it!
 
 Features:
 
