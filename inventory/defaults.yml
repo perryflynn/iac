@@ -83,7 +83,7 @@ all:
           vars:
             flavor: archlinux
             chrootmountpoint: /mnt/archlinux
-            hostname: mydemoarch
+            hostname: biostest
             additionalpackages:
               - openssh
               - inetutils
@@ -111,7 +111,7 @@ all:
             flavor: debian
             codename: bookworm
             chrootmountpoint: /mnt/debian
-            hostname: mydemodebian
+            hostname: biostest
             additionalpackages: &debian_packages
               - openssh-server
               - net-tools
@@ -142,7 +142,7 @@ all:
             flavor: ubuntu
             codename: noble
             chrootmountpoint: /mnt/ubuntu
-            hostname: mydemoubuntu
+            hostname: biostest
             additionalpackages: *debian_packages
           hosts:
             ubuntuiso:
@@ -155,10 +155,6 @@ all:
       hosts:
 
         # Default hostnames
-        mydemoarch:
-        mydemodebian:
-        mydemoubuntu:
-
         uefitest:
         biostest:
 
