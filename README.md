@@ -100,5 +100,7 @@ It pulls automatically the correct playbook from this repo by the hostname of th
 - [x] Unix Account
 - [x] X11
 - [x] XFCE
+- [x] Self-Signed certificate for localhost
+- [x] NGINX with tilde user dirs
 - [ ] SSH Daemon config
 - [ ] Disk Encryption
