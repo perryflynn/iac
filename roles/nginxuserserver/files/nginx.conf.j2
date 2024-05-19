@@ -16,6 +16,7 @@ http {
     keepalive_timeout  65;
 
     gzip  on;
+    disable_symlinks off;
 
     server {
         listen 80 default_server;

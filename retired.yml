@@ -167,6 +167,32 @@
               - { c: xfce4-desktop, p: /backdrop/screenSCREENNUM/monitorMONITORNAME/workspace0/last-image, t: string, v: "{{useraccount_home}}/Pictures/Wallpapers/{{wallpaper}}" }
               - { c: xfce4-desktop, p: /backdrop/screenSCREENNUM/monitorMONITORNAME/workspace0/image-style, t: int, v: "3" }
 
+    - name: Checkout code projects
+      block:
+
+        - name: Create sourcecode folder
+          file:
+            path: "{{useraccount_home}}/source"
+            mode: u=rwx,go=rx
+            state: directory
+
+        - name: Git checkout slides repo
+          ansible.builtin.git:
+            repo: https://git.nerdbridge.de/nerdbridge/slides.git
+            dest: "{{useraccount_home}}/source/slides"
+            version: master
+            update: true
+            clone: true
+
+        - name: Symlink slides folder into webserver folder
+          ansible.builtin.file:
+            src: "{{useraccount_home}}/source/slides/public"
+            dest: "{{useraccount_home}}/public_html/slides"
+            state: link
+
+      become: true
+      become_user: "{{useraccount_name}}"
+
     - name: Finish Setup
       block:
 
