@@ -17,6 +17,21 @@ Features:
 - 💻 Autostart Desktop configuration at first Desktop logon
 - ⏱ From blank disk to booted system in ~10 Minutes
 
+Workflow base installation & hostname based configuration:
+
+```mermaid
+graph LR
+    build["Build<br>ISO"] --> boot["Boot<br>ISO"]
+    boot --> bootstrap["Run<br>bootstrap"]
+    bootstrap --> reboot1["Reboot into<br>new OS"]
+    autorun1["Autorun host<br>playbook on<br>first boot<br>(Install OS components)"]
+    autorun1 --> reboot2["Reboot"]
+    reboot2 --> xfce["Boot into<br>XFCE4"]
+    xfce --> autorun2["Run host<br>playbook on<br>first XFCE Login<br>(Configure XFCE4)"]
+    autorun2 --> logout["Logout<br>to load<br>XFCE settings"]
+    logout --> done["Done!"]
+```
+
 ## Architecture
 
 All packages are installed from the official sources.
