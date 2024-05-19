@@ -1,0 +1,26 @@
+---
+# roles/sourceslist/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - sourcesflavor is defined
+      - flavor in [ 'ubuntu', 'debian' ]
+
+- name: Clear sources.list
+  copy:
+    dest: "{{sourcesfileprefix}}/etc/apt/sources.list"
+    owner: root
+    group: root
+    mode: u=rw,go=r
+    content: |
+      # Package sources for {{sourcesflavor}} can be found in {{sourcesfile}}
+      # Do not use this file, create additional ones in /etc/apt/sources.list.d
+
+- name: Create file in sources.list.d
+  template:
+    src: files/sources.list.j2
+    dest: "{{sourcesfileprefix}}{{sourcesfile}}"
+    owner: root
+    group: root
+    mode: u=rw,go=r

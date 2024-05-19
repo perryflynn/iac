@@ -75,15 +75,6 @@ fi
 # Set hostname
 hostnamectl hostname "${ARG_FLAVOR}iso"
 
-# Expand disk size to 50% memory
-memsize=$(cat /proc/meminfo | grep -P "^MemTotal:\s+" | awk '{print $2}')
-mount -o "remount,size=$(($memsize / 1000 / 1000 / 2))G" /run/archiso/cowspace
-
-# Install tools
-pacman --noconfirm --needed -Sy archlinux-keyring
-pacman --noconfirm --needed -Suu
-pacman --noconfirm --needed -S ansible git
-
 # Build arguments
 extraargs=()
 
@@ -95,6 +86,6 @@ fi
 
 # Run ansible
 ansible-pull \
-    -U https://github.com/perryflynn/iac.git -C dev \
+    -U https://${IAC_REPO_TOKEN:-}${IAC_REPO_TOKEN:+@}${IAC_REPO_URL} -C ${IAC_REPO_BRANCH} \
     -l "bootstrap-$ARG_FLAVOR" \
     "${extraargs[@]}"

@@ -1,0 +1,20 @@
+---
+# roles/networkdsetup/tasks/main.yml
+
+- name: Configure network interface with DHCP
+  copy:
+    dest: /etc/systemd/network/20-wired.network
+    owner: root
+    group: root
+    mode: u=rw,go=r
+    content: |
+      [Match]
+      Name=ens*
+
+      [Network]
+      DHCP=yes
+
+- name: Enable networkmanager
+  systemd_service:
+    enabled: true
+    name: systemd-networkd

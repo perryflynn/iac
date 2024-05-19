@@ -1,0 +1,73 @@
+---
+# roles/nginxuserserver/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
+- name: Install NGINX
+  package:
+    name:
+      - nginx
+      - nginx-mod-headers-more
+  notify:
+    - Restart NGINX
+
+- name: Enable NGINX
+  systemd_service:
+    enabled: true
+    name: nginx
+  notify:
+    - Restart NGINX
+
+- name: Add nginx.conf
+  template:
+    src: files/nginx.conf.j2
+    dest: /etc/nginx/nginx.conf
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  notify:
+    - Restart NGINX
+
+- name: Ensure permissions on home directory
+  file:
+    path: "/home/{{item}}"
+    mode: go+rx
+  become: true
+  become_user: "{{item}}"
+  loop: "{{nginx_userdir_users}}"
+
+- name: Create public_html folder for user
+  file:
+    path: "/home/{{item}}/public_html"
+    mode: u=rwx,go=rx
+    state: directory
+  become: true
+  become_user: "{{item}}"
+  loop: "{{nginx_userdir_users}}"
+
+- name: Create readme.html file
+  copy:
+    dest: "/home/{{item}}/public_html/README.html"
+    mode: u=rw,go=r
+    content: |
+      <!DOCTYPE html>
+      <html lang="en">
+          <head>
+              <meta charset="utf-8">
+              <title>Tilde user directories made by perrys IAC</title>
+
+              <meta http-equiv="X-UA-Compatible" content="IE=edge">
+              <meta name="viewport" content="width=device-width, initial-scale=1">
+              <meta name="apple-mobile-web-app-capable" content="yes">
+          </head>
+          <body>
+              <h1>Hello World!</h1>
+              <p>This folder was created by perrys IAC. Place static HTML into it as you like.</p>
+          </body>
+      </html>
+  become: true
+  become_user: "{{item}}"
+  loop: "{{nginx_userdir_users}}"

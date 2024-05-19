@@ -21,8 +21,9 @@
           assert:
             that:
               - bootmode == 'uefi' or bootmode == 'bios'
-              - flavor == 'debian' or flavor == 'archlinux'
+              - flavor in [ 'debian', 'ubuntu', 'archlinux' ]
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
+              - networking in [ 'systemd-networkd', 'network-manager' ]
 
         - name: Show bootstrap parameters to use
           debug:
@@ -31,10 +32,11 @@
                 'hostname': hostname,
                 'bootmode': bootmode,
                 'flavor': flavor,
-                'diskdev': diskdev
+                'diskdev': diskdev,
+                'networking': networking
               }
 
-    - name: Pause for checking parameters
+    - name: Give the user time to check the shown parameters
       pause:
         seconds: 30
 
@@ -44,17 +46,9 @@
 
     - name: Set locale
       locale_gen:
-        name: "{{locale}}"
+        name: en_US.UTF-8
 
-    - name: Install required packages
-      package:
-        name: "{{item}}"
-      loop:
-        - parted
-        - dosfstools
-        - e2fsprogs
-        - bash
-        - debootstrap
+    # -> Partition Disk
 
     - name: Create BIOS boot partition
       parted:
@@ -125,12 +119,21 @@
         fstype: ext4
         state: ephemeral
 
+    # -> Bootstrap root filesystem
+
+    - name: Ensure up-to-date archlinux-keyring
+      pacman:
+        name: archlinux-keyring
+        state: latest
+        update_cache: true
+      when: flavor == 'archlinux'
+
     - name: Run pacstrap for Arch Linux
       shell:
         chdir: /
         executable: /bin/bash
         cmd: |
-          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr {{additionalpackages|join(' ')}}
+          pacstrap -K {{chrootmountpoint}} base linux linux-firmware bash grub efibootmgr
       when: flavor == 'archlinux'
 
     - name: Run debootstrap for Debian
@@ -138,9 +141,54 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --arch amd64 bookworm {{chrootmountpoint}} http://deb.debian.org/debian/
-          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y {{additionalpackages|join(' ')}}"
+          debootstrap --variant=minbase --arch amd64 bookworm {{chrootmountpoint}} {{debianmirror}}
       when: flavor == 'debian'
+
+    - name: Run debootstrap for Ubuntu
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          debootstrap --variant=minbase --no-check-certificate --arch amd64 noble {{chrootmountpoint}} {{ubuntumirror}}
+      when: flavor == 'ubuntu'
+
+    # -> Customizations to make networking work for proxies / corporate CAs
+
+    - name: Ensure environment variables
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cp /etc/environment {{chrootmountpoint}}/etc/environment
+
+    - name: Ensure resolv.conf
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cp /etc/resolv.conf {{chrootmountpoint}}/etc/resolv.conf
+
+    - name: Ensure TLS certificates on Arch Linux systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cat /etc/ca-certificates/trust-source/anchors/*.crt >> {{chrootmountpoint}}/etc/ssl/certs/ca-certificates.crt || true
+          mkdir -p {{chrootmountpoint}}/etc/ca-certificates/trust-source/anchors
+          cp /etc/ca-certificates/trust-source/anchors/*.crt {{chrootmountpoint}}/etc/ca-certificates/trust-source/anchors || true
+      when: flavor == 'archlinux'
+
+    - name: Ensure TLS certificates on Debian/Ubuntu systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          cat /etc/ca-certificates/trust-source/anchors/*.crt >> {{chrootmountpoint}}/etc/ssl/certs/ca-certificates.crt || true
+          mkdir -p {{chrootmountpoint}}/usr/local/share/ca-certificates
+          cp /etc/ca-certificates/trust-source/anchors/*.crt {{chrootmountpoint}}/usr/local/share/ca-certificates || true
+      when: flavor in [ 'debian', 'ubuntu' ]
+
+    # -> Prepare chroot for second stage
 
     - name: Ensure chroot is mounted
       include_role:
@@ -151,91 +199,52 @@
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
-    - name: Run genfstab
+    - name: Generate fstab file
       shell:
         chdir: /
         executable: /bin/bash
         cmd: |
           genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
+    # -> Install additional packages to make ansible chroot work
+
+    - name: Update package sources for Debian/Ubuntu systems
+      include_role:
+        name: sourceslist
+        defaults_from: "{{flavor}}-{{codename}}"
+      vars:
+        sourcesfileprefix: "{{chrootmountpoint}}"
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Install Ansible in chroot for Arch Linux systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "pacman --noconfirm --needed -Sy git ansible curl ca-certificates"
+      when: flavor == 'archlinux'
+
+    - name: Install Ansible in chroot for Debian/Ubuntu systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y git ansible curl ca-certificates"
+      when: flavor in [ 'debian', 'ubuntu' ]
+
 - name: Continue setup in chroot
   hosts: chroots
+
+  environment:
+    PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
 
   tasks:
 
     - *prepare_environment
 
-    - name: Configure Arch Linux System
-      block:
-
-        - name: Set timezone
-          file:
-            src: /usr/share/zoneinfo/{{timeregion}}/{{timecity}}
-            dest: /etc/localtime
-            owner: root
-            group: root
-            state: link
-
-        - name: Run hwclock
-          shell:
-            executable: /bin/bash
-            cmd: 'hwclock --systohc'
-
-        - name: Enable locales
-          ansible.builtin.lineinfile:
-            path: /etc/locale.gen
-            regexp: '^#?{{localelong}}'
-            line: '{{localelong}}'
-
-        - name: Run locale-gen
-          shell:
-            executable: /bin/bash
-            cmd: 'locale-gen'
-
-        - name: Create locale.conf
-          copy:
-            dest: /etc/locale.conf
-            owner: root
-            group: root
-            mode: u=rw,go=r
-            content: |
-              LANG={{locale}}
-
-        - name: Create vconsole.conf
-          copy:
-            dest: /etc/vconsole.conf
-            owner: root
-            group: root
-            mode: u=rw,go=r
-            content: |
-              KEYMAP={{vconsolekeymap}}
-
-      when: flavor == 'archlinux'
-
-    - name: Configure Debian System
-      block:
-
-        - name: Configure grub package
-          shell:
-            executable: /bin/bash
-            cmd: |
-              debconf-set-selections <<< "grub-efi-amd64 grub2/update_nvram boolean false"
-
-        - name: Remove packages
-          apt:
-            state: absent
-            name:
-              - grub-efi
-              - grub-efi-amd64
-
-        - name: Install packages
-          apt:
-            name:
-              - linux-image-amd64
-              - linux-headers-amd64
-              - grub-efi
-
-      when: flavor == 'debian'
+    - name: Configure python
+      include_role:
+        name: pythonsetup
 
     - name: Create hostname file
       copy:
@@ -245,6 +254,165 @@
         mode: u=rw,go=r
         content: |
           {{hostname}}
+
+    - name: Create hosts file
+      copy:
+        dest: /etc/hosts
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          127.0.0.1        localhost
+          ::1              localhost ip6-localhost ip6-loopback
+          ff02::1          ip6-allnodes
+          ff02::2          ip6-allrouters
+
+    # -> Install additional packages
+
+    - name: Install additional software for Debian/Ubuntu systems
+      apt:
+        name: "{{additionalpackages}}"
+        force_apt_get: true
+        update_cache: true
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Install additional software for Arch Linux systems
+      pacman:
+        name: "{{additionalpackages}}"
+        update_cache: true
+      when: flavor == 'archlinux'
+
+    - name: Install Kernel and Bootloader on Ubuntu/Debian systems
+      block:
+
+        - name: Install Debian Linux Kernel
+          apt:
+            name:
+              - linux-image-generic
+              - linux-headers-generic
+              - intel-microcode
+              - amd64-microcode
+              - firmware-linux
+          when: flavor == 'debian'
+
+        - name: Ensure bootloader packages are uninstalled
+          apt:
+            state: absent
+            purge: true
+            name:
+              - grub2
+              - grub-efi
+              - os-prober
+
+        - name: Install Ubuntu Linux Kernel
+          apt:
+            name: linux-generic
+          when: flavor == 'ubuntu'
+
+        - name: Install Grub for BIOS on Debian/Ubuntu systems
+          apt:
+            name: grub2
+          when: bootmode == 'bios'
+
+        - name: Install Grub for UEFI on Debian/Ubuntu systems
+          apt:
+            name: grub-efi
+          when: bootmode == 'uefi'
+
+      when: flavor in [ 'debian', 'ubuntu' ]
+
+    # -> Localization
+
+    - name: Set locale
+      locale_gen:
+        name: "{{item}}"
+      loop: "{{locales}}"
+
+    - name: Set timezone
+      ansible.builtin.file:
+        src: /usr/share/zoneinfo/{{timeregion}}/{{timecity}}
+        dest: /etc/localtime
+        owner: root
+        group: root
+        state: link
+        force: true
+
+    - name: Ensure locales environment variables
+      lineinfile:
+        path: /etc/environment
+        regexp: "{{item.r}}"
+        line: "{{item.l}}"
+      loop:
+        - { r: '^LC_ALL=', l: 'LC_ALL={{locale}}' }
+        - { r: '^LANG=', l: 'LANG={{locale}}' }
+
+    - name: Create keyboard configuration for Arch Linux systems
+      copy:
+        dest: "/etc/vconsole.conf"
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          KEYMAP={{vconsolekeymap}}
+      when: flavor == 'archlinux'
+
+    - name: Keyboard config for Debian/Ubuntu systems
+      copy:
+        dest: /etc/default/keyboard
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          XKBMODEL="pc105"
+          XKBLAYOUT="{{debconfkeymaplayoutcode}}"
+          XKBVARIANT="{{debconfkeymapvariantcode}}"
+          XKBOPTIONS="lv3:ralt_switch"
+          BACKSPACE="guess"
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Console-Setup config for Debian/Ubuntu systems
+      copy:
+        dest: /etc/default/console-setup
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          ACTIVE_CONSOLES="/dev/tty[1-6]"
+          CHARMAP="{{debconfcharmap}}"
+          CODESET="{{debconfcodeset}}"
+          FONTFACE="{{debconffontface}}"
+          FONTSIZE="{{debconffontsize}}"
+          VIDEOMODE=
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Debconf for Debian/Ubuntu systems
+      debconf:
+        name: "{{item[0]}}"
+        question: "{{item[1]}}"
+        vtype: "{{item[2]}}"
+        value: "{{item[3]}}"
+      loop:
+        - [ 'keyboard-configuration', 'keyboard-configuration/store_defaults_in_debconf_db', 'boolean', 'true' ]
+        - [ 'console-setup', 'console-setup/store_defaults_in_debconf_db', 'boolean', 'true' ]
+        - [ 'locales', 'locales/default_environment_locale', 'select', '{{locale}}' ]
+        - [ 'locales', 'locales/locales_to_be_generated', 'multiselect', "{{locales|join(' UTF-8, ')}} UTF-8" ]
+        - [ 'tzdata', 'tzdata/Zones/Etc', 'select', '{{timeregion}}' ]
+        - [ 'tzdata', 'tzdata/Zones/{{timeregion}}', 'select', '{{timecity}}' ]
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Run dpkg-reconfigure on Debian/Ubuntu systems
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: 'dpkg-reconfigure -fnoninteractive {{item}}'
+      loop:
+        - console-setup
+        - keyboard-configuration
+        - locales
+        - tzdata
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    # -> Root Account
 
     - name: Set root password
       user:
@@ -258,54 +426,84 @@
         key: "{{rootsshkeys|join('\n')}}"
         exclusive: true
 
-    - name: Configure verbose output in bootloader
+    # -> Bootloader
+
+    - name: Configure verbose boot output in bootloader for Arch Linux
       ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
       when: flavor == 'archlinux'
 
-    - name: Install bootloader in BIOS mode
+    - name: Install bootloader in BIOS mode for Arch Linux
       shell:
         executable: /bin/bash
         cmd: |
           grub-install --target=i386-pc {{diskdev}}
           grub-mkconfig -o /boot/grub/grub.cfg
-      when: bootmode == 'bios'
+      when: flavor == 'archlinux' and bootmode == 'bios'
 
     - name: Install bootloader in UEFI mode for Arch Linux
       shell:
         executable: /bin/bash
         cmd: |
-          grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --no-nvram --removable
+          grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --recheck --no-nvram --removable {{diskdev}}
           grub-mkconfig -o /boot/grub/grub.cfg
       when: flavor == 'archlinux' and bootmode == 'uefi'
+
+    - name: Install bootloader in BIOS mode for Debian/Ubuntu systems
+      shell:
+        executable: /bin/bash
+        cmd: |
+          grub-install --target=i386-pc {{diskdev}}
+          update-grub
+      when: flavor in [ 'debian', 'ubuntu' ] and bootmode == 'bios'
 
     - name: Install bootloader in UEFI mode for Debian
       shell:
         executable: /bin/bash
         cmd: |
-          grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=debian --recheck --no-nvram --removable
+          grub-install --target=x86_64-efi --efi-directory=/boot/efi --bootloader-id=GRUB --recheck --no-nvram --removable {{diskdev}}
           update-grub
-      environment:
-        PATH: "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin"
       when: flavor == 'debian' and bootmode == 'uefi'
 
-    - name: Generate GRUB config
+    - name: Install bootloader in UEFI mode for Ubuntu
       shell:
         executable: /bin/bash
-        cmd: 'grub-mkconfig -o /boot/grub/grub.cfg'
-      when: flavor == 'archlinux'
+        cmd: |
+          grub-install {{diskdev}}
+          update-grub
+      when: flavor == 'ubuntu' and bootmode == 'uefi'
 
-    - name: Enable networkmanager
-      systemd_service:
-        enabled: true
-        name: NetworkManager
+    # -> Services
 
-    - name: Enable ssh
-      systemd_service:
-        enabled: true
-        name: "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
+    - name: Configure systemd-networkd
+      include_role:
+        name: networkdsetup
+      when: networking == 'systemd-networkd'
+
+    - name: Install and configure network-manager
+      include_role:
+        name: networkmanagersetup
+      vars:
+        networkmanager_gui: false
+      when: networking == 'network-manager'
+
+    - name: Install services
+      apt:
+        name:
+          - systemd-resolved
+          - systemd-timesyncd
+      when: flavor in [ 'ubuntu', 'debian' ]
+
+    - name: Enable services
+      systemd:
+        name: "{{item}}"
+        enabled: yes
+      loop:
+        - systemd-timesyncd
+        - systemd-resolved
+        - "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
 
     - name: Add ansible apply script to OS
       template:
@@ -323,8 +521,8 @@
         group: root
         mode: u=rwx,g=rx,o=r
 
-    - name: Enable ansible apply on first boot
+    - name: Ensure ansible apply on first boot
       systemd_service:
-        enabled: true
+        enabled: "{{firstbootplaybook}}"
         daemon_reload: yes
         name: perrys-ansible-apply

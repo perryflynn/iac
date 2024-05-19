@@ -2,29 +2,58 @@
 
 Infrastructure as Code.
 
-This project installs and configures Arch Linux or Debian operating systems fully automated.
+This project installs and configures Arch Linux, Debian or Ubuntu operating systems fully automated.
 
 > ⚠ This project is in beta state and all scripts referencing hard coded to the `dev` branch.
 
 Features:
 
 - 💿 Build the installer ISO image in a Docker environment
-- 💡 Read hostname and OS type from UEFI variables
-- 🔨 Install a minimal Arch Linux OS or Debian OS
+- 💡 Read hostname and OS type from UEFI variables or use cloud-init
+- 🔨 Install a minimal Arch Linux OS, Debian OS or Ubuntu OS
 - ❓ Decide target disk for installation, etc by hostname
 - 🔐 Setup root password, SSH keys and user accounts
 - 🚀 Autostart OS configuration at first boot
 - 💻 Autostart Desktop configuration at first Desktop logon
+- ⏱ From blank disk to booted system in ~10 Minutes
+
+## Architecture
+
+All packages are installed from the official sources.
+
+- bash
+- systemd
+- systemd-networkd (DHCP on all ens* interfaces)
+- systemd-timesyncd
+- systemd-resolved
+- net-tools + dnsutils
+- nano + vim
+- curl + wget
+- Ansible
+
+| OS                   | #Packages | #Processes | Size  | Memory |
+|----------------------|-----------|------------|-------|--------|
+| Ubuntu 24.04 "Noble" |      ~390 |         14 | 2.5GB |  280MB |
+| Debian 12 "Bookworm" |      ~390 |         14 | 2.2GB |  270MB |
+| Arch Linux           |      ~170 |         20 | 2.7GB |  300MB |
 
 ## archiso
 
-[Archiso](https://wiki.archlinux.org/title/archiso) is used as a base. [archiso/](./archiso/) contains
-a Dockerfile and some scripts to build a custom Arch Linux installer iso with additional scripts.
+[Archiso](https://wiki.archlinux.org/title/archiso) is used as a base for the Installer ISO. 
+[archiso/](./archiso/) contains a Dockerfile and some scripts to build a custom Arch Linux installer 
+ISO with additional scripts.
 
 - `./archiso/build.sh` builds the container image
 - `./archiso/pack.sh` runs the container image to build the Arch Linux ISO image
+- ISO Image can be found in `./archiso/output/`
 
-## Automatic hostname detection
+Requires Docker CE, `pack.sh` executes a container **in privileged mode**.
+
+## Automatic configuration with Cloud-Init
+
+TODO
+
+## Automatic hostname detection with UEFI varables
 
 The `perrys-bootstrapper.sh` script is using UEFI variables to fetch the hostname from the system and use the
 correct ansible inventory variables.
@@ -71,5 +100,7 @@ It pulls automatically the correct playbook from this repo by the hostname of th
 - [x] Unix Account
 - [x] X11
 - [x] XFCE
+- [x] Self-Signed certificate for localhost
+- [x] NGINX with tilde user dirs
 - [ ] SSH Daemon config
 - [ ] Disk Encryption

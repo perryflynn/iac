@@ -1,0 +1,14 @@
+sourcesflavor: 'Debian 12 Bookworm'
+sourcesfileprefix: ''
+sourcesfile: /etc/apt/sources.list.d/debian.sources
+sources:
+  - types: [ deb, deb-src ]
+    url: http://deb.debian.org/debian
+    suites: [ bookworm bookworm-updates ]
+    components: [ main, contrib, non-free non-free-firmware ]
+    signedby: /usr/share/keyrings/debian-archive-keyring.gpg
+  - types: [ deb, deb-src ]
+    url: http://deb.debian.org/debian-security
+    suites: [ bookworm-security ]
+    components: [ main, contrib, non-free non-free-firmware ]
+    signedby: /usr/share/keyrings/debian-archive-keyring.gpg

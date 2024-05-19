@@ -1,0 +1,4 @@
+---
+# roles/networkmanagersetup/defaults/main.yml
+
+networkmanager_gui: false

@@ -8,7 +8,12 @@
       - useraccount_name is defined
       - useraccount_uid is defined
 
-- name: Configure XFCE
+- name: Install jq
+  package:
+    name: jq
+
+- &xfceconf
+  name: Configure XFCE
   shell:
     executable: /usr/bin/bash
     cmd: |
@@ -31,3 +36,26 @@
   register: xfconfresult
   changed_when: xfconfresult.rc == 98
   failed_when: xfconfresult.rc not in [ 98, 99 ]
+
+- name: Find all monitors
+  shell:
+    executable: /usr/bin/bash
+    cmd: |
+      xrandr --listmonitors | \
+          grep -P ': [+*]{1,2}[^\s]+' | \
+          awk '{print $1":"$4}' | \
+          jq --raw-input -c -M --slurp '[ split("\n") | .[] | select(. != "") ] | map(. | split("::") | { "screen": .[0], "monitor": .[1] })'
+  become: true
+  become_user: "{{useraccount_name}}"
+  environment:
+    DISPLAY: "{{x11desktop}}"
+    DBUS_SESSION_BUS_ADDRESS: "unix:path=/run/user/{{useraccount_uid}}/bus"
+  register: screens
+
+- name: Create monitor settings
+  set_fact:
+    newxfcemonitorsettings: "{{ (newxfcemonitorsettings | default([])) + [ (item.0 | combine({ 'p': (item.0.p | replace('SCREENNUM', item.1.screen) | replace('MONITORNAME', item.1.monitor)) })) ] }}"
+  loop: "{{xfcemonitorsettings|product(screens.stdout|from_json)|list}}"
+
+- <<: *xfceconf
+  loop: "{{newxfcemonitorsettings}}"

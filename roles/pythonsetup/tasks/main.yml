@@ -1,0 +1,30 @@
+---
+# roles/pythonsetup/tasks/main.yml
+
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution in [ 'Archlinux', 'Debian', 'Ubuntu' ]
+
+- name: Install python packages for Arch Linux
+  package:
+    name:
+      - python-pip
+      - python-setuptools
+      - python-wheel
+  when: ansible_distribution == 'Archlinux'
+
+- name: Install python packages on Ubuntu/Debian systems
+  package:
+    name:
+      - python3-pip
+      - python3-setuptools
+      - python3-wheel
+  when: ansible_distribution in [ 'Debian', 'Ubuntu' ]
+
+- name: Delete external-managed flag-file
+  shell:
+    chdir: /
+    executable: /bin/bash
+    cmd: |
+      find /usr/lib -maxdepth 2 -mindepth 2 -name EXTERNALLY-MANAGED -path "*/python*/*" -print -delete

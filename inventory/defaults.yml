@@ -4,14 +4,31 @@ all:
     selfbranch: dev
     selfapplyscript: /usr/local/sbin/perrys-ansible-apply.sh
 
+    ubuntumirror: http://de.archive.ubuntu.com/ubuntu/
+    debianmirror: http://deb.debian.org/debian/
+
     timezone: Europe/Berlin
     timeregion: Europe
     timecity: Berlin
-    locale: en_US.UTF-8
+
+    locale: &mainlocale en_US.UTF-8
+    locales:
+      - *mainlocale
+      - de_DE.UTF-8
     localelong: en_US.UTF-8 UTF-8
+
     vconsolekeymap: de-latin1
+    vconsolekeymapvariant: deadacute
+
     xfcekeymap: de
-    xfcekeymapvariant: deadactute
+    xfcekeymapvariant: deadacute
+
+    debconfkeymaplayoutcode: de
+    debconfkeymapvariantcode: deadacute
+    debconfcharmap: UTF-8
+    debconfcodeset: Lat15
+    debconffontface: VGA
+    debconffontsize: 8x16
 
     rootpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
     rootsshkeys:
@@ -29,11 +46,13 @@ all:
       hosts:
         archlinuxiso:
         debianiso:
+        ubuntuiso:
 
     chroots:
       hosts:
         /mnt/archlinux:
         /mnt/debian:
+        /mnt/ubuntu:
 
     # Bootstrapping Operating Systems
 
@@ -44,6 +63,18 @@ all:
           retired:
             bootmode: uefi
             diskdev: /dev/sda
+            firstbootplaybook: true
+            networking: network-manager
+          biostest:
+            bootmode: bios
+            diskdev: /dev/sda
+            firstbootplaybook: false
+            networking: systemd-networkd
+          uefitest:
+            bootmode: uefi
+            diskdev: /dev/sda
+            firstbootplaybook: false
+            networking: systemd-networkd
 
       children:
 
@@ -54,18 +85,21 @@ all:
             chrootmountpoint: /mnt/archlinux
             hostname: mydemoarch
             additionalpackages:
-              - ansible
-              - networkmanager
               - openssh
-              - git
               - inetutils
               - net-tools
               - dnsutils
-              - curl
-              - ca-certificates
               - gnupg
               - iputils
               - iproute2
+              - curl
+              - wget
+              - vim
+              - nano
+              - dialog
+              - man-db
+              - rxvt-unicode-terminfo
+              - wezterm-terminfo
           hosts:
             archlinuxiso:
             /mnt/archlinux:
@@ -75,23 +109,44 @@ all:
         bootstrap-debian:
           vars:
             flavor: debian
+            codename: bookworm
             chrootmountpoint: /mnt/debian
             hostname: mydemodebian
-            additionalpackages:
-              - ansible
-              - network-manager
+            additionalpackages: &debian_packages
               - openssh-server
-              - git
               - net-tools
               - dnsutils
-              - curl
-              - ca-certificates
               - gnupg
               - iputils-ping
               - iproute2
+              - curl
+              - wget
+              - util-linux-extra
+              - locales
+              - console-setup
+              - keyboard-configuration
+              - vim
+              - nano
+              - dialog
+              - man-db
+              - debconf-utils
+              - terminfo
           hosts:
             debianiso:
             /mnt/debian:
+              ansible_connection: chroot
+
+        # So is Ubuntu...
+        bootstrap-ubuntu:
+          vars:
+            flavor: ubuntu
+            codename: noble
+            chrootmountpoint: /mnt/ubuntu
+            hostname: mydemoubuntu
+            additionalpackages: *debian_packages
+          hosts:
+            ubuntuiso:
+            /mnt/ubuntu:
               ansible_connection: chroot
 
     # Configure Operating Systems
@@ -102,6 +157,10 @@ all:
         # Default hostnames
         mydemoarch:
         mydemodebian:
+        mydemoubuntu:
+
+        uefitest:
+        biostest:
 
         # retired Thinkpad X230 Laptop
         retired:

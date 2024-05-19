@@ -1,0 +1,9 @@
+---
+# roles/nginxuserserver/defaults/main.yml
+
+nginx_certpath: /etc/ssl/private/localhost-selfsigned.crt
+nginx_keypath: /etc/ssl/private/localhost-selfsigned.key
+nginx_hostname: localhost
+nginx_userdir: false
+nginx_userdir_users: []
+nginx_user: http
