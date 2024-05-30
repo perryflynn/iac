@@ -65,6 +65,17 @@
               - xfsprogs
               - gpart
               - mtools
+              - unp
+              - unarj
+              - unrar
+              - unzip
+              - bzip2
+              - p7zip
+              - unace
+              - cpio
+              - sharutils
+              - cabextract
+              - rpmextract
 
         - name: Create vimrc
           copy:
