@@ -60,6 +60,12 @@
     name: docker
   when: "ansible_distribution == 'Archlinux'"
 
+- name: Enable docker
+  systemd_service:
+    name: docker
+    enabled: true
+    state: started
+
 # -> Data Disk
 
 - name: Setup dedicated data disk for docker
