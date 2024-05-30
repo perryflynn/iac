@@ -27,6 +27,10 @@
       #vars:
       #  nfinputports_tcp: [ 22 ]
 
+    - name: Install docker
+      include_role:
+        name: dockersetup
+
     - name: Set ssh keys for root account
       authorized_key:
         user: root

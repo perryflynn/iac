@@ -1,0 +1,27 @@
+---
+# brickburg/bbdocker/roles/dockersetup/defaults/main.yml
+
+bbdocker_datadisk_enabled: false
+bbdocker_datadisk_id: ''
+bbdocker_datapartition_id: ''
+bbdocker_datadisk_mountpoint: /mnt/dockerdata
+bbdocker_log_journald: false
+
+bbdocker_datadir_enabled: false
+bbdocker_datadir_path: ''
+
+bbdocker_ipv6_enabled: false
+bbdocker_ipv6_fixed_cidr: 'fd00::/49'
+bbdocker_ipv6_cidr: 'fd00:0:0:8000::/49'
+bbdocker_ipv6_subnet_prefix: 64
+
+bbdocker_memoryswapquotas_enabled: false
+
+bbdocker_ipv4_cidr: 172.19.0.0/16
+bbdocker_ipv4_subnet_prefix: 24
+
+bbdocker_prune_images: false
+bbdocker_prune_containers: false
+bbdocker_prune_volumes: false
+bbdocker_prune_networks: false
+bbdocker_prune_builders: true

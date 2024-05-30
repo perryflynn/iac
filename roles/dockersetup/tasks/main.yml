@@ -1,0 +1,266 @@
+---
+# brickburg/bbdocker/roles/dockersetup/tasks/main.yml
+
+#-> Install docker
+
+- name: Docker package sources for Debian
+  block:
+
+    - name: Install dependencies
+      apt:
+        force_apt_get: yes
+        name:
+          - ca-certificates
+          - curl
+          - gnupg
+          - lsb-release
+          - apparmor
+          - apparmor-utils
+
+    - name: Docker pip module
+      pip:
+        name: docker
+
+    - name: Check if docker is installed
+      stat:
+        path: /etc/apt/sources.list.d/docker.list
+      register: isdocker
+
+    - name: Install docker package sources
+      shell:
+        executable: /bin/bash
+        cmd: |
+          mkdir -p /etc/apt/keyrings
+          curl -fsSL https://download.docker.com/linux/debian/gpg | sudo gpg --yes --batch --dearmor -o /etc/apt/keyrings/docker.gpg
+          echo "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/debian \
+            $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+      when: not isdocker.stat.exists
+
+    - name: Update package sources
+      apt:
+        update_cache: yes
+      when: not isdocker.stat.exists
+
+    - name: Install docker
+      apt:
+        force_apt_get: yes
+        name:
+          - docker-ce
+          - docker-ce-cli
+          - containerd.io
+          - docker-compose-plugin
+          - docker-buildx-plugin
+          - docker-compose
+          - bridge-utils
+
+  when: "ansible_distribution == 'Debian'"
+
+- name: Install Docker on Arch Linux
+  package:
+    name: docker
+  when: "ansible_distribution == 'Archlinux'"
+
+# -> Data Disk
+
+- name: Setup dedicated data disk for docker
+  block:
+
+    - name: Install parted
+      apt:
+        force_apt_get: yes
+        name:
+          - parted
+          - xfsprogs
+
+    - name: Ensure that disk id or partition id is set
+      assert:
+        that:
+          - bbdocker_datadisk_id or bbdocker_datapartition_id
+        msg: 'bbdocker_datadisk_id or bbdocker_datapartition_id are required'
+
+    - name: Create partition device path
+      set_fact:
+        datadiskdev: '{{"/dev/disk/by-id/" ~ bbdocker_datadisk_id if bbdocker_datadisk_id else None}}'
+        datapartitionid: '{{bbdocker_datapartition_id if bbdocker_datapartition_id else bbdocker_datadisk_id ~ "-part1"}}'
+
+    - name: Create partition device path
+      set_fact:
+        datapartitiondev: '/dev/disk/by-id/{{datapartitionid}}'
+
+    - name: Create partition if no partition id was provided from outside
+      block:
+
+        - name: Find data disk
+          set_fact:
+            datadisk: "{{item}}"
+          when: bbdocker_datadisk_id in item.links.ids
+          loop: "{{ansible_devices.values() | list}}"
+
+        - name: Check if datadisk was found
+          fail:
+            msg: "Data Disk '{{bbdocker_datadisk_id}}' was not found. Abort."
+          when: datadisk is not defined
+
+        - name: Find data partition
+          set_fact:
+            datapartition: "{{item}}"
+          when: datapartitionid in item.links.ids
+          loop: "{{datadisk.partitions.values() | list}}"
+
+        - name: Disk partition
+          parted:
+            device: "{{datadiskdev}}"
+            number: 1
+            state: present
+            label: gpt
+            name: dockerdata
+            fs_type: xfs
+          when: not datapartition
+
+      when: 'not bbdocker_datapartition_id'
+
+    - name: Format partition
+      filesystem:
+        fstype: xfs
+        dev: "{{datapartitiondev}}"
+
+    - name: Mount directory
+      file:
+        path: "{{bbdocker_datadisk_mountpoint}}"
+        owner: root
+        group: root
+        mode: u=rwx,go=rx
+        state: directory
+
+    - name: Ensure fstab entry
+      lineinfile:
+        path: /etc/fstab
+        regexp: '{{datapartitiondev}}\s+'
+        line: '{{datapartitiondev}} {{bbdocker_datadisk_mountpoint}} xfs discard,nofail,pquota,defaults 0 0'
+
+    - name: Mount volume
+      mount:
+        src: "{{datapartitiondev}}"
+        path: "{{bbdocker_datadisk_mountpoint}}"
+        fstype: xfs
+        opts: discard,nofail,pquota,defaults
+        state: mounted
+
+  when: 'bbdocker_datadisk_enabled|default(False) == True'
+
+
+# -> Docker custom data dir
+
+- name: Configure custom data dir
+  block:
+
+    - name: Check default data directory
+      stat:
+        path: /var/lib/docker
+      register: defaultdockerroot
+
+    - name: Check dedicated data directory
+      stat:
+        path: "{{bbdocker_datadir_path}}"
+      register: mydockerroot
+
+    - name: Fail on unexpected state of data directories
+      fail: { msg: "Both original and custom data root exists, abort" }
+      when: (defaultdockerroot.stat.exists) and (mydockerroot.stat.exists)
+
+    - name: Fail on unexpected state of data directories
+      fail: { msg: "Both original and custom data root not existing, abort" }
+      when: (not defaultdockerroot.stat.exists) and (not mydockerroot.stat.exists)
+
+    - name: Move docker root
+      block:
+        - name: Stop docker
+          systemd:
+            name: docker
+            state: stopped
+        - name: Move docker root
+          shell: >-
+            mv "/var/lib/docker" "{{bbdocker_datadir_path}}"
+      when: defaultdockerroot.stat.exists and (not mydockerroot.stat.exists)
+      notify:
+        - Restart docker
+
+  when: 'bbdocker_datadir_enabled|default(False) == True'
+
+
+# -> Enable kernel flags for swap quotas
+
+- name: Enable swap quotas on Debian
+  block:
+
+    - name: Get grub config value
+      shell: |
+        cat /etc/default/grub | grep GRUB_CMDLINE_LINUX_DEFAULT= | cut -d'"' -f2
+      register: grubvalue
+      changed_when: 'False'
+
+    # cgroup_enable=memory swapaccount=1
+    - name: Ensure the JBoss memory settings are exactly as needed
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: 'GRUB_CMDLINE_LINUX_DEFAULT="'
+        line: "GRUB_CMDLINE_LINUX_DEFAULT=\"{{grubvalue.stdout | replace('cgroup_enable=memory swapaccount=1', '') | replace('  ', ' ') | trim}} cgroup_enable=memory swapaccount=1\""
+      notify:
+        - Configure grub
+
+  when: 'ansible_distribution == "Debian" and bbdocker_memoryswapquotas_enabled|default(False) == True'
+
+- name: Fail when memoryquotas on non-debian
+  fail:
+    msg: 'memory/swap quotas not supported on non-Debian systems by this role yet'
+  when: 'ansible_distribution != "Debian" and bbdocker_memoryswapquotas_enabled|default(False) == True'
+
+# -> Docker configuration
+
+- name: Ensure docker config dir
+  file:
+    path: /etc/docker
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+    state: directory
+
+- name: Configure docker daemon
+  template:
+    src: files/daemon.json.j2
+    dest: /etc/docker/daemon.json
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  notify:
+    - Restart docker
+
+
+# -> Docker cleanup cron
+
+- name: Build garbadge collect command
+  set_fact:
+    gccmds: '{{ gccmds|default([]) + [ item[1] ] }}'
+  when: 'item[0]'
+  loop:
+    - [ "{{bbdocker_prune_images}}", "echo '#-> Clean images' && docker image prune -a -f" ]
+    - [ "{{bbdocker_prune_containers}}", "echo '#-> Clean containers' && docker container prune -f" ]
+    - [ "{{bbdocker_prune_volumes}}", "echo '#-> Clean volumes' && docker volume prune -a -f" ]
+    - [ "{{bbdocker_prune_networks}}", "echo '#-> Clean networks' && docker network prune -f" ]
+    - [ "{{bbdocker_prune_builders}}", "echo '#-> Clean builder' && docker builder prune -a -f" ]
+    - [ "{{bbdocker_prune_builders}}", "echo '#-> Clean buildx' && docker buildx prune -a -f" ]
+
+- name: Creates a cron file under /etc/cron.d
+  ansible.builtin.cron:
+    cron_file: docker_gc
+    name: docker_gc
+    hour: "2"
+    minute: "42"
+    user: root
+    job: '/bin/bash -c "( date && {{gccmds|join(" && ")}} ) > /var/log/docker-gc.log 2>&1"'
+    state: "{{'present' if gccmds|length > 0 else 'absent'}}"
+  notify:
+    - Restart cron
+
+- name: Force all notified handlers to run
+  ansible.builtin.meta: flush_handlers
