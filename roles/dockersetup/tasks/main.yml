@@ -63,7 +63,9 @@
 
 - name: Docker pip module
   pip:
-    name: docker
+    name:
+      - docker
+      - requests > 2.26.0, != 2.32.0
 
 - name: Enable docker
   systemd_service:
