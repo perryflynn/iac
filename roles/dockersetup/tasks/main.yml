@@ -22,10 +22,6 @@
           - apparmor
           - apparmor-utils
 
-    - name: Docker pip module
-      pip:
-        name: docker
-
     - name: Check if docker is installed
       stat:
         path: /etc/apt/sources.list.d/docker.list
@@ -64,6 +60,10 @@
   package:
     name: docker
   when: "ansible_distribution == 'Archlinux'"
+
+- name: Docker pip module
+  pip:
+    name: docker
 
 - name: Enable docker
   systemd_service:
