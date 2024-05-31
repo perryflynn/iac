@@ -64,6 +64,9 @@
       #- python-requests
   when: "ansible_distribution == 'Archlinux'"
 
+# TODO: remove workaround: https://stackoverflow.com/a/78521186
+# pip install requests==2.31.0
+
 # - name: Docker pip module
 #   pip:
 #     name:

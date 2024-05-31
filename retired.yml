@@ -34,7 +34,6 @@
     - name: Create services docker network
       docker_network:
         name: services
-        docker_host: unix://var/run/docker.sock
 
     - name: Deploy pihole
       include_role:
