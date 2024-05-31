@@ -24,6 +24,10 @@
     env:
       TZ: Europe/Berlin
       WEBPASSWORD: "{{bbpihole_password}}"
+      DNSMASQ_LISTENING: all
+      PIHOLE_DNS_: "8.8.8.8;9.9.9.9;8.8.4.4"
+      DNSSEC: "false"
+      WEBTHEME: "default-dark"
     volumes:
       - 'pihole-etc:/etc/pihole'
       - 'pihole-dnsmasq:/etc/dnsmasq.d'
