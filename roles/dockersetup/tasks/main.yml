@@ -64,7 +64,7 @@
 - name: Docker pip module
   pip:
     name:
-      - docker
+      - docker==6.0.0
       - requests > 2.26.0, != 2.32.0
 
 - name: Enable docker
