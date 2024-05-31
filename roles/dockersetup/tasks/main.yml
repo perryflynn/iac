@@ -60,8 +60,8 @@
   package:
     name:
       - docker
-      - python-docker
-      - python-requests
+      #- python-docker
+      #- python-requests
   when: "ansible_distribution == 'Archlinux'"
 
 # - name: Docker pip module
