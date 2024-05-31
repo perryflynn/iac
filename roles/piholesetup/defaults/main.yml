@@ -1,0 +1,5 @@
+---
+# roles/piholesetup/defaults/main.yml
+
+bbpihole_name: pihole
+bbpihole_password: huhu123

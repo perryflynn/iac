@@ -31,6 +31,14 @@
       include_role:
         name: dockersetup
 
+    - name: Create services docker network
+      docker_network:
+        name: services
+
+    - name: Deploy pihole
+      include_role:
+        name: piholesetup
+
     - name: Set ssh keys for root account
       authorized_key:
         user: root

@@ -1,0 +1,31 @@
+---
+# roles/piholesetup/tasks/main.yml
+
+# docker run -d -p 127.0.0.1:53:53/tcp -p 127.0.0.1:53:53/udp -p 127.0.0.1:8123:80/tcp -e TZ=Europe/Berlin -e WEBPASSWORD=huhu123 --name pihole --restart unless-stopped --network services pihole/pihole
+
+- name: Deploy pihole
+  docker_container:
+    image: pihole/pihole:latest
+    name: "{{bbpihole_name}}"
+    hostname: "{{bbpihole_name}}"
+    pull: yes
+    restart: no
+    recreate: yes
+    detach: yes
+    networks_cli_compatible: yes
+    restart_policy: unless-stopped
+    state: started
+    memory: '1024M'
+    cpus: 1.5
+    ports:
+      - 127.0.0.1:53:53/tcp
+      - 127.0.0.1:53:53/udp
+      - 127.0.0.1:8123:80/tcp
+    env:
+      TZ: Europe/Berlin
+      WEBPASSWORD: "{{bbpihole_password}}"
+    volumes:
+      - 'pihole-etc:/etc/pihole'
+      - 'pihole-dnsmasq:/etc/dnsmasq.d'
+    networks:
+      - name: services

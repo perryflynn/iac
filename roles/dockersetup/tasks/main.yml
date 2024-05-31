@@ -1,6 +1,11 @@
 ---
 # brickburg/bbdocker/roles/dockersetup/tasks/main.yml
 
+- name: Ensure parameters
+  assert:
+    that:
+      - ansible_distribution == 'Archlinux'
+
 #-> Install docker
 
 - name: Docker package sources for Debian
