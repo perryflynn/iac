@@ -58,14 +58,17 @@
 
 - name: Install Docker on Arch Linux
   package:
-    name: docker
+    name:
+      - docker
+      - python-docker
+      - python-requests
   when: "ansible_distribution == 'Archlinux'"
 
-- name: Docker pip module
-  pip:
-    name:
-      - docker==6.0.0
-      - requests > 2.26.0, != 2.32.0
+# - name: Docker pip module
+#   pip:
+#     name:
+#       - docker==6.0.0
+#       - requests > 2.26.0, != 2.32.0
 
 - name: Enable docker
   systemd_service:
