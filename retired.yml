@@ -24,8 +24,20 @@
     - name: Install nftables
       include_role:
         name: nftablesrules
-      vars:
-        nfinputports_tcp: [ 22 ]
+      #vars:
+      #  nfinputports_tcp: [ 22 ]
+
+    - name: Install docker
+      include_role:
+        name: dockersetup
+
+    - name: Create services docker network
+      docker_network:
+        name: services
+
+    - name: Deploy pihole
+      include_role:
+        name: piholesetup
 
     - name: Set ssh keys for root account
       authorized_key:
@@ -57,6 +69,25 @@
               - nmap
               - wireshark-cli
               - mtr
+              - parted
+              - dosfstools
+              - btrfs-progs
+              - exfatprogs
+              - ntfs-3g
+              - xfsprogs
+              - gpart
+              - mtools
+              - unp
+              - unarj
+              - unrar
+              - unzip
+              - bzip2
+              - p7zip
+              - unace
+              - cpio
+              - sharutils
+              - cabextract
+              - rpmextract
 
         - name: Create vimrc
           copy:
@@ -123,6 +154,11 @@
               - libreoffice-still
               - libreoffice-still-de
               - wireshark-qt
+              - gparted
+              - remmina
+              - libvncserver
+              - spice-gtk
+              - freerdp
 
     - name: Check if xfce is running
       include_role:

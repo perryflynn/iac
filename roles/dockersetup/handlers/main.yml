@@ -1,0 +1,23 @@
+---
+# brickburg/bbdocker/roles/dockersetup/handlers/main.yml
+
+- name: Restart docker
+  systemd:
+    name: docker
+    state: restarted
+
+- name: Configure grub
+  shell: update-grub
+  when: 'ansible_distribution == "Debian"'
+
+- name: Restart cron
+  systemd:
+    name: cron
+    state: restarted
+  when: 'ansible_distribution == "Debian"'
+
+- name: Restart cron
+  systemd:
+    name: cronie
+    state: restarted
+  when: 'ansible_distribution == "Arch Linux"'

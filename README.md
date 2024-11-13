@@ -32,6 +32,10 @@ graph LR
     logout --> done["Done!"]
 ```
 
+## Known Issues
+
+- Python Requests Version is pinned to make docker work. See dockersetup role.
+
 ## Architecture
 
 All packages are installed from the official sources.

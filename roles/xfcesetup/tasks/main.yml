@@ -12,15 +12,22 @@
     name:
       - xfce4
       - xfce4-goodies
+      # fonts and emojis
       - adobe-source-sans-fonts
       - adobe-source-serif-fonts
       - noto-fonts
+      - noto-fonts-emoji
+      - noto-fonts-extra
       - gnu-free-fonts
       - ttf-dejavu
       - ttf-dejavu-nerd
       - ttf-droid
       - ttf-liberation
       - ttf-ubuntu-font-family
+      - nerd-fonts
+      # emoji picker
+      - rofimoji
+      # mount remote filesystems
       - gvfs
       - gvfs-mtp
       - gvfs-nfs

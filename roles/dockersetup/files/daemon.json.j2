@@ -1,0 +1,28 @@
+{
+{% if bbdocker_datadir_enabled %}
+    "data-root": "{{bbdocker_datadir_path}}",
+{% endif %}
+{% if bbdocker_ipv6_enabled %}
+    "ipv6": true,
+    "experimental": true,
+    "ip6tables": true,
+    "fixed-cidr-v6": "{{bbdocker_ipv6_fixed_cidr}}",
+{% else %}
+    "ipv6": false,
+{% endif %}
+    "default-address-pools": [
+{% if bbdocker_ipv6_enabled %}
+        { "base": "{{bbdocker_ipv6_cidr}}", "size": {{bbdocker_ipv6_subnet_prefix}} },
+{% endif %}
+        { "base": "{{bbdocker_ipv4_cidr}}", "size": {{bbdocker_ipv4_subnet_prefix}} }
+    ],
+{% if bbdocker_log_journald %}
+    "log-driver": "journald"
+{% else %}
+    "log-driver": "json-file",
+    "log-opts": {
+        "max-size": "32m",
+        "max-file": "5"
+    }
+{% endif %}
+}
