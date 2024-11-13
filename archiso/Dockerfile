@@ -1,9 +1,11 @@
 FROM archlinux/archlinux:latest
 SHELL [ "/usr/bin/bash", "-c" ]
 
-RUN pacman --noconfirm --needed -Sy archlinux-keyring && \
-    pacman -Syu --noconfirm && \
-    pacman --noconfirm --needed -Sy archiso
+ARG PACMAN="pacman --disable-download-timeout --noconfirm --needed -S"
+
+RUN ${PACMAN}y archlinux-keyring && \
+    ${PACMAN}u && \
+    ${PACMAN} archiso grub
 
 RUN rm -rf bootstrapiso && \
     mkdir -p /archiso-tmp /archiso /output && \
