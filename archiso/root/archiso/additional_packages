@@ -3,3 +3,5 @@ git
 ansible
 bash
 debootstrap
+cloud-init
+openbsd-netcat
