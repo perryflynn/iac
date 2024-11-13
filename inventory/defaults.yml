@@ -172,6 +172,7 @@ all:
           hosts:
             debiankvmiso:
             /mnt/debiankvm:
+              ansible_connection: chroot
 
         # So is Ubuntu...
         bootstrap_ubuntu:

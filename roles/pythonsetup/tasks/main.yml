@@ -6,9 +6,6 @@
     that:
       - ansible_distribution in [ 'Archlinux', 'Debian', 'Ubuntu' ]
 
-- debug:
-    var: ansible_distribution
-
 - name: Install python packages for Arch Linux
   package:
     name:
