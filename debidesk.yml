@@ -1,0 +1,87 @@
+---
+- name: Configure my remote Desktop
+  hosts:
+    - debidesk
+
+  vars:
+    use_handlers: 'true'
+    use_reboot: 'false'
+    use_logout: 'false'
+
+  tasks:
+
+    - name: Shell Tools
+      block:
+
+        - name: Install shell tools
+          package:
+            name:
+              - vim
+              - htop
+              - curl
+              - mc
+              - screen
+              - git
+              - ncdu
+              - wget
+              - less
+              - nmap
+              - mtr
+              - parted
+              - dosfstools
+              - btrfs-progs
+              - exfatprogs
+              - ntfs-3g
+              - xfsprogs
+              - gpart
+              - unp
+              - unarj
+              - unrar
+              - unzip
+              - bzip2
+              - p7zip
+              - unace
+              - cpio
+              - sharutils
+              - cabextract
+              - rpmextract
+
+        - name: Create vimrc
+          copy:
+            dest: /root/.vimrc
+            owner: root
+            group: root
+            mode: u=rw,go=-
+            content: |
+              set background=dark
+              syntax on
+              set mouse=
+
+    - name: Install desktop
+      package:
+        name:
+          - xfce4
+          - xrdp
+
+    - name: Enable and start xrdp
+      systemd_service:
+        name: xrdp
+        enabled: true
+        state: started
+
+    - name: Finish Setup
+      block:
+
+        - name: Disable automatic ansible apply service
+          systemd_service:
+            name: perrys-ansible-apply
+            enabled: false
+
+        - name: Trigger handlers
+          ansible.builtin.meta: flush_handlers
+
+        - name: Reboot
+          shell:
+            executable: /usr/bin/bash
+            cmd: reboot
+          when: use_reboot | bool
