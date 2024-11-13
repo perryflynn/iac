@@ -46,12 +46,14 @@ all:
       hosts:
         archlinuxiso:
         debianiso:
+        debiankvmiso:
         ubuntuiso:
 
     chroots:
       hosts:
         /mnt/archlinux:
         /mnt/debian:
+        /mnt/debiankvm:
         /mnt/ubuntu:
 
     # Bootstrapping Operating Systems

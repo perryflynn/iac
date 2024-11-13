@@ -1,5 +1,5 @@
 ---
-- name: Setup my old retired laptop
+- name: Setup OS
   hosts: isos
 
   tasks:
