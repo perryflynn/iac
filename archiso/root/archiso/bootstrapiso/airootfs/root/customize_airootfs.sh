@@ -3,7 +3,7 @@
 set -e -u -x
 
 # https://gitlab.archlinux.org/archlinux/packaging/packages/cloud-init/-/issues/3#note_216601
-ln -s /bin/nc /bin/nc.openbsd
+#ln -s /bin/nc /bin/nc.openbsd
 sed -i '/Before=sysinit.target/d' /usr/lib/systemd/system/cloud-init-main.service
 
 # enable cloud-init services
