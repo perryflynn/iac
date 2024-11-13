@@ -65,6 +65,11 @@ all:
             diskdev: /dev/sda
             firstbootplaybook: true
             networking: network-manager
+          debidesk:
+            bootmode: bios
+            diskdev: /dev/sda
+            firstbootplaybook: false
+            networking: systemd-networkd
           biostest:
             bootmode: bios
             diskdev: /dev/sda
@@ -79,7 +84,7 @@ all:
       children:
 
         # I use Arch Linux, btw
-        bootstrap-archlinux:
+        bootstrap_archlinux:
           vars:
             flavor: archlinux
             chrootmountpoint: /mnt/archlinux
@@ -106,7 +111,7 @@ all:
               ansible_connection: chroot
 
         # Debian is also okay
-        bootstrap-debian:
+        bootstrap_debian:
           vars:
             flavor: debian
             codename: bookworm
@@ -137,7 +142,7 @@ all:
               ansible_connection: chroot
 
         # So is Ubuntu...
-        bootstrap-ubuntu:
+        bootstrap_ubuntu:
           vars:
             flavor: ubuntu
             codename: noble
@@ -161,3 +166,5 @@ all:
         # retired Thinkpad X230 Laptop
         retired:
           wallpaper: dragonfly.jpg
+
+        debidesk:
