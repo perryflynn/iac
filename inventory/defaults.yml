@@ -141,6 +141,36 @@ all:
             /mnt/debian:
               ansible_connection: chroot
 
+        bootstrap_debiankvm:
+          vars:
+            flavor: debian
+            codename: bookworm
+            chrootmountpoint: /mnt/debiankvm
+            hostname: biostest
+            additionalpackages:
+              - openssh-server
+              - net-tools
+              - dnsutils
+              - gnupg
+              - iputils-ping
+              - iproute2
+              - curl
+              - wget
+              - util-linux-extra
+              - locales
+              - console-setup
+              - keyboard-configuration
+              - vim
+              - nano
+              - dialog
+              - man-db
+              - debconf-utils
+              - terminfo
+              - qemu-guest-agent
+          hosts:
+            debiankvmiso:
+            /mnt/debiankvm:
+
         # So is Ubuntu...
         bootstrap_ubuntu:
           vars:
