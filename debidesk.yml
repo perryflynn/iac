@@ -10,6 +10,10 @@
 
   tasks:
 
+    - name: Setup user account
+      include_role:
+        name: useraccount
+
     - name: Shell Tools
       block:
 
@@ -58,14 +62,21 @@
     - name: Install desktop
       package:
         name:
-          - xfce4
+          - gnome
           - xrdp
+          - fonts-recommended
 
     - name: Enable and start xrdp
       systemd_service:
         name: xrdp
         enabled: true
         state: started
+
+    # - name: Disable lightdm
+    #   systemd_service:
+    #     name: lightdm
+    #     enabled: false
+    #     state: stopped
 
     - name: Finish Setup
       block:

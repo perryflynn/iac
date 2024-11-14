@@ -4,12 +4,7 @@
 - name: Ensure parameters
   assert:
     that:
-      - ansible_distribution == 'Archlinux'
       - username is defined
-      - userpassword is defined
-      - usergroups is defined
-      - selfapplyscript is defined
-      - usersshkeys is defined
 
 - name: Create sudo group
   group:
@@ -35,6 +30,7 @@
     regexp: '^ALL .*? {{selfapplyscript}}$'
     line: 'ALL ALL=NOPASSWD:SETENV: {{selfapplyscript}}'
     validate: /usr/sbin/visudo -cf %s
+  when: selfapplyscript is defined and selfapplyscript
 
 - name: Install user group
   group:
@@ -45,10 +41,10 @@
     append: true
     create_home: true
     group: "{{username}}"
-    groups: "{{ [ username ] + usergroups }}"
+    groups: "{{ [ username ] + (usergroups|default([])) }}"
     home: "/home/{{username}}"
     name: "{{username}}"
-    password: "{{userpassword}}"
+    password: "{{userpassword if userpassword is defined and userpassword else '!'}}"
     shell: /usr/bin/bash
     update_password: on_create
   register: useraccount
@@ -58,6 +54,7 @@
     user: "{{username}}"
     key: "{{usersshkeys|join('\n')}}"
     exclusive: true
+  when: usersshkeys is defined and usersshkeys
 
 - name: Register return values
   set_fact:

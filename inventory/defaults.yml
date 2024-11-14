@@ -70,7 +70,7 @@ all:
           debidesk:
             bootmode: bios
             diskdev: /dev/sda
-            firstbootplaybook: false
+            firstbootplaybook: true
             networking: systemd-networkd
           biostest:
             bootmode: bios
