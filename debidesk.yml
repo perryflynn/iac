@@ -71,7 +71,19 @@
       package:
         name:
           - kde-full
+          - pipewire
           - fonts-recommended
+          - firefox-esr
+          - firefox-esr-l10n-de
+          - thunderbird
+          - thunderbird-l10n-de
+          - seafile-gui
+          - nextcloud-desktop
+          - keepass2
+          - handbrake
+          - libreoffice
+          - libreoffice-l10n-de
+          - transmission-qt
 
     - name: Configure XRDP
       include_role:
