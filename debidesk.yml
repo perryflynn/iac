@@ -59,16 +59,16 @@
               syntax on
               set mouse=
 
-    - name: Prevent network-manager from being installed
-      copy:
-        dest: /etc/apt/preferences.d/10-no-network-manager.pref
-        owner: root
-        group: root
-        mode: u=rw,go=r
-        content: |
-          Package: network-manager
-          Pin: release *
-          Pin-Priority: -1
+    # - name: Prevent network-manager from being installed
+    #   copy:
+    #     dest: /etc/apt/preferences.d/10-no-network-manager.pref
+    #     owner: root
+    #     group: root
+    #     mode: u=rw,go=r
+    #     content: |
+    #       Package: network-manager
+    #       Pin: release *
+    #       Pin-Priority: -1
 
     - name: Install desktop
       package:
