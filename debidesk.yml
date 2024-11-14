@@ -14,6 +14,10 @@
       include_role:
         name: useraccount
 
+    - name: Setup swap space
+      include_role:
+        name: swapfilesetup
+
     - name: Shell Tools
       block:
 
@@ -59,17 +63,6 @@
               syntax on
               set mouse=
 
-    # - name: Prevent network-manager from being installed
-    #   copy:
-    #     dest: /etc/apt/preferences.d/10-no-network-manager.pref
-    #     owner: root
-    #     group: root
-    #     mode: u=rw,go=r
-    #     content: |
-    #       Package: network-manager
-    #       Pin: release *
-    #       Pin-Priority: -1
-
     - name: Install desktop
       package:
         name:
@@ -82,12 +75,6 @@
         name: xrdp
         enabled: true
         state: started
-
-    # - name: Disable lightdm
-    #   systemd_service:
-    #     name: gdm
-    #     enabled: false
-    #     state: stopped
 
     - name: Finish Setup
       block:

@@ -1,11 +1,6 @@
 ---
 # roles/swapsetup/tasks/main.yml
 
-- name: Ensure parameters
-  assert:
-    that:
-      - ansible_distribution == 'Archlinux'
-
 - name: Check if swapfile exists
   shell:
     executable: /usr/bin/bash
@@ -49,7 +44,7 @@
       swapon "{{swappath}}"
   when: swapfilestatus.rc == 99
 
-- name: Ensure resume hoom in mkinitcpio
+- name: Ensure resume hook in mkinitcpio
   lineinfile:
     path: /etc/mkinitcpio.conf
     backrefs: true
@@ -58,3 +53,4 @@
     line: 'HOOKS=(\1 resume fsck)'
   notify:
     - Regenerate Kernel Image
+  when: ansible_distribution == 'Archlinux'
