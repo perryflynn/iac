@@ -141,7 +141,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --arch amd64 bookworm {{chrootmountpoint}} {{debianmirror}}
+          debootstrap --variant=minbase --arch amd64 trixie {{chrootmountpoint}} {{debianmirror}}
       when: flavor == 'debian'
 
     - name: Run debootstrap for Ubuntu
