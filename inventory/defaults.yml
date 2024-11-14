@@ -117,7 +117,7 @@ all:
         bootstrap_debian:
           vars:
             flavor: debian
-            codename: bookworm
+            codename: trixie
             chrootmountpoint: /mnt/debian
             hostname: biostest
             additionalpackages: &debian_packages
@@ -147,7 +147,7 @@ all:
         bootstrap_debiankvm:
           vars:
             flavor: debian
-            codename: bookworm
+            codename: trixie
             chrootmountpoint: /mnt/debiankvm
             hostname: biostest
             additionalpackages:

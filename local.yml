@@ -141,7 +141,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --arch amd64 trixie {{chrootmountpoint}} {{debianmirror}}
+          debootstrap --variant=minbase --arch amd64 {{codename}} {{chrootmountpoint}} {{debianmirror}}
       when: flavor == 'debian'
 
     - name: Run debootstrap for Ubuntu
@@ -149,7 +149,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          debootstrap --variant=minbase --no-check-certificate --arch amd64 noble {{chrootmountpoint}} {{ubuntumirror}}
+          debootstrap --variant=minbase --no-check-certificate --arch amd64 {{codename}} {{chrootmountpoint}} {{ubuntumirror}}
       when: flavor == 'ubuntu'
 
     # -> Customizations to make networking work for proxies / corporate CAs
