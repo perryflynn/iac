@@ -6,9 +6,9 @@
     that:
       - ansible_distribution in [ 'Archlinux', 'Debian', 'Ubuntu' ]
 
-- name: Install python dependencies
-  pip:
-    name: cryptography
+- name: Install python cryptography
+  package:
+    name: "{{'python-cryptography' if ansible_distribution == 'Archlinux' else 'python3-cryptography'}}"
 
 - name: Create private key for CA certificate
   community.crypto.openssl_privatekey:

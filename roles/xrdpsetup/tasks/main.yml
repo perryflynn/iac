@@ -1,0 +1,51 @@
+---
+# roles/xrdpsetup/tasks/main.yml
+
+- name: Install xrdp
+  package:
+    name: xrdp
+  notify:
+    - Restart xrdp
+
+- name: Install python cryptography
+  package:
+    name: "{{'python-cryptography' if ansible_distribution == 'Archlinux' else 'python3-cryptography'}}"
+
+- name: Create private key (RSA, 4096 bits)
+  community.crypto.openssl_privatekey:
+    path: "{{xrdp_keyfile}}"
+    type: RSA
+    size: 2048
+    owner: xrdp
+    group: root
+    mode: u=rw,g=r,o=-
+  notify:
+    - Restart xrdp
+
+- name: Create simple self-signed certificate
+  community.crypto.x509_certificate:
+    path: "{{xrdp_certfile}}"
+    privatekey_path: "{{xrdp_keyfile}}"
+    provider: selfsigned
+    selfsigned_not_after: "+3650d"
+    selfsigned_not_before: "-1d"
+    owner: xrdp
+    group: root
+    mode: u=rw,g=r,o=-
+  notify:
+    - Restart xrdp
+
+- name: Create xrdp.ini
+  template:
+    src: files/xrdp.ini.j2
+    dest: /etc/xrdp/xrdp.ini
+    owner: root
+    group: root
+    mode: u=rw,go=r
+  notify:
+    - Restart xrdp
+
+- name: Enable xrdp
+  systemd_service:
+    name: xrdp
+    enabled: true

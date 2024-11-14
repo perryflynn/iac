@@ -1,0 +1,5 @@
+---
+# roles/xrdpsetup/defaults/main.yml
+
+xrdp_certfile: /etc/xrdp/xrdp-cert.pem
+xrdp_keyfile: /etc/xrdp/xrdp-key.pem

@@ -1,0 +1,189 @@
+[Globals]
+; xrdp.ini file version number
+ini_version=1
+
+; fork a new process for each incoming connection
+fork=true
+
+; ports to listen on, number alone means listen on all interfaces
+port=3389
+use_vsock=false
+
+; regulate if the listening socket use socket option tcp_nodelay
+; no buffering will be performed in the TCP stack
+tcp_nodelay=true
+
+; regulate if the listening socket use socket option keepalive
+; if the network connection disappear without close messages the connection will be closed
+tcp_keepalive=true
+
+; security layer can be 'tls', 'rdp' or 'negotiate'
+; for client compatible layer
+security_layer=tls
+
+; minimum security level allowed for client for classic RDP encryption
+; use tls_ciphers to configure TLS encryption
+; can be 'none', 'low', 'medium', 'high', 'fips'
+crypt_level=high
+
+; X.509 certificate and private key
+; openssl req -x509 -newkey rsa:2048 -nodes -keyout key.pem -out cert.pem -days 365
+; note this needs the user xrdp to be a member of the ssl-cert group, do with e.g.
+;$ sudo adduser xrdp ssl-cert
+certificate={{xrdp_certfile}}
+key_file={{xrdp_keyfile}}
+
+; set SSL protocols
+; can be comma separated list of 'SSLv3', 'TLSv1', 'TLSv1.1', 'TLSv1.2', 'TLSv1.3'
+ssl_protocols=TLSv1.2, TLSv1.3
+; set TLS cipher suites
+#tls_ciphers=HIGH
+
+; Section name to use for automatic login if the client sends username
+; and password. If empty, the domain name sent by the client is used.
+; If empty and no domain name is given, the first suitable section in
+; this file will be used.
+autorun=
+
+allow_channels=true
+allow_multimon=true
+bitmap_cache=true
+bitmap_compression=true
+bulk_compression=true
+#hidelogwindow=true
+max_bpp=32
+new_cursors=true
+; fastpath - can be 'input', 'output', 'both', 'none'
+use_fastpath=both
+
+;
+; colors used by windows in RGB format
+;
+#black=000000
+grey=e1e1e1
+dark_grey=b4b4b4
+blue=0078d7
+dark_blue=0078d7
+#white=ffffff
+#red=ff0000
+#green=00ff00
+#background=626c72
+
+;
+; configure login screen
+;
+
+; Login Screen Window Title
+#ls_title=My Login Title
+
+; top level window background color in RGB format
+ls_top_window_bg_color=003057
+
+; width and height of login screen
+;
+; When the sans-10.fv1 font is selected, these values are in pixels.
+; For other fonts, these values (and other size values) will be scaled
+; appropriately to preserve the proportions of the login screen.
+;
+; The default height allows for about 5 fields to be comfortably displayed
+; above the buttons at the bottom. To display more fields, make <ls_height>
+; larger, and also increase <ls_btn_ok_y_pos> and <ls_btn_cancel_y_pos>
+; below
+;
+ls_width=350
+ls_height=360
+
+; login screen background color in RGB format
+ls_bg_color=f0f0f0
+
+; optional background image filename. BMP format is always supported,
+; but other formats will be supported if xrdp is build with imlib2
+; The transform can be one of the following:-
+;     none  : No transformation. Image is placed in bottom-right corner
+;             of the screen.
+;     scale : Image is scaled to the screen size. The image aspect
+;             ratio is not preserved.
+;     zoom  : Image is scaled to the screen size. The image aspect
+;             ratio is preserved by clipping the image.
+#ls_background_image=
+#ls_background_transform=none
+
+; logo
+; full path to file or file in shared folder. BMP format is always supported,
+; but other formats will be supported if xrdp is build with imlib2
+; For transform values, see 'ls_background_transform'. The logo width and
+; logo height are ignored for a transform of 'none'.
+ls_logo_filename=
+ls_logo_transform=scale
+ls_logo_width=250
+ls_logo_height=110
+ls_logo_x_pos=55
+ls_logo_y_pos=35
+
+; for positioning labels such as username, password etc
+ls_label_x_pos=30
+ls_label_width=68
+
+; for positioning text and combo boxes next to above labels
+ls_input_x_pos=110
+ls_input_width=210
+
+; y pos for first label and combo box
+ls_input_y_pos=158
+
+; OK button
+ls_btn_ok_x_pos=142
+ls_btn_ok_y_pos=308
+ls_btn_ok_width=85
+ls_btn_ok_height=30
+
+; Cancel button
+ls_btn_cancel_x_pos=237
+ls_btn_cancel_y_pos=308
+ls_btn_cancel_width=85
+ls_btn_cancel_height=30
+
+[Logging]
+; Note: Log levels can be any of: core, error, warning, info, debug, or trace
+LogFile=xrdp.log
+LogLevel=INFO
+EnableSyslog=true
+#SyslogLevel=INFO
+#EnableConsole=false
+#ConsoleLevel=INFO
+#EnableProcessId=false
+
+[LoggingPerLogger]
+; Note: per logger configuration is only used if xrdp is built with
+; --enable-devel-logging
+#xrdp.c=INFO
+#main()=INFO
+
+[Channels]
+; Channel names not listed here will be blocked by XRDP.
+; You can block any channel by setting its value to false.
+; IMPORTANT! All channels are not supported in all use
+; cases even if you set all values to true.
+; You can override these settings on each session type
+; These settings are only used if allow_channels=true
+rdpdr=true
+rdpsnd=true
+drdynvc=true
+cliprdr=true
+rail=true
+xrdpvr=true
+
+;
+; Session types
+;
+
+; Some session types such as Xorg and Xvnc start a display server.
+; Startup command-line parameters for the display server are configured
+; in sesman.ini. See and configure also sesman.ini.
+[Xorg]
+name=Xorg
+lib=libxup.so
+username=ask
+password=ask
+port=-1
+code=20

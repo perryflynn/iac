@@ -18,6 +18,10 @@
       include_role:
         name: swapfilesetup
 
+    - name: Self-Signed cert
+      include_role:
+        name: selfsignedcert
+
     - name: Shell Tools
       block:
 
@@ -67,14 +71,11 @@
       package:
         name:
           - kde-full
-          - xrdp
           - fonts-recommended
 
-    - name: Enable and start xrdp
-      systemd_service:
-        name: xrdp
-        enabled: true
-        state: started
+    - name: Configure XRDP
+      include_role:
+        name: xrdpsetup
 
     - name: Finish Setup
       block:
