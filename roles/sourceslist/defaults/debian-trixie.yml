@@ -3,12 +3,12 @@ sourcesfileprefix: ''
 sourcesfile: /etc/apt/sources.list.d/debian.sources
 sources:
   - types: [ deb, deb-src ]
-    url: http://ftp.hosteurope.de/mirror/ftp.debian.org/debian/
+    url: http://deb.debian.org/debian
     suites: [ trixie trixie-updates ]
     components: [ main, contrib, non-free non-free-firmware ]
     signedby: /usr/share/keyrings/debian-archive-keyring.gpg
   - types: [ deb, deb-src ]
-    url: http://security.debian.org/debian-security
+    url: http://deb.debian.org/debian-security
     suites: [ trixie-security ]
     components: [ main, contrib, non-free non-free-firmware ]
     signedby: /usr/share/keyrings/debian-archive-keyring.gpg
