@@ -64,6 +64,11 @@
       - libpipewire-0.3-dev
       - libspa-0.2-dev
 
+- name: Check if pipewire-xrdp is installed
+  stat:
+    path: /etc/xdg/autostart/pipewire-xrdp.desktop
+  register: isxrdppipewire
+
 - name: Build and install pipewire-xrdp module
   shell:
     chdir: /tmp
@@ -76,3 +81,4 @@
       ./configure
       make
       make install
+  when: not isxrdppipewire.stat.exists
