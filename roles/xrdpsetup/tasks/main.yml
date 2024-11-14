@@ -49,3 +49,30 @@
   systemd_service:
     name: xrdp
     enabled: true
+
+- name: Install pipewire-xrdp module
+  package:
+    name:
+      # build
+      - git
+      - pkg-config
+      - autotools-dev
+      - libtool
+      - make
+      - gcc
+      # dependencies
+      - libpipewire-0.3-dev
+      - libspa-0.2-dev
+
+- name: Build and install pipewire-xrdp module
+  shell:
+    chdir: /tmp
+    executable: /usr/bin/bash
+    cmd: |
+      rm -rf pipewire-module-xrdp
+      git clone https://github.com/neutrinolabs/pipewire-module-xrdp.git
+      cd pipewire-module-xrdp
+      ./bootstrap
+      ./configure
+      make
+      make install
