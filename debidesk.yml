@@ -73,7 +73,7 @@
     - name: Install desktop
       package:
         name:
-          - gnome
+          - kde-full
           - xrdp
           - fonts-recommended
 
@@ -83,11 +83,11 @@
         enabled: true
         state: started
 
-    - name: Disable lightdm
-      systemd_service:
-        name: gdm
-        enabled: false
-        state: stopped
+    # - name: Disable lightdm
+    #   systemd_service:
+    #     name: gdm
+    #     enabled: false
+    #     state: stopped
 
     - name: Finish Setup
       block:
