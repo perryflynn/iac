@@ -37,7 +37,11 @@ all:
     username: christian
     userpassword: '$y$j9T$M5rN4LdKH8Xr5oR/hGQjr/$uyqZToLa6YJA0aAXvuFu0AsZAHd50dXw3dw4i7N.Jk.'
     #usergroups: [ adm, games, audio, optical, storage, network, sudo ]
-    usergroups: [ sudo ]
+    #usergroups: [ sudo ]
+
+    # https://wiki.debian.org/SystemGroups#Other_System_Groups
+    usergroups: [ lp, lpadmin, adm, systemd-journald, plugdev, netdev, cdrom, audio, video, render, sudo, dialout ]
+
     usersshkeys:
       - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqrQkBwBaMTfN0vHvW6aldKK9MBd8X7GyiaMWLczdNo christian@kompaktes2k'
 
