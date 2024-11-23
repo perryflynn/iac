@@ -3,11 +3,19 @@
 
 - name: Ensure apply config
   file:
-    path: "{{applyscript_configdir}}/{{applyscript_config}}"
+    path: "{{applyscript_configdir}}"
     state: directory
     owner: root
     group: root
     mode: u=rwx,go=rx
+
+- name: Add ansible apply script config
+  template:
+    src: files/config.j2
+    dest: "{{applyscript_configdir}}/{{applyscript_config}}"
+    owner: root
+    group: root
+    mode: u=rw,g=r,o=
 
 - name: Add ansible apply script to OS
   template:
