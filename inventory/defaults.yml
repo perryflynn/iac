@@ -1,8 +1,5 @@
 all:
   vars:
-    selfrepo: https://github.com/perryflynn/iac.git
-    selfbranch: dev
-    selfapplyscript: /usr/local/sbin/perrys-ansible-apply.sh
 
     ubuntumirror: http://de.archive.ubuntu.com/ubuntu/
     debianmirror: http://deb.debian.org/debian/

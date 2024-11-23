@@ -1,0 +1,4 @@
+---
+# roles/xfcesetup/defaults/main.yml
+
+xfcesetup_scriptpath: /usr/local/sbin/perrys-ansible-apply.sh

@@ -5,5 +5,5 @@ set -u
 
 if [ ! -f ~/.noperrysansibleapply ]; then
     touch ~/.noperrysansibleapply
-    xfce4-terminal -e "sudo PERRY_ANSIBLE_DESKTOP=1 {{selfapplyscript}} && sleep 10"
+    xfce4-terminal -e "sudo PERRY_ANSIBLE_DESKTOP=1 {{xfcesetup_scriptpath}} && sleep 10"
 fi

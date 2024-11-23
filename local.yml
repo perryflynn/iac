@@ -505,24 +505,8 @@
         - systemd-resolved
         - "{{ 'sshd' if flavor == 'archlinux' else 'ssh' }}"
 
-    - name: Add ansible apply script to OS
-      template:
-        src: files/perrys-ansible-apply.sh.j2
-        dest: "{{selfapplyscript}}"
-        owner: root
-        group: root
-        mode: u=rwx,g=rx,o=r
-
-    - name: Add service to run ansible on boot
-      template:
-        src: files/perrys-ansible-apply.service.j2
-        dest: /etc/systemd/system/perrys-ansible-apply.service
-        owner: root
-        group: root
-        mode: u=rwx,g=rx,o=r
-
-    - name: Ensure ansible apply on first boot
-      systemd_service:
-        enabled: "{{firstbootplaybook}}"
-        daemon_reload: yes
-        name: perrys-ansible-apply
+    - name: Configure perrys-ansible-apply
+      include_role:
+        name: applyscriptsetup
+      vars:
+        applyscript_service_enabled: "{{firstbootplaybook}}"

@@ -89,13 +89,12 @@
       include_role:
         name: xrdpsetup
 
+    - name: Configure perrys-ansible-apply
+      include_role:
+        name: applyscriptsetup
+
     - name: Finish Setup
       block:
-
-        - name: Disable automatic ansible apply service
-          systemd_service:
-            name: perrys-ansible-apply
-            enabled: false
 
         - name: Trigger handlers
           ansible.builtin.meta: flush_handlers

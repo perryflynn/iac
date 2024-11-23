@@ -5,6 +5,21 @@ set -e
 
 export PYTHONUNBUFFERED=1
 
+configfile="{{applyscript_configdir}}/{{applyscript_config}}"
+if [ -n "$configfile" ] && [ -f "$configfile" ]; then
+    source $configfile
+fi
+
+if [ -z "${IAC_REPO_URL:-}" ]; then
+    echo "IAC_REPO_URL undefined"
+    exit 1
+fi
+
+if [ -z "${IAC_REPO_BRANCH:-}" ]; then
+    echo "IAC_REPO_BRANCH undefined"
+    exit 1
+fi
+
 extraargs=()
 
 if [ "${PERRY_ANSIBLE_SERVICE:-0}" == "1" ]; then

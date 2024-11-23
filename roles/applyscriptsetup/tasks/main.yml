@@ -1,0 +1,46 @@
+---
+# roles/applyscriptsetup/tasks/main.yml
+
+- name: Ensure apply config
+  file:
+    path: "{{applyscript_configdir}}/{{applyscript_config}}"
+    state: directory
+    owner: root
+    group: root
+    mode: u=rwx,go=rx
+
+- name: Add ansible apply script to OS
+  template:
+    src: files/perrys-ansible-apply.sh.j2
+    dest: "{{applyscript_scriptpath}}"
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=r
+
+- name: Add service to run ansible on boot
+  template:
+    src: files/perrys-ansible-apply.service.j2
+    dest: "{{applyscript_servicepath}}"
+    owner: root
+    group: root
+    mode: u=rwx,g=rx,o=r
+
+- name: Ensure ansible apply on first boot
+  systemd_service:
+    enabled: "{{applyscript_service_enabled}}"
+    daemon_reload: yes
+    name: "{{applyscript_servicename}}"
+
+- name: Test for sudo
+  stat:
+    path: /etc/sudoers
+  register: issudo
+
+- name: Allow passwordless sudo for ansible-apply
+  lineinfile:
+    path: /etc/sudoers
+    state: present
+    regexp: '^ALL .*? {{applyscript_servicepath}}$'
+    line: 'ALL ALL=NOPASSWD:SETENV: {{applyscript_servicepath}}'
+    validate: /usr/sbin/visudo -cf %s
+  when: issudo.stat.exists

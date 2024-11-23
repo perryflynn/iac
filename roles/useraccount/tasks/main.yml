@@ -23,15 +23,6 @@
     line: '%sudo ALL=(ALL:ALL) ALL'
     validate: /usr/sbin/visudo -cf %s
 
-- name: Allow passwordless sudo for ansible-apply
-  lineinfile:
-    path: /etc/sudoers
-    state: present
-    regexp: '^ALL .*? {{selfapplyscript}}$'
-    line: 'ALL ALL=NOPASSWD:SETENV: {{selfapplyscript}}'
-    validate: /usr/sbin/visudo -cf %s
-  when: selfapplyscript is defined and selfapplyscript
-
 - name: Install user group
   group:
     name: "{{username}}"

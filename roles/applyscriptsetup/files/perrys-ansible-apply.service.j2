@@ -11,11 +11,9 @@ User=root
 Group=root
 StandardOutput=journal+console
 StandardError=journal+console
-ExecStart={{selfapplyscript}}
+ExecStart={{applyscript_scriptpath}}
 Environment="HOME=/root"
 Environment="PERRY_ANSIBLE_SERVICE=1"
-EnvironmentFile=/etc/environment
 
 [Install]
-#WantedBy=network-online.target
 WantedBy=multi-user.target

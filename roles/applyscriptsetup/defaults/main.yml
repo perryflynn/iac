@@ -1,0 +1,13 @@
+---
+# roles/applyscriptsetup/defaults/main.yml
+
+applyscript_configdir: /etc/perrys-ansible-apply
+applyscript_config: config
+applyscript_scriptpath: /usr/local/sbin/perrys-ansible-apply.sh
+applyscript_servicepath: /etc/systemd/system/perrys-ansible-apply.service
+applyscript_servicename: perrys-ansible-apply
+applyscript_service_enabled: false
+
+applyscript_repo: github.com/perryflynn/iac.git
+applyscript_repo_token: ""
+applyscript_repo_branch: main
