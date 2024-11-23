@@ -38,7 +38,7 @@
 
 - name: Create a list of all available groups
   set_fact:
-    user_group_list: "{{ (usergroups|default([])) - ((usergroups|default([])) | difference(all_system_groups)) }}"
+    user_group_list: "{{ (usergroups|default([])) | difference( ((usergroups|default([])) | difference(all_system_groups)) ) }}"
 
 - debug:
     var: (usergroups|default([]))
