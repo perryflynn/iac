@@ -27,12 +27,33 @@
   group:
     name: "{{username}}"
 
+- name: Get all groups
+  ansible.builtin.getent:
+    database: group
+    split: ':'
+
+- name: All system groups
+  set_fact:
+    all_system_groups: "{{ansible_facts.getent_group.keys()}}"
+
+- name: Create a list of all available groups
+  set_facts:
+    user_group_list: "{{ (usergroups|default([])) - ((usergroups|default([])) | difference(all_system_groups)) }}"
+
+- debug:
+    var: (usergroups|default([]))
+
+- debug:
+    var: user_group_list
+
+- fail:
+
 - name: Install user
   user:
     append: true
     create_home: true
     group: "{{username}}"
-    groups: "{{ [ username ] + (usergroups|default([])) }}"
+    groups: "{{ [ username ] + user_group_list }}"
     home: "/home/{{username}}"
     name: "{{username}}"
     password: "{{userpassword if userpassword is defined and userpassword else '!'}}"

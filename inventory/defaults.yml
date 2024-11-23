@@ -37,7 +37,7 @@ all:
     #usergroups: [ sudo ]
 
     # https://wiki.debian.org/SystemGroups#Other_System_Groups
-    usergroups: [ lp, lpadmin, adm, systemd-journal, plugdev, netdev, cdrom, audio, video, render, sudo, dialout ]
+    usergroups: [ lp, lpadmin, adm, systemd-journal, plugdev, netdev, cdrom, audio, video, render, sudo, dialout, wuseldusel ]
 
     usersshkeys:
       - 'ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIHqrQkBwBaMTfN0vHvW6aldKK9MBd8X7GyiaMWLczdNo christian@kompaktes2k'
