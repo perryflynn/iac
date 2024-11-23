@@ -40,13 +40,9 @@
   set_fact:
     user_group_list: "{{ (usergroups|default([])) | difference( ((usergroups|default([])) | difference(all_system_groups)) ) }}"
 
-- debug:
-    var: (usergroups|default([]))
-
-- debug:
+- name: System groups to assign to the user
+  debug:
     var: user_group_list
-
-- fail:
 
 - name: Install user
   user:
