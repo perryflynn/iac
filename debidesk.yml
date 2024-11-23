@@ -15,7 +15,7 @@
         database: group
         split: ':'
     - ansible.builtin.debug:
-        var: ansible_facts.getent_group
+        var: ansible_facts.getent_group.keys()
     - fail:
 
     - name: Setup user account
