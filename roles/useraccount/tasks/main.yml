@@ -37,7 +37,7 @@
     all_system_groups: "{{ansible_facts.getent_group.keys()}}"
 
 - name: Create a list of all available groups
-  set_facts:
+  set_fact:
     user_group_list: "{{ (usergroups|default([])) - ((usergroups|default([])) | difference(all_system_groups)) }}"
 
 - debug:
