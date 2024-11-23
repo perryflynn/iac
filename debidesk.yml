@@ -10,6 +10,14 @@
 
   tasks:
 
+    - name: Get all groups
+      ansible.builtin.getent:
+        database: group
+        split: ':'
+    - ansible.builtin.debug:
+        var: ansible_facts.getent_group
+    - fail:
+
     - name: Setup user account
       include_role:
         name: useraccount
