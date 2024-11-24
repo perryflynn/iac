@@ -92,8 +92,6 @@
     - name: Configure perrys-ansible-apply
       include_role:
         name: applyscriptsetup
-      vars:
-        applyscript_repo_branch: dev
 
     - name: Finish Setup
       block:

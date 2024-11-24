@@ -8,6 +8,6 @@ applyscript_servicepath: /etc/systemd/system/perrys-ansible-apply.service
 applyscript_servicename: perrys-ansible-apply
 applyscript_service_enabled: false
 
-applyscript_repo: github.com/perryflynn/iac.git
-applyscript_repo_token: ""
-applyscript_repo_branch: main
+applyscript_repo: "{{ lookup('ansible.builtin.env', 'IAC_REPO_URL') | default('github.com/perryflynn/iac.git') }}"
+applyscript_repo_token: "{{ lookup('ansible.builtin.env', 'IAC_REPO_TOKEN') | default('') }}"
+applyscript_repo_branch: "{{ lookup('ansible.builtin.env', 'IAC_REPO_BRANCH') | default('main') }}"
