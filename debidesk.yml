@@ -91,6 +91,12 @@
       include_role:
         name: xrdpsetup
 
+    - name: Ensure firewalld
+      systemd_service:
+        name: firewalld
+        state: started
+        enabled: true
+
     - name: Open SSH Port
       ansible.posix.firewalld:
         port: 22/tcp
@@ -102,12 +108,6 @@
         port: 3389/tcp
         permanent: true
         state: enabled
-
-    - name: Ensure firewalld
-      systemd_service:
-        name: firewalld
-        state: started
-        enabled: true
 
     - name: Configure perrys-ansible-apply
       include_role:
