@@ -25,12 +25,6 @@
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
               - networking in [ 'systemd-networkd', 'network-manager' ]
 
-        - name: Check filesystem encryption
-          assert:
-            fail_msg: Filesystem encryption is only supported for UEFI for now
-            that:
-              - encryptedfs == false or (encryptedfs and bootmode == 'uefi')
-
         - name: Show bootstrap parameters to use
           debug:
             var: |

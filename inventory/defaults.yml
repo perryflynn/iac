@@ -71,7 +71,7 @@ all:
             networking: network-manager
             encryptedfs: false
           debidesk:
-            bootmode: uefi
+            bootmode: bios
             diskdev: /dev/sda
             firstbootplaybook: true
             networking: network-manager
