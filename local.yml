@@ -25,6 +25,12 @@
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
               - networking in [ 'systemd-networkd', 'network-manager' ]
 
+        - name: Check filesystem encryption
+          assert:
+            fail_msg: Filesystem encryption is only supported for UEFI for now
+            that:
+              - encryptedfs == false or (encryptedfs and bootmode == 'uefi')
+
         - name: Show bootstrap parameters to use
           debug:
             var: |
@@ -33,7 +39,8 @@
                 'bootmode': bootmode,
                 'flavor': flavor,
                 'diskdev': diskdev,
-                'networking': networking
+                'networking': networking,
+                'encryptedfs': encryptedfs
               }
 
     - name: Give the user time to check the shown parameters
@@ -81,6 +88,17 @@
         part_start: "{{ '512MiB' if bootmode == 'uefi' else '8MiB' }}"
         part_end: 100%
         state: present
+
+    - name: Encrypt root partition
+      community.crypto.luks_device:
+        device: "{{diskdev}}"
+        label: "root-svrlsiac-enc"
+        state: "opened"
+        name: "root-svrlsiac-enc"
+        passphrase: huhu123
+        allow_discards: true
+
+    - fail:
 
     - name: Ensure chroot folder
       file:

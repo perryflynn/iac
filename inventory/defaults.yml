@@ -69,21 +69,25 @@ all:
             diskdev: /dev/sda
             firstbootplaybook: true
             networking: network-manager
+            encryptedfs: false
           debidesk:
-            bootmode: bios
+            bootmode: uefi
             diskdev: /dev/sda
             firstbootplaybook: true
             networking: network-manager
+            encryptedfs: true
           biostest:
             bootmode: bios
             diskdev: /dev/sda
             firstbootplaybook: false
             networking: systemd-networkd
+            encryptedfs: false
           uefitest:
             bootmode: uefi
             diskdev: /dev/sda
             firstbootplaybook: false
             networking: systemd-networkd
+            encryptedfs: false
 
       children:
 
