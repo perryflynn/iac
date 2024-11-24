@@ -70,7 +70,8 @@
     - name: Install desktop
       package:
         name:
-          - kde-full
+          #- kde-full
+          - kde-standard
           - pipewire
           - fonts-recommended
           - firefox-esr
