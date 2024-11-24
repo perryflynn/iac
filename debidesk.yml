@@ -103,6 +103,12 @@
         permanent: true
         state: enabled
 
+    - name: Ensure firewalld
+      systemd_service:
+        name: firewalld
+        state: started
+        enabled: true
+
     - name: Configure perrys-ansible-apply
       include_role:
         name: applyscriptsetup
