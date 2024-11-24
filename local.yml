@@ -510,3 +510,4 @@
         name: applyscriptsetup
       vars:
         applyscript_service_enabled: "{{firstbootplaybook}}"
+        applyscript_repo_branch: dev
