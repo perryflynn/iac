@@ -99,12 +99,14 @@
 
     - name: Open SSH Port
       ansible.posix.firewalld:
+        zone: public
         port: 22/tcp
         permanent: true
         state: enabled
 
     - name: Open RDP Port
       ansible.posix.firewalld:
+        zone: public
         port: 3389/tcp
         permanent: true
         state: enabled
