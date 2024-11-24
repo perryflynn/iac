@@ -70,8 +70,9 @@
     - name: Install desktop
       package:
         name:
-          #- kde-full
-          - kde-standard
+          - kde-full
+          #- kde-standard
+          - python3-firewall
           - pipewire
           - fonts-recommended
           - firefox-esr
@@ -89,6 +90,18 @@
     - name: Configure XRDP
       include_role:
         name: xrdpsetup
+
+    - name: Open SSH Port
+      ansible.posix.firewalld:
+        port: 22/tcp
+        permanent: true
+        state: enabled
+
+    - name: Open RDP Port
+      ansible.posix.firewalld:
+        port: 3389/tcp
+        permanent: true
+        state: enabled
 
     - name: Configure perrys-ansible-apply
       include_role:
