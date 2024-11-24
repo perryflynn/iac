@@ -97,19 +97,16 @@
         state: started
         enabled: true
 
-    - name: Open SSH Port
+    - name: Open Ports
       ansible.posix.firewalld:
         zone: public
-        port: 22/tcp
+        port: "{{item}}"
         permanent: true
+        immediate: true
         state: enabled
-
-    - name: Open RDP Port
-      ansible.posix.firewalld:
-        zone: public
-        port: 3389/tcp
-        permanent: true
-        state: enabled
+      loop:
+        - 22/tcp
+        - 3389/tcp
 
     - name: Configure perrys-ansible-apply
       include_role:
