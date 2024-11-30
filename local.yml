@@ -491,7 +491,7 @@
       ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
-        line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=/dev/disk/by-partlabel/root-svrlsiac:root-svrlsiac-dec"'
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=/dev/sda3:root-svrlsiac-dec"'
       when: flavor == 'archlinux' and not encryptedfs
 
     - name: Add encyption hook to bootloader for Arch Linux
