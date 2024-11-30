@@ -87,7 +87,7 @@
       community.crypto.luks_device:
         device: "{{diskdev}}"
         label: "root-svrlsiac-enc"
-        state: "present"
+        state: "closed"
         name: "root-svrlsiac-enc"
         passphrase: huhu123
         allow_discards: true
@@ -109,6 +109,16 @@
         chrootdevice: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
+
+    - name: Decrypt root partition
+      community.crypto.luks_device:
+        device: "{{('/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
+        label: "root-svrlsiac-enc"
+        state: "opened"
+        name: "root-svrlsiac-enc"
+        passphrase: huhu123
+        allow_discards: true
+      when: encryptedfs
 
     - name: Format root partition
       filesystem:
