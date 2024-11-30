@@ -112,7 +112,7 @@
 
     - name: Decrypt root partition
       community.crypto.luks_device:
-        device: "{{'/dev/disk/by-partlabel/root-svrlsiac-enc' | realpath }}"
+        device: "{{'/dev/disk/by-label/root-svrlsiac-enc' | realpath }}"
         label: "root-svrlsiac-enc"
         state: "opened"
         name: "root-svrlsiac-enc"
