@@ -487,18 +487,26 @@
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
       when: flavor == 'archlinux' and not encryptedfs
 
+    - name: Get UUID of the encrypted root partition
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          blkid /dev/disk/by-label/root-svrlsiac-luks | cut -d '"' -f2 | tr -d '[:space:]'
+      register: rootfsuuid
+
     - name: Configure verbose boot output and cryptfs in bootloader for Arch Linux
       ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
-        line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=/dev/disk/by-partlabel/root-svrlsiac:root-svrlsiac-dec"'
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=UUID={{rootfsuuid.stdout}}:root-svrlsiac-dec" loglevel=3'
       when: flavor == 'archlinux' and not encryptedfs
 
     - name: Add encyption hook to bootloader for Arch Linux
       ansible.builtin.lineinfile:
         path: /etc/mkinitcpio.conf
         regexp: '^HOOKS='
-        line: 'HOOKS=(base udev autodetect modconf block sd-encrypt filesystems keyboard fsck)'
+        line: 'HOOKS=(base udev autodetect keyboard modconf block encrypt filesystems fsck)'
       when: flavor == 'archlinux' and encryptedfs
 
     - name: Configure verbose boot output in bootloader for Arch Linux
@@ -512,7 +520,7 @@
       shell:
         executable: /bin/bash
         cmd: |
-          mkinitcpio -P
+          mkinitcpio -p linux
           grub-install --target=i386-pc {{diskdev}}
           grub-mkconfig -o /boot/grub/grub.cfg
       when: flavor == 'archlinux' and bootmode == 'bios'
@@ -521,7 +529,7 @@
       shell:
         executable: /bin/bash
         cmd: |
-          mkinitcpio -P
+          mkinitcpio -p linux
           grub-install --target=x86_64-efi --efi-directory=/efi --bootloader-id=GRUB --recheck --no-nvram --removable {{diskdev}}
           grub-mkconfig -o /boot/grub/grub.cfg
       when: flavor == 'archlinux' and bootmode == 'uefi'
