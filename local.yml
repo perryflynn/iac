@@ -485,7 +485,7 @@
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
-      when: flavor == 'archlinux' and not encryptedfs
+      when: flavor == 'archlinux'
 
     - name: Get UUID of the encrypted root partition
       shell:
@@ -494,13 +494,14 @@
         cmd: |
           blkid /dev/disk/by-label/root-svrlsiac-luks | cut -d '"' -f2 | tr -d '[:space:]'
       register: rootfsuuid
+      when: encryptedfs
 
     - name: Configure verbose boot output and cryptfs in bootloader for Arch Linux
       ansible.builtin.lineinfile:
         path: /etc/default/grub
-        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
-        line: 'GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=UUID={{rootfsuuid.stdout}}:root-svrlsiac-dec loglevel=3"'
-      when: flavor == 'archlinux' and not encryptedfs
+        regexp: '^GRUB_CMDLINE_LINUX='
+        line: 'GRUB_CMDLINE_LINUX="cryptdevice=UUID={{rootfsuuid.stdout}}:root-svrlsiac-dec root=/dev/vg/root"'
+      when: flavor == 'archlinux' and encryptedfs
 
     - name: Add encyption hook to bootloader for Arch Linux
       ansible.builtin.lineinfile:
@@ -514,7 +515,7 @@
         path: /etc/default/grub
         regexp: '^GRUB_ENABLE_CRYPTODISK='
         line: 'GRUB_ENABLE_CRYPTODISK=y'
-      when: flavor in [ 'debian', 'ubuntu' ] and encryptedfs
+      when: encryptedfs
 
     - name: Install bootloader in BIOS mode for Arch Linux
       shell:
