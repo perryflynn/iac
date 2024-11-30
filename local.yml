@@ -363,6 +363,14 @@
             name: grub-efi
           when: bootmode == 'uefi'
 
+        - name: Install cryptsetup
+          apt:
+            name:
+              - initramfs-tools
+              - busybox
+              - cryptsetup-initramfs
+          when: encryptedfs
+
       when: flavor in [ 'debian', 'ubuntu' ]
 
     # -> Localization
