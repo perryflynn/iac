@@ -499,7 +499,7 @@
       ansible.builtin.lineinfile:
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
-        line: 'GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=UUID={{rootfsuuid.stdout}}:root-svrlsiac-dec" loglevel=3'
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="cryptdevice=UUID={{rootfsuuid.stdout}}:root-svrlsiac-dec loglevel=3"'
       when: flavor == 'archlinux' and not encryptedfs
 
     - name: Add encyption hook to bootloader for Arch Linux
