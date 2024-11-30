@@ -91,8 +91,7 @@
         name: "root-svrlsiac-enc"
         passphrase: huhu123
         allow_discards: true
-
-    - fail:
+      when: encryptedfs
 
     - name: Ensure chroot folder
       file:
@@ -113,7 +112,7 @@
 
     - name: Format root partition
       filesystem:
-        dev: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
+        dev: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         fstype: ext4
         force: true
 
@@ -126,7 +125,7 @@
 
     - name: Mount root partition
       mount:
-        src: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
+        src: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         path: "{{chrootmountpoint}}"
         fstype: ext4
         state: ephemeral
@@ -207,7 +206,7 @@
         name: chrootsetup
         tasks_from: install
       vars:
-        chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
+        chrootdevice: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
@@ -217,6 +216,16 @@
         executable: /bin/bash
         cmd: |
           genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
+
+    - name: Generate crypttab file
+      copy:
+        dest: /etc/crypttab
+        owner: root
+        group: root
+        mode: u=rw,go=r
+        content: |
+          root-svrlsiac-enc /dev/disk/by-partlabel/root-svrlsiac none luks,discard,initramfs
+      when: encryptedfs
 
     # -> Install additional packages to make ansible chroot work
 
@@ -446,6 +455,13 @@
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
       when: flavor == 'archlinux'
+
+    - name: Configure verbose boot output in bootloader for Arch Linux
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_ENABLE_CRYPTODISK='
+        line: 'GRUB_ENABLE_CRYPTODISK=y'
+      when: flavor in [ 'debian', 'ubuntu' ] and encryptedfs
 
     - name: Install bootloader in BIOS mode for Arch Linux
       shell:
