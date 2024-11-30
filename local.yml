@@ -499,7 +499,7 @@
         path: /etc/mkinitcpio.conf
         regexp: '^HOOKS='
         line: 'HOOKS=(base udev autodetect modconf block encrypt filesystems keyboard fsck)'
-      when: flavor == 'archlinuy' and encryptedfs
+      when: flavor == 'archlinux' and encryptedfs
 
     - name: Configure verbose boot output in bootloader for Arch Linux
       ansible.builtin.lineinfile:
