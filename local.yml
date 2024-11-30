@@ -154,6 +154,8 @@
         fstype: ext4
         state: ephemeral
 
+    - fail:
+
     # -> Bootstrap root filesystem
 
     - name: Ensure up-to-date archlinux-keyring
