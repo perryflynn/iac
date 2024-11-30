@@ -112,7 +112,6 @@ all:
               - dialog
               - man-db
               - rxvt-unicode-terminfo
-              - wezterm-terminfo
           hosts:
             archlinuxiso:
             /mnt/archlinux:
