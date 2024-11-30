@@ -106,13 +106,13 @@
         name: chrootsetup
         tasks_from: uninstall
       vars:
-        chrootdevice: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        chrootdevice: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
     - name: Format root partition
       filesystem:
-        dev: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        dev: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
         fstype: ext4
         force: true
 
@@ -125,7 +125,7 @@
 
     - name: Mount root partition
       mount:
-        src: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        src: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
         path: "{{chrootmountpoint}}"
         fstype: ext4
         state: ephemeral
@@ -208,7 +208,7 @@
         name: chrootsetup
         tasks_from: install
       vars:
-        chrootdevice: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        chrootdevice: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
