@@ -121,12 +121,6 @@
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
-    - name: Format root partition
-      filesystem:
-        dev: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
-        fstype: ext4
-        force: true
-
     - name: Format UEFI boot partition
       filesystem:
         dev: "{{'/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath }}"
@@ -134,10 +128,29 @@
         force: true
       when: bootmode == 'uefi'
 
+    - name: Format root partition
+      filesystem:
+        dev: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
+        fstype: ext4
+        force: true
+
     - name: Mount root partition
       mount:
         src: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
         path: "{{chrootmountpoint}}"
+        fstype: ext4
+        state: ephemeral
+
+    - name: Format boot partition
+      filesystem:
+        dev: "{{ '/dev/disk/by-partlabel/boot-svrlsiac' | realpath }}"
+        fstype: ext4
+        force: true
+
+    - name: Mount boot partition
+      mount:
+        src: "{{ '/dev/disk/by-partlabel/boot-svrlsiac' | realpath }}"
+        path: "{{chrootmountpoint}}/boot"
         fstype: ext4
         state: ephemeral
 
