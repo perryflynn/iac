@@ -86,9 +86,9 @@
     - name: Encrypt root partition
       community.crypto.luks_device:
         device: "{{diskdev}}"
-        label: "root-svrlsiac-enc"
-        state: "closed"
-        name: "root-svrlsiac-enc"
+        label: "root-svrlsiac-luks"
+        state: "opened"
+        name: "root-svrlsiac-dec"
         passphrase: huhu123
         allow_discards: true
       when: encryptedfs
@@ -106,23 +106,13 @@
         name: chrootsetup
         tasks_from: uninstall
       vars:
-        chrootdevice: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        chrootdevice: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
-    - name: Decrypt root partition
-      community.crypto.luks_device:
-        device: "{{'/dev/disk/by-label/root-svrlsiac-enc' | realpath }}"
-        label: "root-svrlsiac-enc"
-        state: "opened"
-        name: "root-svrlsiac-enc"
-        passphrase: huhu123
-        allow_discards: true
-      when: encryptedfs
-
     - name: Format root partition
       filesystem:
-        dev: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        dev: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         fstype: ext4
         force: true
 
@@ -135,7 +125,7 @@
 
     - name: Mount root partition
       mount:
-        src: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        src: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         path: "{{chrootmountpoint}}"
         fstype: ext4
         state: ephemeral
@@ -216,7 +206,7 @@
         name: chrootsetup
         tasks_from: install
       vars:
-        chrootdevice: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
+        chrootdevice: "{{('/dev/mapper/root-svrlsiac-dec' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
@@ -234,7 +224,7 @@
         group: root
         mode: u=rw,go=r
         content: |
-          root-svrlsiac-enc /dev/disk/by-partlabel/root-svrlsiac none luks,discard,initramfs
+          root-svrlsiac-dec /dev/disk/by-label/root-svrlsiac-luks none luks,discard,initramfs
       when: encryptedfs
 
     # -> Install additional packages to make ansible chroot work
