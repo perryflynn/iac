@@ -101,8 +101,6 @@
         mode: u=rwx,go=rx
         state: directory
 
-    - fail:
-
     - name: Ensure chroot is unmounted
       include_role:
         name: chrootsetup
@@ -131,6 +129,8 @@
         path: "{{chrootmountpoint}}"
         fstype: ext4
         state: ephemeral
+
+    - fail:
 
     # -> Bootstrap root filesystem
 
