@@ -87,7 +87,7 @@
       community.crypto.luks_device:
         device: "{{diskdev}}"
         label: "root-svrlsiac-enc"
-        state: "opened"
+        state: "present"
         name: "root-svrlsiac-enc"
         passphrase: huhu123
         allow_discards: true
@@ -106,7 +106,7 @@
         name: chrootsetup
         tasks_from: uninstall
       vars:
-        chrootdevice: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath }}"
+        chrootdevice: "{{('/dev/mapper/root-svrlsiac-enc' if encryptedfs else '/dev/disk/by-partlabel/root-svrlsiac') | realpath }}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
