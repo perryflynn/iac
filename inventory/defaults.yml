@@ -75,7 +75,7 @@ all:
             diskdev: /dev/sda
             firstbootplaybook: false
             networking: network-manager
-            encryptedfs: false
+            encryptedfs: true
           biostest:
             bootmode: bios
             diskdev: /dev/sda

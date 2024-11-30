@@ -95,7 +95,7 @@
 
     - name: Encrypt root partition
       community.crypto.luks_device:
-        device: "{{diskdev}}"
+        device: "{{'/dev/disk/by-partlabel/root-svrlsiac' | realpath}}"
         label: "root-svrlsiac-luks"
         state: "opened"
         name: "root-svrlsiac-dec"
