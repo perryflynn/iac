@@ -154,8 +154,6 @@
         fstype: ext4
         state: ephemeral
 
-    - fail:
-
     # -> Bootstrap root filesystem
 
     - name: Ensure up-to-date archlinux-keyring
@@ -245,13 +243,11 @@
           genfstab -U {{chrootmountpoint}} >> {{chrootmountpoint}}/etc/fstab
 
     - name: Generate crypttab file
-      copy:
-        dest: /etc/crypttab
-        owner: root
-        group: root
-        mode: u=rw,go=r
-        content: |
-          root-svrlsiac-dec /dev/disk/by-label/root-svrlsiac-luks none luks,discard,initramfs
+      shell:
+        chdir: /
+        executable: /bin/bash
+        cmd: |
+          echo "root-svrlsiac-dec UUID=$(cryptsetup luksDump /dev/disk/by-label/root-svrlsiac-luks | grep UUID | awk '{print $2}') none luks,discard" > /etc/crypttab
       when: encryptedfs
 
     # -> Install additional packages to make ansible chroot work
