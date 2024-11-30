@@ -13,6 +13,14 @@
     fstype: ext4
     state: ephemeral
 
+- name: Mount boot partition
+  mount:
+    src: "{{chrootbootdevice}}"
+    path: "{{chrootmountpoint}}/boot"
+    fstype: ext4
+    state: ephemeral
+  when: chrootbootdevice != ''
+
 - name: Ensure efi mount point
   file:
     path: "{{chrootmountpoint}}{{efipath}}"

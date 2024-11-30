@@ -27,6 +27,13 @@
     state: unmounted
   when: efibootdevice != ''
 
+- name: Ensure boot partition is unmounted
+  mount:
+    src: "{{chrootbootdevice}}"
+    path: "{{chrootmountpoint}}/boot"
+    state: unmounted
+  when: chrootbootdevice != ''
+
 - name: Ensure root partition is unmounted
   mount:
     src: "{{chrootdevice}}"

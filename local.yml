@@ -73,13 +73,23 @@
         state: present
       when: bootmode == 'uefi'
 
-    - name: Create root partition
+    - name: Create boot partition
       parted:
         device: "{{diskdev}}"
         label: gpt
         number: 2
-        name: root-svrlsiac
+        name: boot-svrlsiac
         part_start: "{{ '512MiB' if bootmode == 'uefi' else '8MiB' }}"
+        part_end: '4096MiB'
+        state: present
+
+    - name: Create root partition
+      parted:
+        device: "{{diskdev}}"
+        label: gpt
+        number: 3
+        name: root-svrlsiac
+        part_start: "{{ (512 if bootmode == 'uefi' else 8) + 4096 }}MiB"
         part_end: 100%
         state: present
 
@@ -107,6 +117,7 @@
         tasks_from: uninstall
       vars:
         chrootdevice: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
+        chrootbootdevice: "{{'/dev/disk/by-partlabel/boot-svrlsiac' | realpath}}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
@@ -207,6 +218,7 @@
         tasks_from: install
       vars:
         chrootdevice: "{{ '/dev/mapper/root-svrlsiac-dec' if encryptedfs else ('/dev/disk/by-partlabel/root-svrlsiac' | realpath) }}"
+        chrootbootdevice: "{{'/dev/disk/by-partlabel/boot-svrlsiac' | realpath}}"
         efibootdevice: "{{ ('/dev/disk/by-partlabel/uefiboot-svrlsiac' | realpath) if bootmode == 'uefi' else '' }}"
         efipath: "{{ '/efi' if flavor == 'archlinux' else '/boot/efi' }}"
 
