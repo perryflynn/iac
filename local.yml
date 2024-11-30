@@ -248,7 +248,7 @@
         executable: /bin/bash
         cmd: |
           echo "root-svrlsiac-dec UUID=$(cryptsetup luksDump /dev/disk/by-label/root-svrlsiac-luks | grep UUID | awk '{print $2}') none luks,discard" > {{chrootmountpoint}}/etc/crypttab
-      when: encryptedfs
+      when: flavor in [ 'ubuntu', 'debian' ] and encryptedfs
 
     # -> Install additional packages to make ansible chroot work
 
@@ -485,7 +485,14 @@
         path: /etc/default/grub
         regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
         line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3"'
-      when: flavor == 'archlinux'
+      when: flavor == 'archlinux' and not encryptedfs
+
+    - name: Configure verbose boot output and cryptfs in bootloader for Arch Linux
+      ansible.builtin.lineinfile:
+        path: /etc/default/grub
+        regexp: '^GRUB_CMDLINE_LINUX_DEFAULT='
+        line: 'GRUB_CMDLINE_LINUX_DEFAULT="loglevel=3 cryptdevice=/dev/disk/by-partlabel/root-svrlsiac:root-svrlsiac-dec"'
+      when: flavor == 'archlinux' and not encryptedfs
 
     - name: Add encyption hook to bootloader for Arch Linux
       ansible.builtin.lineinfile:
