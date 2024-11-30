@@ -247,7 +247,7 @@
         chdir: /
         executable: /bin/bash
         cmd: |
-          echo "root-svrlsiac-dec UUID=$(cryptsetup luksDump /dev/disk/by-label/root-svrlsiac-luks | grep UUID | awk '{print $2}') none luks,discard" > /etc/crypttab
+          echo "root-svrlsiac-dec UUID=$(cryptsetup luksDump /dev/disk/by-label/root-svrlsiac-luks | grep UUID | awk '{print $2}') none luks,discard" > {{chrootmountpoint}}/etc/crypttab
       when: encryptedfs
 
     # -> Install additional packages to make ansible chroot work
