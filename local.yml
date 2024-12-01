@@ -4,6 +4,36 @@
 
   tasks:
 
+    - name: Prompt for encryption passphrase
+      pause:
+        echo: false
+        prompt: "Disk encryption passphrase: "
+      when: encryptedfs
+      register: encryption_prompt1
+      no_log: true
+
+    - name: Re-enter prompt for encryption passphrase
+      pause:
+        echo: false
+        prompt: "Re-enter disk encryption passphrase: "
+      when: encryptedfs
+      register: encryption_prompt2
+      no_log: true
+
+    - name: Check entered disk encryption passphrase
+      assert:
+        that:
+          - encryption_prompt1.user_input == encryption_prompt2.user_input
+          - encryption_prompt1.user_input|length > 0
+      when: encryptedfs
+
+    - name: Set disk encryption passphrase fact
+      set_fact:
+        encryption_passphrase: "{{encryption_prompt1.user_input|default(None)}}"
+
+    - debug:
+        var: encryption_passphrase
+
     - &prepare_environment
       name: Prepare environment
       block:
@@ -24,6 +54,7 @@
               - flavor in [ 'debian', 'ubuntu', 'archlinux' ]
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
               - networking in [ 'systemd-networkd', 'network-manager' ]
+              - (encryptedfs and (encryption_passphrase|default('')|length > 0)) or not encryptedfs
 
         - name: Show bootstrap parameters to use
           debug:
@@ -99,7 +130,7 @@
         label: "root-svrlsiac-luks"
         state: "opened"
         name: "root-svrlsiac-dec"
-        passphrase: huhu123
+        passphrase: "{{encryption_passphrase}}"
         allow_discards: true
       when: encryptedfs
 

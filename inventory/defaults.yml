@@ -69,7 +69,7 @@ all:
             diskdev: /dev/sda
             firstbootplaybook: true
             networking: network-manager
-            encryptedfs: false
+            encryptedfs: true
           debidesk:
             bootmode: bios
             diskdev: /dev/sda
