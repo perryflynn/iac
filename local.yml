@@ -24,7 +24,6 @@
               - flavor in [ 'debian', 'ubuntu', 'archlinux' ]
               - diskdev is defined and diskdev is string and (diskdev|length) > 0
               - networking in [ 'systemd-networkd', 'network-manager' ]
-              - (encryptedfs and (encryption_passphrase|default('')|length > 0)) or not encryptedfs
 
         - name: Show bootstrap parameters to use
           debug:
