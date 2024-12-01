@@ -62,6 +62,14 @@
       set_fact:
         encryption_passphrase: "{{encryption_prompt1.user_input|default(None)}}"
 
+    - name: Display encryption passphrase
+      debug:
+        var: encryption_passphrase
+
+    - name: Give the user time to check the shown parameters
+      pause:
+        seconds: 30
+
     - name: Set timezone
       timezone:
         name: "{{timezone}}"
