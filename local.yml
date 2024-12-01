@@ -64,6 +64,11 @@
         encryption_prompt1: ''
         encryption_prompt2: ''
 
+    - name: Give the user time to check the shown parameters
+      pause:
+        seconds: 30
+      when: not encryptedfs
+
     - name: Set timezone
       timezone:
         name: "{{timezone}}"
