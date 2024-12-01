@@ -53,6 +53,9 @@
           - docker-buildx-plugin
           - docker-compose
           - bridge-utils
+          - python3-docker
+          - python3-requests
+          - cron
 
   when: "ansible_distribution == 'Debian'"
 
@@ -60,18 +63,10 @@
   package:
     name:
       - docker
-      #- python-docker
-      #- python-requests
+      - cronie
+      - python-docker
+      - python-requests
   when: "ansible_distribution == 'Archlinux'"
-
-# TODO: remove workaround: https://stackoverflow.com/a/78521186
-# pip install requests==2.31.0
-
-# - name: Docker pip module
-#   pip:
-#     name:
-#       - docker==6.0.0
-#       - requests > 2.26.0, != 2.32.0
 
 - name: Enable docker
   systemd_service:
