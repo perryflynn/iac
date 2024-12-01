@@ -360,6 +360,7 @@
 
         - name: Install Debian Linux Kernel
           apt:
+            force_apt_get: true
             name:
               - linux-image-generic
               - linux-headers-generic
@@ -370,6 +371,7 @@
 
         - name: Ensure bootloader packages are uninstalled
           apt:
+            force_apt_get: true
             state: absent
             purge: true
             name:
@@ -379,21 +381,25 @@
 
         - name: Install Ubuntu Linux Kernel
           apt:
+            force_apt_get: true
             name: linux-generic
           when: flavor == 'ubuntu'
 
         - name: Install Grub for BIOS on Debian/Ubuntu systems
           apt:
+            force_apt_get: true
             name: grub2
           when: bootmode == 'bios'
 
         - name: Install Grub for UEFI on Debian/Ubuntu systems
           apt:
+            force_apt_get: true
             name: grub-efi
           when: bootmode == 'uefi'
 
         - name: Install cryptsetup
           apt:
+            force_apt_get: true
             name:
               - initramfs-tools
               - busybox
@@ -604,6 +610,7 @@
 
     - name: Install services
       apt:
+        force_apt_get: true
         name:
           - systemd-resolved
           - systemd-timesyncd

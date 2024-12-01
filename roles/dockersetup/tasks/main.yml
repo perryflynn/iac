@@ -13,7 +13,7 @@
 
     - name: Install dependencies
       apt:
-        force_apt_get: yes
+        force_apt_get: true
         name:
           - ca-certificates
           - curl
@@ -44,7 +44,7 @@
 
     - name: Install docker
       apt:
-        force_apt_get: yes
+        force_apt_get: true
         name:
           - docker-ce
           - docker-ce-cli
@@ -81,7 +81,7 @@
 
     - name: Install parted
       apt:
-        force_apt_get: yes
+        force_apt_get: true
         name:
           - parted
           - xfsprogs
