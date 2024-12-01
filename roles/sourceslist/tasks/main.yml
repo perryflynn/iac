@@ -5,7 +5,7 @@
   assert:
     that:
       - sourcesflavor is defined
-      - flavor in [ 'ubuntu', 'debian' ]
+      - ansible_distribution in [ 'Debian', 'Ubuntu' ]
 
 - name: Clear sources.list
   copy:

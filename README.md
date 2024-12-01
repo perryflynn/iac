@@ -32,6 +32,10 @@ graph LR
     logout --> done["Done!"]
 ```
 
+## Known Issues
+
+- `selfsignedcert` role is not idempotent
+
 ## Architecture
 
 All packages are installed from the official sources.
@@ -114,3 +118,7 @@ The `bootstrapparameters` in the Ansible inventory decide which hostname uses wh
 Run `perrys-ansible-apply.sh` as root.
 
 It pulls automatically the correct playbook from this repo by the hostname of the operating system.
+
+## Ansible Roles
+
+Every role was created for a specific case and may support only a single OS, please see task code and readme file.
