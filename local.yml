@@ -1,8 +1,13 @@
 ---
-- name: Setup OS
+
+# -> Stage 1: Bootstrap
+
+- name: Bootstrap new OS
   hosts: isos
 
   tasks:
+
+    # -> Prepare Environment
 
     - &prepare_environment
       name: Prepare environment
@@ -37,6 +42,8 @@
                 'encryptedfs': encryptedfs
               }
 
+    # -> Encryption passphrase
+
     - name: Prompt for encryption passphrase
       pause:
         echo: false
@@ -68,6 +75,8 @@
       pause:
         seconds: 30
       when: not encryptedfs
+
+    # -> Localization
 
     - name: Set timezone
       timezone:
@@ -308,6 +317,9 @@
           chroot {{chrootmountpoint}} /bin/bash -c "apt update && apt install -y git ansible curl ca-certificates"
       when: flavor in [ 'debian', 'ubuntu' ]
 
+
+# -> Stage 2: Configure OS in chroot
+
 - name: Continue setup in chroot
   hosts: chroots
 
@@ -316,11 +328,15 @@
 
   tasks:
 
+    # -> Prepare Environment
+
     - *prepare_environment
 
     - name: Configure python
       include_role:
         name: pythonsetup
+
+    # -> Hostname
 
     - name: Create hostname file
       copy:
