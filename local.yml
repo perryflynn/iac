@@ -10,7 +10,6 @@
         prompt: "Disk encryption passphrase: "
       when: encryptedfs
       register: encryption_prompt1
-      no_log: true
 
     - name: Re-enter prompt for encryption passphrase
       pause:
@@ -18,7 +17,6 @@
         prompt: "Re-enter disk encryption passphrase: "
       when: encryptedfs
       register: encryption_prompt2
-      no_log: true
 
     - name: Check entered disk encryption passphrase
       assert:
