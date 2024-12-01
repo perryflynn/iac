@@ -40,14 +40,14 @@
     - name: Prompt for encryption passphrase
       pause:
         echo: false
-        prompt: "Disk encryption passphrase: "
+        prompt: "Disk encryption passphrase"
       when: encryptedfs
       register: encryption_prompt1
 
     - name: Re-enter prompt for encryption passphrase
       pause:
         echo: false
-        prompt: "Re-enter disk encryption passphrase: "
+        prompt: "Re-enter disk encryption passphrase"
       when: encryptedfs
       register: encryption_prompt2
 
@@ -61,13 +61,6 @@
     - name: Set disk encryption passphrase fact
       set_fact:
         encryption_passphrase: "{{encryption_prompt1.user_input|default(None)}}"
-
-    - debug:
-        var: encryption_passphrase
-
-    - name: Give the user time to check the shown parameters
-      pause:
-        seconds: 30
 
     - name: Set timezone
       timezone:
