@@ -61,14 +61,8 @@
     - name: Set disk encryption passphrase fact
       set_fact:
         encryption_passphrase: "{{encryption_prompt1.user_input|default(None)}}"
-
-    - name: Display encryption passphrase
-      debug:
-        var: encryption_passphrase
-
-    - name: Give the user time to check the shown parameters
-      pause:
-        seconds: 30
+        encryption_prompt1: ''
+        encryption_prompt2: ''
 
     - name: Set timezone
       timezone:
@@ -131,6 +125,10 @@
         passphrase: "{{encryption_passphrase}}"
         allow_discards: true
       when: encryptedfs
+
+    - name: Clear encryption passphrase fact
+      set_fact:
+        encryption_passphrase: ''
 
     - name: Ensure chroot folder
       file:
