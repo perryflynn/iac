@@ -15,7 +15,7 @@ Features:
 - 🔐 Setup root password, SSH keys and user accounts
 - 🚀 Autostart OS configuration at first boot
 - 💻 Autostart Desktop configuration at first Desktop logon
-- ⏱ From blank disk to booted system in ~10 Minutes
+- ⏱ From blank disk to booted system in ~15 Minutes
 
 Workflow base installation & hostname based configuration:
 
@@ -31,10 +31,6 @@ graph LR
     autorun2 --> logout["Logout<br>to load<br>XFCE settings"]
     logout --> done["Done!"]
 ```
-
-## Known Issues
-
-- Python Requests Version is pinned to make docker work. See dockersetup role.
 
 ## Architecture
 
@@ -70,7 +66,7 @@ Requires Docker CE, `pack.sh` executes a container **in privileged mode**.
 
 ## Automatic configuration with Cloud-Init
 
-TODO
+Works with terraform, to be documented here.
 
 ## Automatic hostname detection with UEFI varables
 
@@ -99,27 +95,22 @@ set the flavor (`debian` or `archlinux`).
 - Boot ISO in a virtual machine or on a physical system
 - Ensure that the `diskdev` and `bootmode` are correct in the [inventoy](./inventory/defaults.yml)
 - Run installer
-    - Debian: `perrys-bootstrapper.sh --flavor debian`
-    - Arch Linux: `perrys-bootstrapper.sh --flavor archlinux`
+    - Debian: `perrys-bootstrapper.sh --flavor debian --hostname biostest`
+    - Arch Linux: `perrys-bootstrapper.sh --flavor archlinux --hostname biostest`
 - Reboot into the new OS
 
-## Configure Arch Linux OS
+## How to decide which settings should be used
+
+The `bootstrapparameters` in the Ansible inventory decide which hostname uses which settings.
+
+- `bootmode`: One of `uefi` or `bios`
+- `diskdev`: For example `/dev/sda`
+- `firstbootplaybook`: Boolean, running host-specific playbook on first boot?
+- `networking`: One of `network-manager` or `systemd-networkd`
+- `encryptedfs`: Boolean, encrypt the root filesystem?
+
+## Configure OS
 
 Run `perrys-ansible-apply.sh` as root.
 
 It pulls automatically the correct playbook from this repo by the hostname of the operating system.
-
-## TODO
-
-- [x] Bluetooth
-- [x] NetworkManager
-- [x] NFTables
-- [x] Pulseaudio
-- [x] Swap File
-- [x] Unix Account
-- [x] X11
-- [x] XFCE
-- [x] Self-Signed certificate for localhost
-- [x] NGINX with tilde user dirs
-- [ ] SSH Daemon config
-- [ ] Disk Encryption
