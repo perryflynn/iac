@@ -4,34 +4,6 @@
 
   tasks:
 
-    - name: Prompt for encryption passphrase
-      pause:
-        echo: false
-        prompt: "Disk encryption passphrase: "
-      when: encryptedfs
-      register: encryption_prompt1
-
-    - name: Re-enter prompt for encryption passphrase
-      pause:
-        echo: false
-        prompt: "Re-enter disk encryption passphrase: "
-      when: encryptedfs
-      register: encryption_prompt2
-
-    - name: Check entered disk encryption passphrase
-      assert:
-        that:
-          - encryption_prompt1.user_input == encryption_prompt2.user_input
-          - encryption_prompt1.user_input|length > 0
-      when: encryptedfs
-
-    - name: Set disk encryption passphrase fact
-      set_fact:
-        encryption_passphrase: "{{encryption_prompt1.user_input|default(None)}}"
-
-    - debug:
-        var: encryption_passphrase
-
     - &prepare_environment
       name: Prepare environment
       block:
@@ -65,6 +37,34 @@
                 'networking': networking,
                 'encryptedfs': encryptedfs
               }
+
+    - name: Prompt for encryption passphrase
+      pause:
+        echo: false
+        prompt: "Disk encryption passphrase: "
+      when: encryptedfs
+      register: encryption_prompt1
+
+    - name: Re-enter prompt for encryption passphrase
+      pause:
+        echo: false
+        prompt: "Re-enter disk encryption passphrase: "
+      when: encryptedfs
+      register: encryption_prompt2
+
+    - name: Check entered disk encryption passphrase
+      assert:
+        that:
+          - encryption_prompt1.user_input == encryption_prompt2.user_input
+          - encryption_prompt1.user_input|length > 0
+      when: encryptedfs
+
+    - name: Set disk encryption passphrase fact
+      set_fact:
+        encryption_passphrase: "{{encryption_prompt1.user_input|default(None)}}"
+
+    - debug:
+        var: encryption_passphrase
 
     - name: Give the user time to check the shown parameters
       pause:
