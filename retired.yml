@@ -10,10 +10,6 @@
 
   tasks:
 
-    - name: Configure python
-      include_role:
-        name: pythonsetup
-
     - name: Install Swapfile
       include_role:
         name: swapfilesetup

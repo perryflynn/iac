@@ -332,10 +332,6 @@
 
     - *prepare_environment
 
-    - name: Configure python
-      include_role:
-        name: pythonsetup
-
     # -> Hostname
 
     - name: Create hostname file
