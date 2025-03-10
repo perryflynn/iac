@@ -70,6 +70,12 @@ all:
             firstbootplaybook: true
             networking: network-manager
             encryptedfs: true
+          junior:
+            bootmode: uefi
+            diskdev: /dev/mmcblk0
+            firstbootplaybook: true
+            networking: network-manager
+            encryptedfs: true
           debidesk:
             bootmode: bios
             diskdev: /dev/sda
@@ -203,6 +209,9 @@ all:
 
         # retired Thinkpad X230 Laptop
         retired:
+          wallpaper: dragonfly.jpg
+
+        junior:
           wallpaper: dragonfly.jpg
 
         debidesk:
