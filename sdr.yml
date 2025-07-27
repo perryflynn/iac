@@ -42,7 +42,6 @@
               - ncdu
               - wget
               - less
-              - neofetch
               - usbutils
               - nmap
               - wireshark-cli
