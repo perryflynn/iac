@@ -17,10 +17,6 @@
     #     swapsizegb: 8
     #     swappath: /swapfile
 
-    - name: Create services docker network
-      docker_network:
-        name: services
-
     - name: Set ssh keys for root account
       authorized_key:
         user: root
