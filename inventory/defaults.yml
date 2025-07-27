@@ -76,6 +76,12 @@ all:
             firstbootplaybook: true
             networking: network-manager
             encryptedfs: true
+          sdr:
+            bootmode: uefi
+            diskdev: /dev/sda
+            firstbootplaybook: true
+            networking: network-manager
+            encryptedfs: false
           debidesk:
             bootmode: bios
             diskdev: /dev/sda
@@ -212,6 +218,9 @@ all:
           wallpaper: dragonfly.jpg
 
         junior:
+          wallpaper: dragonfly.jpg
+
+        sdr:
           wallpaper: dragonfly.jpg
 
         debidesk:
