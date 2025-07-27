@@ -10,12 +10,12 @@
 
   tasks:
 
-    - name: Install Swapfile
-      include_role:
-        name: swapfilesetup
-      vars:
-        swapsizegb: 8
-        swappath: /swapfile
+    # - name: Install Swapfile
+    #   include_role:
+    #     name: swapfilesetup
+    #   vars:
+    #     swapsizegb: 8
+    #     swappath: /swapfile
 
     - name: Create services docker network
       docker_network:
