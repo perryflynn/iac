@@ -80,6 +80,9 @@
     - name: Install Plasma Desktop
       package:
         name:
+          - lightdm
+          - lightdm-gtk-greeter
+          - lightdm-gtk-greeter-settings
           - plasma-meta
           - onboard
           - maliit-keyboard
