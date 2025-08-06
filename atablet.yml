@@ -1,0 +1,110 @@
+---
+- name: Configure Tablets
+  hosts:
+    - atablet
+
+  vars:
+    use_handlers: 'true'
+    use_reboot: 'false'
+    use_logout: 'false'
+
+  tasks:
+
+    - name: Set ssh keys for root account
+      authorized_key:
+        user: root
+        key: "{{rootsshkeys|join('\n')}}"
+        exclusive: true
+
+    - name: Create useraccount
+      include_role:
+        name: useraccount
+
+    - name: Shell Tools
+      block:
+
+        - name: Install shell tools
+          package:
+            name:
+              - vim
+              - htop
+              - curl
+              - mc
+              - screen
+              - git
+              - ncdu
+              - wget
+              - less
+              - usbutils
+              - nmap
+              - wireshark-cli
+              - mtr
+              - parted
+              - dosfstools
+              - btrfs-progs
+              - exfatprogs
+              - ntfs-3g
+              - xfsprogs
+              - gpart
+              - mtools
+              - unp
+              - unarj
+              - unrar
+              - unzip
+              - bzip2
+              - p7zip
+              - unace
+              - cpio
+              - sharutils
+              - cabextract
+              - rpmextract
+
+        - name: Create vimrc
+          copy:
+            dest: /root/.vimrc
+            owner: root
+            group: root
+            mode: u=rw,go=-
+            content: |
+              set background=dark
+              syntax on
+              set mouse=
+
+    - name: Install X11
+      include_role:
+        name: xorgsetup
+      vars:
+        xorg_video_driver: "{{ 'vmware' if ansible_product_name == 'VirtualBox' else 'intel' }}"
+        xorg_handle_lightdm_restart: "{{use_handlers|bool}}"
+
+    - name: Install Plasma Desktop
+      package:
+        name:
+          - plasma-meta
+          - onboard
+          - maliit-keyboard
+
+    - name: Install Pulseaudio
+      include_role:
+        name: pulseaudiosetup
+
+    - name: Install NetworkManager
+      include_role:
+        name: networkmanagersetup
+      vars:
+        networkmanager_gui: true
+
+    - name: Desktop Tools
+      block:
+
+        - name: Install Desktop Tools
+          package:
+            name:
+              - firefox
+              - vlc
+              - wireshark-qt
+              - gparted
+              - remmina
+              - libvncserver
+              - spice-gtk
+              - freerdp

@@ -82,6 +82,12 @@ all:
             firstbootplaybook: true
             networking: network-manager
             encryptedfs: false
+          atablet:
+            bootmode: uefi
+            diskdev: /dev/sda
+            firstbootplaybook: true
+            networking: network-manager
+            encryptedfs: false
           debidesk:
             bootmode: bios
             diskdev: /dev/sda
@@ -221,6 +227,9 @@ all:
           wallpaper: dragonfly.jpg
 
         sdr:
+          wallpaper: dragonfly.jpg
+
+        atablet:
           wallpaper: dragonfly.jpg
 
         debidesk:
